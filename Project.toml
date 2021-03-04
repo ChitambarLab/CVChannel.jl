@@ -1,0 +1,11 @@
+[deps]
+BellScenario = "4e58fcc1-4405-48af-b0f2-42df636d9190"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+QBase = "e52e8ede-12bf-4731-8af7-b01f6064cb11"
+SignalingDimension = "96aab1c2-4ac7-11eb-3d9a-a59b97fb3321"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+BellScenario = "0.1"
+QBase = "0.1"
+SignalingDimension = "0.1"
