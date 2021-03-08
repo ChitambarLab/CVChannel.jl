@@ -1,5 +1,6 @@
 [deps]
 BellScenario = "4e58fcc1-4405-48af-b0f2-42df636d9190"
+Convex = "f65535da-76fb-5f13-bab9-19810c17039a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 QBase = "e52e8ede-12bf-4731-8af7-b01f6064cb11"
 SignalingDimension = "96aab1c2-4ac7-11eb-3d9a-a59b97fb3321"
