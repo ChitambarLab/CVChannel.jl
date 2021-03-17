@@ -1,5 +1,5 @@
 using Test
-include("../src/CVChannel.jl")
+using CVChannel
 
 @testset "./src/CVChannel.jl" begin
     @test isPPT([1 0 0 0 ; 0  1 0 0 ; 0 0 1 0 ; 0 0 0 1],2,[2,2])
