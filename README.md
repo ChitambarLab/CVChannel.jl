@@ -3,11 +3,9 @@ A numerical analysis of the communication values accessible to quantum and class
 
 ## Development
 
-To develop new code it is recommended that you use [Revise.jl](https://timholy.github.io/Revise.jl/stable/).
-After launching the Julia command prompt run `using Revise`.
-This will allow your saved changes to be reflected in the working codebase used by
-Julia.
-Therefore, you will generally not need to restart Julia to test your code changes.
+To develop new code it is recommended that you use [Revise.jl](https://timholy.github.io/Revise.jl/stable/)
+so that your  saved changes are reflected in the working codebase used by Julia.
+This is done after launching Julia by executing `using Revise`.
 Please refer to the Revise.jl documentation for more details.
 
 To develop CVChannel.jl code enter package mode by entering `]` then run
