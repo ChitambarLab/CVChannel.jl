@@ -24,6 +24,27 @@ All tests can be run in two ways:
 To run a single test,  you can either run the test file like a script from the command line,
 or you can run it within your text editor.
 
+## Build Documentation
+
+Please refer to the [Documnenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
+documentation for details on how  to write Julia documentation.
+
+To write documentation, you will need to  build the  site locally to verify  that
+the content renders properly.
+To build the documentation, run
+* `$ julia --color=yes ./docs/make.jl`
+
+This will construct the HTML for the Julia documentation. You will want to  view
+the constructed website in your browser by spawning a local http server.
+This is done by navigating to the `./docs/build` directory
+and running the following  python command:
+* `$ python3 -m http.server --bind  localhost`
+
+Then copy/paste the returned url into your web browser.
+For this to work, you will need to have python version 3 installed. The above
+command will deploy an http server on your local machine (`localhost`). The server
+will serve the `index.html` page in the build directory.
+
 ## Run Scripts
 
 To run a script:
