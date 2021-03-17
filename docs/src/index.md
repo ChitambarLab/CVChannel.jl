@@ -4,7 +4,7 @@ CurrentModule = CVChannel
 
 # CVChannel.jl
 
-*Numerical optimization techniques for demonstrating super-multiplicity of quantum channels.*
+*A numerical analysis of the communication values accessible to quantum and classical channels.*
 
 ```@autodocs
 Modules = [CVChannel]
