@@ -8,7 +8,7 @@ makedocs(;
     sitename="CVChannel.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://ChitambarLab.github.io/CVChannel.jl",
+        canonical="https://ChitambarLab.github.io/cv-channel",
         # assets=String["assets/custom.css"],
     ),
     pages=[
@@ -17,5 +17,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/ChitambarLab/CVChannel.jl",
+    repo="github.com/ChitambarLab/cv-channel",
 )
