@@ -1,12 +1,17 @@
+module CVChannel
+
 using Convex: partialtranspose, eigmin
 
+export isPPT
+
 """
+    isPPT(x, sys :: Int, dims :: Vector) :: Bool
+
 This function returns true if the input state x is PPT
 with respect to the (sys)th system. False otherwise.
 dims is a vector of the sizes of the subsystems.
 """
-
-function isPPT(x,sys::Int,dims::Vector)
+function isPPT(x,sys::Int,dims::Vector) :: Bool
     #We don't make sure the inputs are good because the partialtranspose function
     #will do that for us
 
@@ -19,4 +24,6 @@ function isPPT(x,sys::Int,dims::Vector)
     else
         return false
     end
+end
+
 end
