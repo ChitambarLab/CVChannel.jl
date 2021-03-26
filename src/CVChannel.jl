@@ -4,10 +4,9 @@ using Convex
 using MosekTools
 using LinearAlgebra
 
-export isPPT, minEnt, minEntPPT
+export isPPT, minEntropyPrimal, minEntropyDual, minEntropyPPTPrimal, minEntropyPPTDual
 """
     isPPT(x, sys :: Int, dims :: Vector) :: Bool
-
 This function returns true if the input state x is PPT
 with respect to the (sys)th system. False otherwise.
 dims is a vector of the sizes of the subsystems.
@@ -27,16 +26,15 @@ function isPPT(x,sys::Int,dims::Vector) :: Bool
     end
 end
 """
-    minEntropyPrimal(\\rho,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
-
+    minEntropyPrimal(ρ,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
 This function solves the SDP
 ```math
- \min \{ \langle \rho, X \rangle \text{ subject to }  \text{Tr}_{A}(X) = I_{B} , X \succeq 0 \}
+ \\min \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , X \\succeq 0 \\}
 ```
-and returns the optimal value and the optimizer, X. This is the SDP corresponding to the min-entropy.
+and returns the optimal value and the optimizer, X.
+This is the SDP corresponding to the min-entropy.
 To determine the min-entropy, take ``-\\log_{2}`` of the objective value.
-(See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233 
-"Quantum Information Processing with Finite Resources) for further details about
+(See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233) for further details about
 the min-entropy). Note: we label the primal as the maximization problem unlike
 in the above reference.
 """
@@ -49,16 +47,14 @@ function minEntropyPrimal(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matri
     return problem.optval, X.value
 end
 """
-    minEntropyDual(\\rho,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
-
+    minEntropyDual(ρ,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
 This function solves the SDP
 ```math
- \min \{ \langle Y \rangle \text{ subject to }  I_{A} \otimes Y \succeq \rho, Y \in \text{Herm}(B) \}
+ \\min \\{ \\text{Tr}(Y) :  I_{A} \\otimes Y \\succeq \\rho, Y \\in \\text{Herm}(B) \\}
 ```
 and returns the optimal value and the optimizer, Y. This is the dual problem for the SDP for the min-entropy. To determine
-the min-entropy, take `-log2()' of the objective value.
-(See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233 
-"Quantum Information Processing with Finite Resources) for further details about
+the min-entropy, take ``-\\log_{2}`` of the objective value.
+(See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233) for further details about
 the min-entropy). Note: we label the primal as the maximization problem unlike
 in the above reference.
 """
@@ -72,15 +68,14 @@ function minEntropyDual(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{
     return problem.optval, Y.value
 end
 """
-    minEntropyPPTPrimal(\\rho,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
-
+    minEntropyPPTPrimal(ρ,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
 This function solves the SDP
 ```math
- \min \{ \langle \rho, X \rangle \text{ subject to }  \text{Tr}_{A}(X) = I_{B} , \Gamma(X) \succeq 0, X \succeq 0 \}
+ \\min \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , \\Gamma(X) \\succeq 0, X \\succeq 0 \\}
 ```
-where `` \\Gamma( \\cdot)'' is the partial transpose with respect to the second system, 
+where ``\\Gamma( \\cdot)`` is the partial transpose with respect to the second system,
 and returns the optimal value and the optimizer, X.
-This is the dual problem for the SDP for the min-entropy restricted to the PPT cone. 
+This is the dual problem for the SDP for the min-entropy restricted to the PPT cone.
 This has various interpretations. Note: we label the primal as the maximization problem.
 """
 function minEntropyPPTPrimal(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
@@ -93,15 +88,14 @@ function minEntropyPPTPrimal(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Ma
     return problem.optval, X.value
 end
 """
-    minEntropyPPTDual(\\rho,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
-
+    minEntropyPPTDual(ρ,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
 This function solves the SDP
 ```math
- \min \{ \langle Y_{1} \rangle \text{ subject to }  I_{A} \otimes Y_{1} - \Gamma(Y_{2}) \succeq \rho, Y_{2} \succeq 0, Y_{1} \in \text{Herm}(B) \}
+ \\min \\{ \\text{Tr}(Y_{1}) : I_{A} \\otimes Y_{1} - \\Gamma(Y_{2}) \\succeq \\rho, Y_{2} \\succeq 0, Y_{1} \\in \\text{Herm}(B) \\}
 ```
-where `` \\Gamma( \\cdot)`` is the partial transpose with respect to the second system, 
+where `` \\Gamma( \\cdot)`` is the partial transpose with respect to the second system,
 and returns the optimal value and optimizer, ``(Y_1 , Y_2 )``.
-This is the dual problem for the SDP for the min-entropy restricted to the PPT cone. 
+This is the dual problem for the SDP for the min-entropy restricted to the PPT cone.
 This has various interpretations. Note: we label the primal as the maximization problem.
 """
 function minEntropyPPTDual(ρ, dimA :: Int, dimB :: Int, dual=true :: Bool) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}

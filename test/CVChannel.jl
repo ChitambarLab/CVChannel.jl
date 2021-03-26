@@ -8,7 +8,7 @@ using CVChannel
         @test isPPT(maxMixState,2,[2,2])
         @test !isPPT(maxEntState,2,[2,2])
     end
-    @testset "EntropySDPs" begin
+    @testset "EntropyTests" begin
         @testset "minEntropyPrimal" begin
             @test isapprox(minEntropyPrimal(maxMixState,2,2)[1] ,1/2, atol=1e-6)
             @test isapprox(minEntropyPrimal(maxEntState,2,2)[1], 2, atol = 1e-6)
