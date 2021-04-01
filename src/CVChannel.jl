@@ -120,20 +120,18 @@ This function is the swap operator ``\\mathbb{F}`` which is defined by the actio
 The function uses that ``\\mathbb{F} = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes E_{b,a}``.
 """
 function swapOperator(dim :: Int) :: Matrix{Float64}
-    #This definitely isn't the fastest way to implement this;
-    #could be improved for large dimensions later.
     swap_operator = zeros(dim^2,dim^2)
-    a_space_operator = zeros(dim,dim)
-    b_space_operator = zeros(dim,dim)
-    for i = 1 : dim
-        for j = 1 : dim
-            a_space_operator[i,j] = 1
-            b_space_operator[j,i] = 1
-            swap_operator += kron(a_space_operator, b_space_operator)
-            a_space_operator[i,j] = 0
-            b_space_operator[j,i] = 0
-        end
+
+    for col_id in 1:dim^2
+        # factoring col_id into Alice and Bob subsystem ids
+        a_id = floor(Int64, (col_id-1)/dim)
+        b_id = (col_id-1) % dim
+
+        # swapping Alice and Bob subsystem ids to construct row_id
+        row_id = b_id*dim + a_id + 1
+        swap_operator[row_id, col_id] = 1
     end
+
     return swap_operator
 end
 """
