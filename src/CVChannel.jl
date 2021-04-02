@@ -5,7 +5,7 @@ using MosekTools
 using LinearAlgebra
 
 export isPPT, minEntropyPrimal, minEntropyDual, minEntropyPPTPrimal, minEntropyPPTDual
-export swapOperator,qDepolarizingChannel, dephrasureChannel, wernerHolevoChannel, wernerState
+export swapOperator, depolarizingChannel, dephrasureChannel, wernerHolevoChannel, wernerState
 export choi
 """
     isPPT(x, sys :: Int, dims :: Vector) :: Bool
@@ -28,7 +28,12 @@ function isPPT(x,sys::Int,dims::Vector) :: Bool
     end
 end
 """
-    minEntropyPrimal(ρ :: Matrix{<:Number} ,dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+    minEntropyPrimal(
+        ρ :: Matrix{<:Number},
+        dimA :: Int,
+        dimB :: Int
+    ) :: Tuple{Float64, Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\min \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , X \\succeq 0 \\}
@@ -49,7 +54,12 @@ function minEntropyPrimal(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int) :: T
     return problem.optval, X.value
 end
 """
-    minEntropyDual(ρ :: Matrix{<:Number},dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+    minEntropyDual(
+        ρ :: Matrix{<:Number},
+        dimA :: Int,
+        dimB :: Int
+    ) :: Tuple{Float64, Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\min \\{ \\text{Tr}(Y) :  I_{A} \\otimes Y \\succeq \\rho, Y \\in \\text{Herm}(B) \\}
@@ -70,7 +80,12 @@ function minEntropyDual(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int) :: Tup
     return problem.optval, Y.value
 end
 """
-    minEntropyPPTPrimal(ρ :: Matrix{<:Number},dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+    minEntropyPPTPrimal(
+        ρ :: Matrix{<:Number},
+        dimA :: Int,
+        dimB :: Int
+    ) :: Tuple{Float64,  Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\min \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , \\Gamma(X) \\succeq 0, X \\succeq 0 \\}
@@ -90,7 +105,12 @@ function minEntropyPPTPrimal(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int) :
     return problem.optval, X.value
 end
 """
-    minEntropyPPTDual(ρ :: Matrix{<:Number},dimA :: Int ,dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
+    minEntropyPPTDual(
+        ρ :: Matrix{<:Number},
+        dimA :: Int,
+        dimB :: Int
+    ) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\min \\{ \\text{Tr}(Y_{1}) : I_{A} \\otimes Y_{1} - \\Gamma(Y_{2}) \\succeq \\rho, Y_{2} \\succeq 0, Y_{1} \\in \\text{Herm}(B) \\}
@@ -137,52 +157,59 @@ function swapOperator(dim :: Int) :: Matrix{Float64}
     return swap_operator
 end
 """
-    qDepolarizingChannel(ρ :: Matrix{Float64}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
+    depolarizingChannel(ρ :: Matrix{Float64}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
 This calculates the action of the depolarizing channel,
 ```math
 \\Delta_{q}(\\rho) = (1-q)\\rho + q \\text{Tr}(\\rho) \\frac{1}{d} I_{AB} ,
 ```
 where ``q \\in [0,1].``
 Note these channels are the channels covariant with respect to the unitary group.
+
+A `DomainError` is thrown if:
+* Matrix `ρ` is not square
+* Input `q` does not satisfy `0 ≤ q ≤ 1`
 """
-function qDepolarizingChannel(ρ :: Matrix{<:Number}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
+function depolarizingChannel(ρ :: Matrix{<:Number}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
     dim = size(ρ,1)
-    if(ndims(ρ)!=2)
-        ErrorException("the input ρ does not have 2 dimensions")
-    elseif !isequal(dim,size(ρ,2))
-        ErrorException("the input ρ is not a square matrix")
-    elseif(q>1||q<0)
-        DomainError("qDepolarizingChannel requires q ∈ [0,1].")
-    else
-        identMat = Matrix{Float64}(I, dim, dim)
-        return (1-q)*ρ  + q*(tr(ρ))*(1/(dim))*identMat
+    if !isequal(dim,size(ρ,2))
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif !(0 ≤ q ≤ 1)
+        throw(DomainError(q, "depolarizingChannel requires q ∈ [0,1]."))
     end
+
+    return (1-q)*ρ  + q*(tr(ρ))*(1/(dim))*I
 end
 """
-    dephrasureChannel(ρ :: Matrix{<:Number},p :: Union{Int,Float64}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
+    dephrasureChannel(
+        ρ :: Matrix{<:Number},
+        p :: Union{Int,Float64},
+        q :: Union{Int,Float64}
+    ) :: Matrix{ComplexF64}
+
 This function calculates the action of the [dephrasureChannel](https://arxiv.org/abs/1806.08327),
 ```math
 \\mathcal{N}_{p,q}( \\rho) := (1-q)((1-p) \\rho + pZ \\rho Z) + q \\text{Tr}( \\rho) |e\\rangle \\langle e|,
 ```
-where ``p,q \\in [0,1]`` and ``Z`` is the Pauli-Z matrix.
+where ``p,q \\in [0,1]``, ``Z`` is the Pauli-Z matrix, and ``|e\\rangle\\langle e|``
+an  error  flag orthogonal to the  Hilbert space of input state ``\\rho``.
+
+A `DomainError` is thrown if:
+* Matrix `ρ` is not `2x2`
+* Inputs `p` or `q` do not satisdy `0 ≤ p,q ≤ 1`
 """
 function dephrasureChannel(ρ :: Matrix{<:Number},p :: Union{Int,Float64}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
-    #This isn't merged with your previous package, so define here
-    if(ndims(ρ)!=2)
-        ErrorException("the input ρ does not have 2 dimensions")
-    elseif((size(ρ,1)!=2)||(size(ρ,2)!=2))
-        ErrorException("the input ρ is not a qubit")
-    elseif(q>1||q<0)
-        DomainError("dephrasureChannel requires q ∈ [0,1].")
-    elseif(p>1||q<0)
-        DomainError("dephrasureChannel requires p ∈ [0,1].")
-    else
-        pauli_Z = [1 0 ; 0 -1]
-        output_ρ = convert(Matrix{ComplexF64},zeros(3,3))
-        output_ρ[1:2,1:2]=(1-q)*((1-p)*ρ + p*pauli_Z*ρ*pauli_Z)
-        output_ρ[3,3] = q*tr(ρ)
-        return output_ρ
+    if ((size(ρ,1)!=2)||(size(ρ,2)!=2))
+        throw(DomainError(ρ, "the input ρ is not a qubit"))
+    elseif !(0 ≤ q ≤ 1)
+        throw(DomainError(q, "dephrasureChannel requires q ∈ [0,1]."))
+    elseif !(0 ≤ p ≤ 1)
+        throw(DomainError(p, "dephrasureChannel requires p ∈ [0,1]."))
     end
+    pauli_Z = [1 0 ; 0 -1]
+    output_ρ = zeros(ComplexF64,3,3)
+    output_ρ[1:2,1:2]=(1-q)*((1-p)*ρ + p*pauli_Z*ρ*pauli_Z)
+    output_ρ[3,3] = q*tr(ρ)
+    return output_ρ
 end
 """
     wernerHolevoChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}) :: Matrix{ComplexF64}
@@ -197,19 +224,21 @@ which are defined as
     \\mathcal{W}^{d,1}(ρ) = \\frac{1}{d-1}((\\text{Tr}ρ)I_{d} -ρ^{T}) .
 ```
 Note the Choi matrices of these generalized channels are the (unnormalized) Werner states.
+
+A `DomainError` is thrown if:
+* Matrix `ρ` is not square
+* `p` is not in  range `0 ≤ p ≤ 1`
 """
 function wernerHolevoChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}) :: Matrix{ComplexF64}
-    if !isequal(size(ρ,1),size(ρ,2))
-        ErrorException("the input ρ is not a square matrix")
-    elseif(p>1||p<0)
-        DomainError("wernerHolevoChannel requires p ∈ [0,1].")
-    else
-        dim = size(ρ,1)
-        identMat = Matrix{Float64}(I, dim, dim)
-        term_1 = 1/(dim+1) * (tr(ρ)*identMat + transpose(ρ))
-        term_2 = 1/(dim-1) * (tr(ρ)*identMat - transpose(ρ))
-        return p *term_1 + (1-p)*term_2
+    if !isequal(size(ρ)...)
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif !(0 ≤ p ≤ 1)
+        throw(DomainError(p, "wernerHolevoChannel requires p ∈ [0,1]."))
     end
+    dim = size(ρ,1)
+    term_1 = 1/(dim+1) * (tr(ρ)*I + transpose(ρ))
+    term_2 = 1/(dim-1) * (tr(ρ)*I - transpose(ρ))
+    return p *term_1 + (1-p)*term_2
 end
 """
     wernerState(dim :: Int, p ::Union{Int,Float64}) :: Matrix{Float64}
@@ -223,19 +252,21 @@ subspaces respectively. They can be determined by
     \\Pi_0 = \\frac{1}{2} (I_{A} \\otimes I_{B} + \\mathbb{F}) \\hspace{1cm} \\Pi_1 = \\frac{1}{2}(I_{A} \\otimes I_{B} - \\mathbb{F})
 ```
 where ``\\mathbb{F}`` is the swap operator.
+
+A `DomainError` is thrown if:
+* `d ≤ 1`
+* `p` is not in range `0 ≤ p ≤ 1`
 """
 function wernerState(d :: Int, p ::Union{Int,Float64}) :: Matrix{Float64}
-    if d <= 1
-        DomainError("wernerState requires the local dimension is two or greater.")
-    elseif(p>1||p<0)
-        DomainError("wernerState requires p ∈ [0,1].")
-    else
-        identMat = Matrix{Float64}(I, d^2, d^2)
-        swap = swapOperator(d)
-        Π0 = (identMat + swap)/2
-        Π1 = (identMat - swap)/2
-        return p * Π0 / binomial(d+1,2) + (1-p) * Π1 / binomial(d,2)
+    if d ≤ 1
+        throw(DomainError(d,"wernerState requires the local dimension is two or greater."))
+    elseif !(0 ≤ p ≤ 1)
+        throw(DomainError(p,"wernerState requires p ∈ [0,1]."))
     end
+    swap = swapOperator(d)
+    Π0 = (I + swap)/2
+    Π1 = (I - swap)/2
+    return p * Π0 / binomial(d+1,2) + (1-p) * Π1 / binomial(d,2)
 end
 """
     choi(𝒩 :: Function, Σ :: Int) :: Matrix{ComplexF64}
@@ -247,10 +278,9 @@ where ``\\Sigma`` is the finite alphabet indexing the input space and ``E_{a,b}`
 is a square matrix of dimension ``\\Sigma`` with a ``1`` in the ``(a,b)`` entry
 and a ``0`` everywhere else. Note this assumes you have a function that calculates
 ``\\mathcal{N}(X)`` for arbitrary input ``X``. As many of the functions for channels
-in this module have multiple parameters, please note that if you have a function
-f(ρ,p,q) for calculating ``\\mathcal{N}_{p,q}(\\rho)``, you can declare a function
- g that calculates ``\\mathcal{N}_{x,y}(\\rho)`` for fixed ``(x,y)`` and then pass
- g to the getChoi function.
+in this module have multiple parameters, please note that if you have a channel function
+`𝒩(ρ, p, q)` that calculates ``\\mathcal{N}_{p,q}(\\rho)``, you can declare a function
+`𝒩_xy(ρ) = 𝒩(ρ,x,y)` for fixed `(x,y)` and then call, `choi(𝒩_xy, Σ)`.
 """
 function choi(𝒩 :: Function, Σ :: Int) :: Matrix{ComplexF64}
     eab_matrix = zeros(Σ,Σ)

@@ -57,20 +57,40 @@ using CVChannel
         end
     end
     @testset "ChannelTests" begin
-        @testset "qDepolarizingChannel" begin
-            @test isapprox(qDepolarizingChannel(maxEntState,0),maxEntState, atol=1e-6)
-            @test isapprox(qDepolarizingChannel(maxEntState,1),maxMixState, atol=1e-6)
+        @testset "depolarizingChannel" begin
+            @test isapprox(depolarizingChannel(maxEntState,0),maxEntState, atol=1e-6)
+            @test isapprox(depolarizingChannel(maxEntState,1),maxMixState, atol=1e-6)
+
+            @testset "errors" begin
+                @test_throws DomainError depolarizingChannel(maxEntState,1.1)
+                @test_throws DomainError depolarizingChannel(maxEntState,-.1)
+                @test_throws DomainError depolarizingChannel([1 0 0;0 0 0],0.5)
+            end
         end
         @testset "dephrasureChannel" begin
             @test isapprox(dephrasureChannel(checkQubit,0,0),[2/3 1/4*1im 0; -1/4*1im 1/3 0; 0 0 0], atol = 1e-6)
             @test isapprox(dephrasureChannel(checkQubit,1/2,0),[2/3 0 0; 0 1/3 0; 0 0 0], atol = 1e-6)
             @test isapprox(dephrasureChannel(checkQubit,0,1/2),[2/6 1/8*1im 0; -1/8*1im 1/6 0; 0 0 1/2], atol = 1e-6)
             @test isapprox(dephrasureChannel(checkQubit,1/2,1/2),[2/6 0 0; 0 1/6 0; 0 0 1/2], atol = 1e-6)
+
+            @testset "errors" begin
+                @test_throws DomainError dephrasureChannel([1 0 0;0 0 0;0 0 0], 1, 1)
+                @test_throws DomainError dephrasureChannel([1 0;0 0], 1.1, 1)
+                @test_throws DomainError dephrasureChannel([1 0;0 0], -.1, 1)
+                @test_throws DomainError dephrasureChannel([1 0;0 0], 1, 1.1)
+                @test_throws DomainError dephrasureChannel([1 0;0 0], 1, -.1)
+            end
         end
         @testset "wernerHolevoChannel" begin
             @test isapprox(wernerHolevoChannel(checkQubit,1), (1/3*[5/3 -1/4*1im ; 1/4*1im 4/3]), atol = 1e-6)
             @test isapprox(wernerHolevoChannel(checkQubit,0), [1/3 1/4*1im ; -1/4*1im 2/3], atol = 1e-6)
             @test isapprox(wernerHolevoChannel(checkQubit,1/2), [4/9 1/12*1im ; -1/12*1im 5/9], atol = 1e-6)
+
+            @testset "errors" begin
+                @test_throws DomainError wernerHolevoChannel([1 0;0 0;0 0], 1)
+                @test_throws DomainError wernerHolevoChannel([1 0;0 0], 1.1)
+                @test_throws DomainError wernerHolevoChannel([1 0;0 0],-.1)
+            end
         end
     end
     @testset "StateTests" begin
@@ -78,6 +98,12 @@ using CVChannel
             @test isapprox(wernerState(2,1),[1/3 0 0 0 ; 0 1/6 1/6 0 ; 0 1/6 1/6 0 ; 0 0 0 1/3], atol = 1e-6)
             @test isapprox(wernerState(2,0),[0 0 0 0 ; 0 1/2 -1/2 0 ; 0 -1/2 1/2 0 ; 0 0 0 0], atol = 1e-6)
             @test isapprox(wernerState(2,1/2),[1/6 0 0 0 ; 0 1/3 -1/6 0 ; 0 -1/6 1/3 0 ; 0 0 0 1/6], atol = 1e-6)
+
+            @testset "errors" begin
+                @test_throws DomainError wernerState(1, 0.5)
+                @test_throws DomainError wernerState(2, -.1)
+                @test_throws DomainError wernerState(2, 1.1)
+            end
         end
     end
 end
