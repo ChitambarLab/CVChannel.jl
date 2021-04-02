@@ -24,9 +24,9 @@ using CVChannel
             swap3 = [swap31;swap32;swap33]
             @test isapprox(swapOperator(3),swap3, atol =1e-6)
         end
-        @testset "getChoi" begin
-            @test isapprox(getChoi(identChan,2),2*maxEntState, atol = 1e-6)
-            @test isapprox(getChoi(depolChan,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
+        @testset "choi" begin
+            @test isapprox(choi(identChan,2),2*maxEntState, atol = 1e-6)
+            @test isapprox(choi(depolChan,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
         end
     end
     @testset "EntropyTests" begin
