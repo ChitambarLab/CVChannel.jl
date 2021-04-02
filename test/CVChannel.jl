@@ -4,13 +4,6 @@ using CVChannel
 @testset "./src/CVChannel.jl" begin
     maxEntState = 0.5 * [1 0 0 1 ; 0 0 0 0 ; 0 0 0 0 ; 1 0 0 1]
     maxMixState = 0.25 * [1 0 0 0 ; 0 1 0 0 ; 0 0 1 0 ; 0 0 0 1]
-    checkQubit = [2/3 1/4*1im ; -1/4*1im 1/3]
-    function depolChan(X)
-        return 1/2*[1 0 ; 0 1]
-    end
-    function identChan(X)
-        return X
-    end
     @testset "GeneralFunctions" begin
         @testset "isPPT" begin
             @test isPPT(maxMixState,2,[2,2])
@@ -18,13 +11,22 @@ using CVChannel
         end
         @testset "swapOperator" begin
             @test isapprox(swapOperator(2),[1 0 0 0 ; 0 0 1 0 ; 0 1 0 0 ; 0 0 0 1], atol = 1e-6)
-            swap31 = [1 0 0 0 0 0 0 0 0 ; 0 0 0 1 0 0 0 0 0 ; 0 0 0 0 0 0 1 0 0]
-            swap32 = [0 1 0 0 0 0 0 0 0 ; 0 0 0 0 1 0 0 0 0 ; 0 0 0 0 0 0 0 1 0]
-            swap33 = [0 0 1 0 0 0 0 0 0 ; 0 0 0 0 0 1 0 0 0 ; 0 0 0 0 0 0 0 0 1]
-            swap3 = [swap31;swap32;swap33]
+            swap3 = [
+                1 0 0 0 0 0 0 0 0 ;
+                0 0 0 1 0 0 0 0 0 ;
+                0 0 0 0 0 0 1 0 0 ;
+                0 1 0 0 0 0 0 0 0 ;
+                0 0 0 0 1 0 0 0 0 ;
+                0 0 0 0 0 0 0 1 0 ;
+                0 0 1 0 0 0 0 0 0 ;
+                0 0 0 0 0 1 0 0 0 ;
+                0 0 0 0 0 0 0 0 1
+                ]
             @test isapprox(swapOperator(3),swap3, atol =1e-6)
         end
         @testset "choi" begin
+            depolChan(X) = 1/2*[1 0 ; 0 1]
+            identChan(X) = X
             @test isapprox(choi(identChan,2),2*maxEntState, atol = 1e-6)
             @test isapprox(choi(depolChan,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
         end
@@ -68,6 +70,7 @@ using CVChannel
             end
         end
         @testset "dephrasureChannel" begin
+            checkQubit = [2/3 1/4*1im ; -1/4*1im 1/3]
             @test isapprox(dephrasureChannel(checkQubit,0,0),[2/3 1/4*1im 0; -1/4*1im 1/3 0; 0 0 0], atol = 1e-6)
             @test isapprox(dephrasureChannel(checkQubit,1/2,0),[2/3 0 0; 0 1/3 0; 0 0 0], atol = 1e-6)
             @test isapprox(dephrasureChannel(checkQubit,0,1/2),[2/6 1/8*1im 0; -1/8*1im 1/6 0; 0 0 1/2], atol = 1e-6)
@@ -82,6 +85,7 @@ using CVChannel
             end
         end
         @testset "wernerHolevoChannel" begin
+            checkQubit = [2/3 1/4*1im ; -1/4*1im 1/3]
             @test isapprox(wernerHolevoChannel(checkQubit,1), (1/3*[5/3 -1/4*1im ; 1/4*1im 4/3]), atol = 1e-6)
             @test isapprox(wernerHolevoChannel(checkQubit,0), [1/3 1/4*1im ; -1/4*1im 2/3], atol = 1e-6)
             @test isapprox(wernerHolevoChannel(checkQubit,1/2), [4/9 1/12*1im ; -1/12*1im 5/9], atol = 1e-6)
