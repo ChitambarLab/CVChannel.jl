@@ -10,4 +10,12 @@ end
 println("importing CVChannel")
 @time using CVChannel
 
+@testset "run tests" begin
+
+println("testing ./src/CVChannel.jl")
 @time @safetestset "./test/CVChannel.jl" begin include("CVChannel.jl") end
+
+println("testing ./src/optimizer_interface.jl")
+@time @safetestset "./test/optimizer_interface.jl" begin include("optimizer_interface.jl") end
+
+end
