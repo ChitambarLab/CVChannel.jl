@@ -1,12 +1,13 @@
 module CVChannel
 
 using Convex
+using SCS
 using MosekTools
 using LinearAlgebra
 
 export isPPT, minEntropyPrimal, minEntropyDual, minEntropyPPTPrimal, minEntropyPPTDual
 export swapOperator, depolarizingChannel, dephrasureChannel, wernerHolevoChannel, wernerState
-export choi
+export choi, permuteSubsystems
 """
     isPPT(x, sys :: Int, dims :: Vector) :: Bool
 This function returns true if the input state x is PPT
@@ -45,12 +46,13 @@ To determine the min-entropy, take ``-\\log_{2}`` of the objective value.
 the min-entropy). Note: we label the primal as the maximization problem unlike
 in the above reference.
 """
-function minEntropyPrimal(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+function minEntropyPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
     X = HermitianSemidefinite(dimA*dimB)
     objective = real(tr(ρ' * X))
     constraint = partialtrace(X, 1, [dimA,dimB]) == Matrix{Float64}(I,dimB,dimB)
     problem = maximize(objective,constraint)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    solve!(problem, SCS.Optimizer(verbose=0))
     return problem.optval, X.value
 end
 """
@@ -70,13 +72,14 @@ the min-entropy, take ``-\\log_{2}`` of the objective value.
 the min-entropy). Note: we label the primal as the maximization problem unlike
 in the above reference.
 """
-function minEntropyDual(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+function minEntropyDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
     identMat = Matrix{Float64}(I, dimA, dimA)
     Y = HermitianSemidefinite(dimB)
     objective = real(tr(Y))
     constraint = [kron(identMat , Y) ⪰ ρ]
     problem = minimize(objective,constraint)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    solve!(problem, SCS.Optimizer(verbose=0))
     return problem.optval, Y.value
 end
 """
@@ -95,13 +98,14 @@ and returns the optimal value and the optimizer, X.
 This is the dual problem for the SDP for the min-entropy restricted to the PPT cone.
 This has various interpretations. Note: we label the primal as the maximization problem.
 """
-function minEntropyPPTPrimal(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+function minEntropyPPTPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
     X = HermitianSemidefinite(dimA*dimB)
     objective = real(tr(ρ' * X))
     constraints = [partialtrace(X, 1, [dimA,dimB]) == Matrix{Float64}(I,dimB,dimB),
                    partialtranspose(X,2,[dimA,dimB]) ⪰ 0]
     problem = maximize(objective,constraints)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    solve!(problem, SCS.Optimizer(verbose=0))
     return problem.optval, X.value
 end
 """
@@ -120,7 +124,7 @@ and returns the optimal value and optimizer, ``(Y_1 , Y_2 )``.
 This is the dual problem for the SDP for the min-entropy restricted to the PPT cone.
 This has various interpretations. Note: we label the primal as the maximization problem.
 """
-function minEntropyPPTDual(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int, dual=true :: Bool) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
+function minEntropyPPTDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int, dual=true :: Bool) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
     identMat = Matrix{Float64}(I, dimA, dimA)
     Y1 = ComplexVariable(dimB,dimB)
     Y2 = HermitianSemidefinite(dimA*dimB)
@@ -128,7 +132,8 @@ function minEntropyPPTDual(ρ :: Matrix{<:Number}, dimA :: Int, dimB :: Int, dua
     constraints = [kron(identMat,Y1) - partialtranspose(Y2, 2 , [dimA,dimB]) ⪰ ρ,
                    Y1' - Y1 == zeros(dimB,dimB)] #Forces Hermiticity
     problem = minimize(objective,constraints)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    solve!(problem, SCS.Optimizer(verbose=0))
     return problem.optval, Y1.value, Y2.value
 end
 """
@@ -293,5 +298,49 @@ function choi(𝒩 :: Function, Σ :: Int) :: Matrix{ComplexF64}
         end
     end
     return choi_matrix
+end
+"""
+    permuteSubsystems(ρ::Union{Vector,Matrix},perm::Vector{Int64},dim::Vector{Int64}) :: Union{Vector,Matrix}
+This function returns the vector or matrix with the subsystems permuted. In principle this follows
+the (generalization) of the mapping for re-ordering pure states:
+    ```math
+        |e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\to [i,j,k] \\xrightarrow[]{\\pi} [\\pi(i),\\pi(j),\\pi)(k)]
+        \\to |e_i\\rangle_{\\pi(A)} |e_j \\rangle_{\\pi(B)} |e_k \\rangle_{\\pi(C)}
+    ```
+    where ``\\pi`` is the permutation of the subsystems.
+"""
+function permuteSubsystems(ρ:: Union{Vector,Matrix},perm::Vector{Int64},dim::Vector{Int64}) :: Union{Vector,Matrix}
+    orig_shape = size(ρ)
+    num_subsys = length(perm)
+    if isa(ρ,Vector)
+        perm = Tuple(perm)
+        dim = Tuple(dim)
+        #This transpose_order permutedims is used because I can only think in `row-wise reshaping,' apparently.
+        #This was the suggested work around on the discourse site for the julia language
+        #If one wanted, they could figure out how to do the procedure column-wise,
+        #which is how Julia is written, but I can't wrap my head around it at the moment
+        transpose_order = Tuple([num_subsys:-1:1;])
+        reshaped = permutedims(reshape(ρ,dim),transpose_order)
+        reordered = permutedims(permutedims(reshaped,perm),transpose_order)
+        result = reshape(reordered,orig_shape)
+
+        return result
+    else
+        if !isequal(size(ρ)...)
+            throw(DomainError(ρ, "the input ρ is not a square matrix or a pure state"))
+        end
+        #For the matrix version we do the same thing we just have twice as many indices
+        #because we keep track of bras and kets
+        perm = Tuple(vcat(perm,perm .+num_subsys))
+        dim = Tuple(vcat(dim,dim))
+        transpose_order = Tuple([num_subsys:-1:1;2*num_subsys:-1:num_subsys+1])
+        reshaped = permutedims(reshape(ρ,dim),transpose_order)
+        reordered = permutedims(permutedims(reshaped,perm),transpose_order)
+        result = copy(transpose(reshape(reordered,orig_shape)))
+        #Somehow I need this extra transpose in matrix version
+        #The copy is to get rid of the data type transpose
+
+        return result
+    end
 end
 end
