@@ -1,8 +1,13 @@
 module CVChannel
 
-using Convex
-using MosekTools
+using Convex, SCS, MosekTools
 using LinearAlgebra
+
+export qsolve!
+export useMOSEK, useSCS
+export hasMOSEKLicense
+
+include("optimizer_interface.jl")
 
 export isPPT, minEntropyPrimal, minEntropyDual, minEntropyPPTPrimal, minEntropyPPTDual
 export swapOperator,qDepolarizingChannel, dephrasureChannel, wernerHolevoChannel, wernerState
@@ -45,7 +50,7 @@ function minEntropyPrimal(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matri
     objective = real(tr(ρ' * X))
     constraint = partialtrace(X, 1, [dimA,dimB]) == Matrix{Float64}(I,dimB,dimB)
     problem = maximize(objective,constraint)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    qsolve!(problem)
     return problem.optval, X.value
 end
 """
@@ -66,7 +71,7 @@ function minEntropyDual(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{
     objective = real(tr(Y))
     constraint = [kron(identMat , Y) ⪰ ρ]
     problem = minimize(objective,constraint)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    qsolve!(problem)
     return problem.optval, Y.value
 end
 """
@@ -86,7 +91,7 @@ function minEntropyPPTPrimal(ρ, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Ma
     constraints = [partialtrace(X, 1, [dimA,dimB]) == Matrix{Float64}(I,dimB,dimB),
                    partialtranspose(X,2,[dimA,dimB]) ⪰ 0]
     problem = maximize(objective,constraints)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    qsolve!(problem)
     return problem.optval, X.value
 end
 """
@@ -108,7 +113,7 @@ function minEntropyPPTDual(ρ, dimA :: Int, dimB :: Int, dual=true :: Bool) :: T
     constraints = [kron(identMat,Y1) - partialtranspose(Y2, 2 , [dimA,dimB]) ⪰ ρ,
                    Y1' - Y1 == zeros(dimB,dimB)] #Forces Hermiticity
     problem = minimize(objective,constraints)
-    solve!(problem, () -> Mosek.Optimizer(QUIET = true))
+    qsolve!(problem)
     return problem.optval, Y1.value, Y2.value
 end
 """
