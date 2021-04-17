@@ -301,14 +301,18 @@ function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
     return choi_matrix
 end
 """
-    permuteSubsystems(ρ::Union{Vector,Matrix},perm::Vector{Int64},dim::Vector{Int64}) :: Union{Vector,Matrix}
+    permuteSubsystems(
+        ρ::Union{Vector,Matrix},
+        perm::Vector{Int64},
+        dim::Vector{Int64}
+    ) :: Union{Vector,Matrix}
 This function returns the vector or matrix with the subsystems permuted. In principle this follows
 the (generalization) of the mapping for re-ordering pure states:
-    ```math
-        |e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\to [i,j,k] \\xrightarrow[]{\\pi} [\\pi(i),\\pi(j),\\pi)(k)]
-        \\to |e_i\\rangle_{\\pi(A)} |e_j \\rangle_{\\pi(B)} |e_k \\rangle_{\\pi(C)}
-    ```
-    where ``\\pi`` is the permutation of the subsystems.
+```math
+    |e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\to [i,j,k] \\xrightarrow[]{\\pi} [\\pi(i),\\pi(j),\\pi(k)]
+    \\to |e_{i'}\\rangle_{\\pi(A)} |e_{j'} \\rangle_{\\pi(B)} |e_{k'} \\rangle_{\\pi(C)}
+```
+where ``\\pi`` is the permutation of the subsystems.
 """
 function permuteSubsystems(ρ:: Union{Vector,Matrix},perm::Vector{Int64},dim::Vector{Int64}) :: Union{Vector,Matrix}
     #This is almost identical to Tony Cubitt's implementation of this function https://www.dr-qubit.org/matlab.html
