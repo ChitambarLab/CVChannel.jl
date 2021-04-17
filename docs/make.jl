@@ -13,6 +13,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Optimizer Interface" => "optimizer_interface.md",
     ],
 )
 

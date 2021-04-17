@@ -24,11 +24,33 @@ using CVChannel
                 ]
             @test isapprox(swapOperator(3),swap3, atol =1e-6)
         end
+        @testset "permuteSubsystems" begin
+            ρ = [1:1:4;];
+            @test isapprox(permuteSubsystems(ρ,[2,1],[2,2]),[1;3;2;4], atol=1e-6)
+            ρ = [1:1:8;]; target = [1;3;5;7;2;4;6;8];
+            @test isapprox(permuteSubsystems(ρ,[3,1,2],[2,2,2]),target,atol=1e-6)
+            ρ = copy(reshape([1:1:16;],(4,4))');
+            target = [ 1 3 2 4 ; 9 11 10 12 ; 5 7 6 8; 13 15 14 16];
+            @test isapprox(permuteSubsystems(ρ,[2,1],[2,2]),target, atol = 1e-6)
+            ρ = copy(reshape([1:1:64;],(8,8))')
+            target = [
+                1 5 2 6 3 7 4 8;
+                33 37 34 38 35 39 36 40;
+                9 13 10 14 11 15 12 16;
+                41 45 42 46 43 47 44 48;
+                17 21 18 22 19 23 20 24;
+                49 53 50 54 51 55 52 56;
+                25 29 26 30 27 31 28 32;
+                57 61 58 62 59 63 60 64;
+            ]
+            @test isapprox(permuteSubsystems(ρ,[2,3,1],[2,2,2]),target, atol = 1e-6)
+            @test_throws DomainError permuteSubsystems([1 2 3; 4 5 6], [2,3,1],[1,2,3])
+        end
         @testset "choi" begin
             depolChan(X) = 1/2*[1 0 ; 0 1]
             identChan(X) = X
-            @test isapprox(choi(identChan,2),2*maxEntState, atol = 1e-6)
-            @test isapprox(choi(depolChan,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
+            @test isapprox(choi(identChan,2,2),2*maxEntState, atol = 1e-6)
+            @test isapprox(choi(depolChan,2,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
         end
     end
     @testset "EntropyTests" begin

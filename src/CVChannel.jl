@@ -1,9 +1,13 @@
 module CVChannel
 
-using Convex
-using SCS
-using MosekTools
+using Convex, SCS, MosekTools
 using LinearAlgebra
+
+export qsolve!
+export useMOSEK, useSCS
+export hasMOSEKLicense
+
+include("optimizer_interface.jl")
 
 export isPPT, minEntropyPrimal, minEntropyDual, minEntropyPPTPrimal, minEntropyPPTDual
 export swapOperator, depolarizingChannel, dephrasureChannel, wernerHolevoChannel, wernerState
@@ -51,8 +55,7 @@ function minEntropyPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tupl
     objective = real(tr(ρ' * X))
     constraint = partialtrace(X, 1, [dimA,dimB]) == Matrix{Float64}(I,dimB,dimB)
     problem = maximize(objective,constraint)
-    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
-    solve!(problem, SCS.Optimizer(verbose=0))
+    qsolve!(problem)
     return problem.optval, X.value
 end
 """
@@ -78,8 +81,7 @@ function minEntropyDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{
     objective = real(tr(Y))
     constraint = [kron(identMat , Y) ⪰ ρ]
     problem = minimize(objective,constraint)
-    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
-    solve!(problem, SCS.Optimizer(verbose=0))
+    qsolve!(problem)
     return problem.optval, Y.value
 end
 """
@@ -104,8 +106,7 @@ function minEntropyPPTPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: T
     constraints = [partialtrace(X, 1, [dimA,dimB]) == Matrix{Float64}(I,dimB,dimB),
                    partialtranspose(X,2,[dimA,dimB]) ⪰ 0]
     problem = maximize(objective,constraints)
-    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
-    solve!(problem, SCS.Optimizer(verbose=0))
+    qsolve!(problem)
     return problem.optval, X.value
 end
 """
@@ -132,8 +133,7 @@ function minEntropyPPTDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int, dual=t
     constraints = [kron(identMat,Y1) - partialtranspose(Y2, 2 , [dimA,dimB]) ⪰ ρ,
                    Y1' - Y1 == zeros(dimB,dimB)] #Forces Hermiticity
     problem = minimize(objective,constraints)
-    #solve!(problem, () -> Mosek.Optimizer(QUIET = true))
-    solve!(problem, SCS.Optimizer(verbose=0))
+    qsolve!(problem)
     return problem.optval, Y1.value, Y2.value
 end
 """
@@ -274,22 +274,23 @@ function wernerState(d :: Int, p ::Union{Int,Float64}) :: Matrix{Float64}
     return p * Π0 / binomial(d+1,2) + (1-p) * Π1 / binomial(d,2)
 end
 """
-    choi(𝒩 :: Function, Σ :: Int) :: Matrix{ComplexF64}
+    choi(𝒩 :: Function, Σ :: Int, , Λ :: Int) :: Matrix{ComplexF64}
 This function returns the Choi state of a channel 𝒩. It does this using that
 ```math
         J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
 ```
 where ``\\Sigma`` is the finite alphabet indexing the input space and ``E_{a,b}``
 is a square matrix of dimension ``\\Sigma`` with a ``1`` in the ``(a,b)`` entry
-and a ``0`` everywhere else. Note this assumes you have a function that calculates
+and a ``0`` everywhere else. The input ``\\Lambda`` is the output dimension.
+Note this assumes you have a function that calculates
 ``\\mathcal{N}(X)`` for arbitrary input ``X``. As many of the functions for channels
 in this module have multiple parameters, please note that if you have a channel function
 `𝒩(ρ, p, q)` that calculates ``\\mathcal{N}_{p,q}(\\rho)``, you can declare a function
 `𝒩_xy(ρ) = 𝒩(ρ,x,y)` for fixed `(x,y)` and then call, `choi(𝒩_xy, Σ)`.
 """
-function choi(𝒩 :: Function, Σ :: Int) :: Matrix{ComplexF64}
+function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
     eab_matrix = zeros(Σ,Σ)
-    choi_matrix = zeros(Σ^2,Σ^2)
+    choi_matrix = zeros(Σ*Λ,Σ*Λ)
     for i in 1 : Σ
         for j in 1 : Σ
             eab_matrix[i,j] = 1
@@ -310,19 +311,17 @@ the (generalization) of the mapping for re-ordering pure states:
     where ``\\pi`` is the permutation of the subsystems.
 """
 function permuteSubsystems(ρ:: Union{Vector,Matrix},perm::Vector{Int64},dim::Vector{Int64}) :: Union{Vector,Matrix}
+    #This is almost identical to Tony Cubitt's implementation of this function https://www.dr-qubit.org/matlab.html
+    #This is largely because Julia does reshape column-wise as Matlab does
+    #(I checked my implementation against his, and made changes that made my code
+    # similar to his as something  was going awry with mine)
     orig_shape = size(ρ)
     num_subsys = length(perm)
     if isa(ρ,Vector)
-        perm = Tuple(perm)
-        dim = Tuple(dim)
-        #This transpose_order permutedims is used because I can only think in `row-wise reshaping,' apparently.
-        #This was the suggested work around on the discourse site for the julia language
-        #If one wanted, they could figure out how to do the procedure column-wise,
-        #which is how Julia is written, but I can't wrap my head around it at the moment
-        transpose_order = Tuple([num_subsys:-1:1;])
-        reshaped = permutedims(reshape(ρ,dim),transpose_order)
-        reordered = permutedims(permutedims(reshaped,perm),transpose_order)
-        result = reshape(reordered,orig_shape)
+        #Note certain things get reversed. This is because Julia does reshape column-wise
+        permTup = Tuple((num_subsys+1) .- reverse(perm)) #Reshape requires tuples
+        dimTup = Tuple(reverse(dim))
+        result = reshape(permutedims(reshape(ρ,dimTup),permTup),orig_shape)
 
         return result
     else
@@ -331,14 +330,10 @@ function permuteSubsystems(ρ:: Union{Vector,Matrix},perm::Vector{Int64},dim::Ve
         end
         #For the matrix version we do the same thing we just have twice as many indices
         #because we keep track of bras and kets
-        perm = Tuple(vcat(perm,perm .+num_subsys))
-        dim = Tuple(vcat(dim,dim))
-        transpose_order = Tuple([num_subsys:-1:1;2*num_subsys:-1:num_subsys+1])
-        reshaped = permutedims(reshape(ρ,dim),transpose_order)
-        reordered = permutedims(permutedims(reshaped,perm),transpose_order)
-        result = copy(transpose(reshape(reordered,orig_shape)))
-        #Somehow I need this extra transpose in matrix version
-        #The copy is to get rid of the data type transpose
+        permPrime = (num_subsys+1) .- reverse(perm)
+        permTup = Tuple([permPrime num_subsys .+ permPrime])
+        dimTup = Tuple([reverse(dim) reverse(dim)])
+        result = reshape(permutedims(reshape(ρ,dimTup),permTup),orig_shape)
 
         return result
     end
