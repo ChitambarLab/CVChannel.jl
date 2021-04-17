@@ -121,6 +121,5 @@ end
 # NOTE: This must run last!
 # In case any tests failed, making sure environment variables are properly restored
 _restoreENV()
-@test ENV["HOME"] == env_copy["HOME"]
 
 end
