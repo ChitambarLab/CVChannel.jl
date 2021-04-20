@@ -332,15 +332,16 @@ end
         perm::Vector{Int64},
         dims::Vector{Int64}
     ) :: Matrix
+
 This function returns the matrix with the subsystems permuted. It is a generalization of the vector code.
 For example, given three subspaces ``A,B,C``, and the permutation ``\\pi`` defined by ``(A,B,C) \\xrightarrow[]{\\pi} (C,A,B),``
-the vector function implements the process:
+the function implements the process:
 ```math
-|e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\xrightarrow[]{\\pi}
- |e_{k} \\rangle_{C} |e_{i}\\rangle_{A}  |e_{j} \\rangle_{B} ,
+|e_{i}\\rangle\\langle e_{i}|_{A}\\otimes |e_j \\rangle\\langle e_j|_{B}\\otimes |e_k \\rangle\\langle e_k|_{C} \\xrightarrow[]{\\pi}
+|e_{k} \\rangle\\langle e_{k}|_{C}\\otimes |e_{i}\\rangle\\langle e_{i}|_{A} \\otimes  |e_{j} \\rangle\\langle e_{j}|_{B} ,
 ```
-by re-indexing the vector permuting the indices, and reconstructing the vector.
-The matrix version does the same on both the bras and ket indices which define the matrix.
+by re-indexing the matrix, permuting the indices, and reconstructing the matrix.
+Both bra and ket indices receive the same permutation.
 """
 function permuteSubsystems(ρ:: Matrix,perm::Vector{Int64},dims::Vector{Int64}) :: Matrix
     #This is almost identical to Tony Cubitt's implementation of this function https://www.dr-qubit.org/matlab.html

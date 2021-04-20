@@ -55,7 +55,7 @@ println("for p less than 0.3, by searching over p in {0,0.01,...,0.3}.")
     show(stdout, "text/plain", results)
     println("\n p     cv(N)   cv(N^2)  diff")
     println("\nThus by looking at the diff column, we see what we were verifying.")
-    @test (results[:,4] .> 0) == ones(31)
+    @test all(result -> result > 0 || isapprox(result, 0, atol=1e-6), results[:,4])
 
     #I leave this here in case one wants it, but the print out
     #is sufficient and I don't see why one would want this if running
