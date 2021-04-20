@@ -302,44 +302,61 @@ function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 end
 """
     permuteSubsystems(
-        ρ::Union{Vector,Matrix},
+        ρ:: Vector,
         perm::Vector{Int64},
-        dim::Vector{Int64}
-    ) :: Union{Vector,Matrix}
-This function returns the vector or matrix with the subsystems permuted. In principle this follows
-the (generalization) of the mapping for re-ordering pure states:
+        dims::Vector{Int64}
+    ) :: Vector
+This function returns the vector with the subsystems permuted. For example, given three
+subspaces ``A,B,C``, and the permutation ``\\pi`` defined by ``(A,B,C) \\xrightarrow[]{\\pi} (C,A,B),``
+the function implements the process:
 ```math
-    |e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\to [i,j,k] \\xrightarrow[]{\\pi} [\\pi(i),\\pi(j),\\pi(k)]
-    \\to |e_{i'}\\rangle_{\\pi(A)} |e_{j'} \\rangle_{\\pi(B)} |e_{k'} \\rangle_{\\pi(C)}
+    |e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\xrightarrow[]{\\pi}
+    |e_{k} \\rangle_{C} |e_{i}\\rangle_{A}  |e_{j} \\rangle_{B}  ,
 ```
-where ``\\pi`` is the permutation of the subsystems.
+by re-indexing the vector, permuting the indices appropriately, and converting it
+back into a vector.
 """
-function permuteSubsystems(ρ:: Union{Vector,Matrix},perm::Vector{Int64},dim::Vector{Int64}) :: Union{Vector,Matrix}
+function permuteSubsystems(ρ:: Vector, perm::Vector{Int64},dims::Vector{Int64}) :: Vector
     #This is almost identical to Tony Cubitt's implementation of this function https://www.dr-qubit.org/matlab.html
     #This is largely because Julia does reshape column-wise as Matlab does
-    #(I checked my implementation against his, and made changes that made my code
-    # similar to his as something  was going awry with mine)
     orig_shape = size(ρ)
     num_subsys = length(perm)
-    if isa(ρ,Vector)
-        #Note certain things get reversed. This is because Julia does reshape column-wise
-        permTup = Tuple((num_subsys+1) .- reverse(perm)) #Reshape requires tuples
-        dimTup = Tuple(reverse(dim))
-        result = reshape(permutedims(reshape(ρ,dimTup),permTup),orig_shape)
-
-        return result
-    else
-        if !isequal(size(ρ)...)
+    #Note certain things get reversed. This is because Julia does reshape column-wise
+    permTup = Tuple((num_subsys+1) .- reverse(perm)) #Reshape requires tuples
+    dimTup = Tuple(reverse(dims))
+    result = reshape(permutedims(reshape(ρ,dimTup),permTup),orig_shape)
+end
+"""
+    permuteSubsystems(
+        ρ:: Matrix,
+        perm::Vector{Int64},
+        dims::Vector{Int64}
+    ) :: Matrix
+This function returns the matrix with the subsystems permuted. It is a generalization of the vector code.
+For example, given three subspaces ``A,B,C``, and the permutation ``\\pi`` defined by ``(A,B,C) \\xrightarrow[]{\\pi} (C,A,B),``
+the vector function implements the process:
+```math
+|e_{i}\\rangle_{A} |e_j \\rangle_{B} |e_k \\rangle_{C} \\xrightarrow[]{\\pi}
+ |e_{k} \\rangle_{C} |e_{i}\\rangle_{A}  |e_{j} \\rangle_{B} ,
+```
+by re-indexing the vector permuting the indices, and reconstructing the vector.
+The matrix version does the same on both the bras and ket indices which define the matrix.
+"""
+function permuteSubsystems(ρ:: Matrix,perm::Vector{Int64},dims::Vector{Int64}) :: Matrix
+    #This is almost identical to Tony Cubitt's implementation of this function https://www.dr-qubit.org/matlab.html
+    #This is largely because Julia does reshape column-wise as Matlab does
+    if !isequal(size(ρ)...)
             throw(DomainError(ρ, "the input ρ is not a square matrix or a pure state"))
-        end
-        #For the matrix version we do the same thing we just have twice as many indices
-        #because we keep track of bras and kets
-        permPrime = (num_subsys+1) .- reverse(perm)
-        permTup = Tuple([permPrime num_subsys .+ permPrime])
-        dimTup = Tuple([reverse(dim) reverse(dim)])
-        result = reshape(permutedims(reshape(ρ,dimTup),permTup),orig_shape)
-
-        return result
     end
+    orig_shape = size(ρ)
+    num_subsys = length(perm)
+    #For the matrix version we do the same thing we just have twice as many indices
+    #because we keep track of bras and kets
+    permPrime = (num_subsys+1) .- reverse(perm)
+    permTup = Tuple([permPrime num_subsys .+ permPrime])
+    dimTup = Tuple([reverse(dims) reverse(dims)])
+    result = reshape(permutedims(reshape(ρ,dimTup),permTup),orig_shape)
+
+    return result
 end
 end
