@@ -274,7 +274,7 @@ function wernerState(d :: Int, p ::Union{Int,Float64}) :: Matrix{Float64}
     return p * Π0 / binomial(d+1,2) + (1-p) * Π1 / binomial(d,2)
 end
 """
-    choi(𝒩 :: Function, Σ :: Int, , Λ :: Int) :: Matrix{ComplexF64}
+    choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 This function returns the Choi state of a channel 𝒩. It does this using that
 ```math
         J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
