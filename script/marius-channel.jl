@@ -4,12 +4,6 @@ using Convex
 using Test
 
 #To import less
-function zKet(k::Int,dim::Int) ::Vector
-    v = zeros(dim)
-    v[k] = 1
-    return v
-end
-
 function basisElm(i::Int,j::Int,dim::Int)::Matrix
     B = zeros(dim,dim)
     B[i,j] = 1
@@ -35,6 +29,3 @@ end
 
 orig_choi = choi(mariusChannel,4,5)
 test1 = minEntropyPPTDual(orig_choi,4,5)
-kron_par_choi = kron(orig_choi,orig_choi)
-par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[4,5,4,5])
-test2 = minEntropyPPTPrimal(par_choi,16,25)
