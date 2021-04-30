@@ -13,6 +13,8 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Channels, States, and Operations" => "channel_states.md",
+        "Optimizations" => "optimizations.md",
         "Optimizer Interface" => "optimizer_interface.md",
     ],
 )
