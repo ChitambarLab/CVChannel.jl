@@ -105,10 +105,10 @@ end
         ENV["HOME"] = ""
         ENV["PROFILE"] = ""
 
+        @suppress_err useMOSEK()
+        @test CVChannel._USE_MOSEK
+
         try
-            @suppress_err useMOSEK()
-            @test CVChannel._USE_MOSEK
-            
             (ρ, objective, constraints) = _state_optimization()
             problem = maximize(objective, constraints)
 
