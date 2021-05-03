@@ -100,22 +100,32 @@ end
         @test ρ.value ≈ [0.5 0.5;0.5 0.5]
     end
 
-    @testset "runs with mosek backend" begin
-        ENV["MOSEKLM_LICENSE_FILE"] = joinpath(test_dir,"mosek","mosek.lic")
-        @suppress_err useMOSEK()
-        @test CVChannel._USE_MOSEK
-
-        (ρ, objective, constraints) = _state_optimization()
-        problem = maximize(objective, constraints)
-
-        qsolve!(problem)
-
-        @test problem.optval ≈ 1
-        @test isapprox(ρ.value, [0.5 0.5;0.5 0.5], atol=1e-5)
-
-        @suppress_err useSCS()
-        _restoreENV()
-    end
+    # TODO: Test MOSEK with less fragility and ENV dependence than below.
+    # @testset "runs with mosek backend" begin
+    #     ENV["MOSEKLM_LICENSE_FILE"] = joinpath(test_dir,"mosek","mosek.lic")
+    #     ENV["HOME"] = ""
+    #     ENV["PROFILE"] = ""
+    #
+    #     @suppress_err useMOSEK()
+    #     @test CVChannel._USE_MOSEK
+    #
+    #     try
+    #         (ρ, objective, constraints) = _state_optimization()
+    #         problem = maximize(objective, constraints)
+    #
+    #         qsolve!(problem)
+    #
+    #         @test problem.optval ≈ 1
+    #         @test isapprox(ρ.value, [0.5 0.5;0.5 0.5], atol=1e-5)
+    #
+    #         println("no error")
+    #     catch err
+    #         println(err)
+    #     end
+    #
+    #     @suppress_err useSCS()
+    #     _restoreENV()
+    # end
 end
 
 # NOTE: This must run last!
