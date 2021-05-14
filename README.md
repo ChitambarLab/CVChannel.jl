@@ -7,9 +7,6 @@ This project uses the MOSEK to solve optimization programs. A license is require
 and can be downloaded at [https://www.mosek.com/products/academic-licenses/](https://www.mosek.com/products/academic-licenses/). The license is free for personal and institutional academic use.
 For MOSEK to run properly, the license must be saved at `$HOME/mosek/mosek.lic`.
 
-Alternatively, a license is included within this project. This license can be used by
-running `include("mosek_license.jl")` before running `using CVChannel`.
-
 ## Development
 
 To develop new code it is recommended that you use [Revise.jl](https://timholy.github.io/Revise.jl/stable/)

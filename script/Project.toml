@@ -6,3 +6,6 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 QBase = "e52e8ede-12bf-4731-8af7-b01f6064cb11"
 SignalingDimension = "96aab1c2-4ac7-11eb-3d9a-a59b97fb3321"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+QBase = "0.1"

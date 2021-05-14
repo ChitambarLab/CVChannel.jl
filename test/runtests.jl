@@ -1,21 +1,29 @@
 using Test, SafeTestsets
 
-include("../mosek_license.jl")
-
-@testset "checking for MOSEK license" begin
-    @test haskey(ENV,"MOSEKLM_LICENSE_FILE")
-    @test isfile(ENV["MOSEKLM_LICENSE_FILE"])
-end
-
 println("importing CVChannel")
 @time using CVChannel
 
-@testset "run tests" begin
+println("running ./test/CVChannel.jl")
+@time begin # timing block
 
-println("testing ./src/CVChannel.jl")
-@time @safetestset "./test/CVChannel.jl" begin include("CVChannel.jl") end
+@testset "running ./test/runtests.jl" begin
 
-println("testing ./src/optimizer_interface.jl")
-@time @safetestset "./test/optimizer_interface.jl" begin include("optimizer_interface.jl") end
+    println("testing ./src/operations.jl")
+    @time @safetestset "./test/operations.jl" begin include("operations.jl") end
+
+    println("testing ./src/channels.jl")
+    @time @safetestset "./test/channels.jl" begin include("channels.jl") end
+
+    println("testing ./states.jl")
+    @time @safetestset "./test/states.jl" begin include("states.jl") end
+
+    println("testing ./src/optimizations.jl")
+    @time @safetestset "./test/optimizations.jl" begin include("optimizations.jl") end
+
+    println("testing ./src/optimizer_interface.jl")
+    @time @safetestset "./test/optimizer_interface.jl" begin include("optimizer_interface.jl") end
 
 end
+
+println("\ntotal elapsed time :")
+end # timing block
