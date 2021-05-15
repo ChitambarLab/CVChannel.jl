@@ -23,11 +23,11 @@ println("PPT cone for d = 3.")
 
 @testset "Non-multiplicativity of Anti-Symmetric Projector" begin
     orig_choi = 3*wernerState(3,0)
-    test1 = minEntropyPPTDual(orig_choi,3,3)
+    test1 = pptCVDual(orig_choi,3,3)
 
     kron_par_choi = kron(orig_choi,orig_choi)
     par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[3,3,3,3])
-    test2 = minEntropyPPTPrimal(par_choi,9,9)
+    test2 = pptCVPrimal(par_choi,9,9)
     @test test1[1]^2 != test2[2]
 end
 
@@ -44,10 +44,10 @@ println("for p less than 0.3, by searching over p in {0,0.01,...,0.3}.")
             println("\nNow evaluating for p = ", p_id)
         end
         orig_choi = 3*wernerState(3,p_id)
-        test1 = minEntropyPPTDual(orig_choi,3,3)
+        test1 = pptCVDual(orig_choi,3,3)
         kron_par_choi = kron(orig_choi,orig_choi)
         par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[3,3,3,3])
-        test2 = minEntropyPPTPrimal(par_choi,9,9)
+        test2 = pptCVPrimal(par_choi,9,9)
         results[ctr,:] = [p_id, test1[1], test2[1], test2[1]-test1[1]^2]
         ctr = ctr + 1
     end

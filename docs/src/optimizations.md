@@ -4,8 +4,8 @@ CurrentModule = CVChannel
 #  Optimizations
 
 ```@docs
-minEntropyPrimal
-minEntropyDual
-minEntropyPPTPrimal
-minEntropyPPTDual
+eaCVPrimal
+eaCVDual
+pptCVPrimal
+pptCVDual
 ```

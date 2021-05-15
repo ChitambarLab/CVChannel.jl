@@ -28,4 +28,4 @@ function mariusChannel(ρ :: Matrix{<:Number}) :: Matrix{<:Number}
 end
 
 orig_choi = choi(mariusChannel,4,5)
-test1 = minEntropyPPTDual(orig_choi,4,5)
+test1 = pptCVDual(orig_choi,4,5)

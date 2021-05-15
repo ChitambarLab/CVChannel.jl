@@ -45,10 +45,10 @@ println("Now we are going to verify the multiplicativity of the channel")
         end
         phaseRotAmpDampVarep(ρ) = phaseRotAmpDamp(ρ,ε_id)
         orig_choi = choi(phaseRotAmpDampVarep,2,2)
-        test1 = minEntropyPPTDual(orig_choi,2,2)
+        test1 = pptCVDual(orig_choi,2,2)
         kron_par_choi = kron(orig_choi,orig_choi)
         par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[2,2,2,2])
-        test2 = minEntropyPPTPrimal(par_choi,4,4)
+        test2 = pptCVPrimal(par_choi,4,4)
         results[ctr,:] = [ε_id, test1[1], test2[1], test2[1]-test1[1]^2]
         ctr = ctr + 1
     end

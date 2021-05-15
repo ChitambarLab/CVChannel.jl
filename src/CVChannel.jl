@@ -41,7 +41,7 @@ include("channels.jl")
 export qsolve!, useMOSEK, useSCS, hasMOSEKLicense
 include("optimizer_interface.jl")
 
-export minEntropyPrimal, minEntropyDual, minEntropyPPTPrimal, minEntropyPPTDual
+export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual
 include("optimizations.jl")
 
 end

@@ -18,9 +18,9 @@ println("\nVerifying the multiplicativity of channel value for dephrasure channe
             #Get Data
             dephrasurepq(ρ) = dephrasureChannel(ρ,p_id,q_id)
             orig_choi = choi(dephrasurepq,2,3);
-            val1, opt1 = minEntropyPPTDual(orig_choi,2,3);
+            val1, opt1 = pptCVDual(orig_choi,2,3);
             parallel_choi = permuteSubsystems(kron(orig_choi,orig_choi),[1,3,2,4],[2,3,2,3]);
-            val2, opt2 = minEntropyPPTPrimal(parallel_choi,4,9);
+            val2, opt2 = pptCVPrimal(parallel_choi,4,9);
 
             #Store Data
             cv_array[pCtr+1,qCtr+1] = val1;
