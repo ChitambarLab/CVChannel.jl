@@ -19,6 +19,20 @@ To develop CVChannel.jl code enter package mode by entering `]` then run
 
 Now when you run `using CVChannel` it will load the local version that you are modifying.
 
+## Notebooks
+
+Jupyter notebooks are found in the `./notebook` directory.
+The easiest way to run or develop a notebook is through the Julia REPL.
+
+1. Navigate to the `./notebook` directory `$ cd ./notebook`
+2. Run `$ julia --project=. -e "using IJulia; notebook(dir=pwd())"`
+
+At this point, the Jupyter Notebook interface will launch in your default web browser.
+You can then edit, create, or run the project notebooks.
+
+If you are committing changes to a notebook, make sure you restart the kernel and
+run all cells before committing.
+
 ## Run Tests
 
 All tests can be run in two ways:
