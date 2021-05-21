@@ -35,12 +35,12 @@ This tells Julia to run code from the local version of the CVChannel.jl module
 rather than from the github repository.
 Thus, `using CVChannel` will load the local version that you are modifying.
 
-## Run Scripts
+### Scripts
 
 To run a script:
 * `$ julia --proj=./script ./script/path/to/script.jl`
 
-## Notebooks
+### Notebooks
 
 Jupyter notebooks are found in the `./notebook` directory.
 To run or develop notebooks, perform the following steps:
@@ -54,7 +54,7 @@ browser and you can then edit, create, or run the project notebooks.
 If you are committing changes to a notebook, make sure you restart the kernel and
 run all cells before committing.
 
-## Run Tests
+### Tests
 
 All tests can be run in two ways:
 * From the command prompt run `$ julia --proj=./test --color=yes test/runtests.jl`.
@@ -63,7 +63,7 @@ All tests can be run in two ways:
 To run a single test, you can either run the test from the command line like a script,
 or you can run it within your text editor.
 
-## Documentation
+### Documentation
 
 Please refer to the [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
 documentation for details on how to write and build Julia documentation.
@@ -81,7 +81,7 @@ the constructed website in your browser by spawning a local http server.
 
 For this to work properly, the `python` command should run python version 3 or greater.
 
-## Dependencies
+### Dependencies
 
 Project dependencies are listed in `Project.toml`. To load the project environment
 in the `julia>` REPL type `]` to enter `Pkg` mode. Then run
