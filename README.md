@@ -1,69 +1,96 @@
 # CV-Channel
 A numerical analysis of the communication values accessible to quantum and classical channels.
 
-## Mosek License
+## SDP Solvers
 
-This project uses the MOSEK to solve optimization programs. A license is required
-and can be downloaded at [https://www.mosek.com/products/academic-licenses/](https://www.mosek.com/products/academic-licenses/). The license is free for personal and institutional academic use.
-For MOSEK to run properly, the license must be saved at `$HOME/mosek/mosek.lic`.
+This project relies upon semi-definite programming to optimize the communication
+value of quantum channels.
+Optimizations are performed via [Convex.jl](https://jump.dev/Convex.jl/stable/).
+
+### SCS
+
+By default, CVChannel.jl will use [SCS](https://github.com/cvxgrp/scs)
+to solve semi-definite programs.
+SCS is an open-source numerical solver which can easily be used through Julia.
+
+### Mosek
+
+If desired, [MOSEK](https://www.mosek.com/) can be used instead of SCS.
+However, a MOSEK license is required and can be downloaded at
+[https://www.mosek.com/products/academic-licenses/](https://www.mosek.com/products/academic-licenses/).
+The license is free for personal and institutional academic use and once downloaded,
+should be saved at `$HOME/mosek/mosek.lic`.
 
 ## Development
 
-To develop new code it is recommended that you use [Revise.jl](https://timholy.github.io/Revise.jl/stable/)
-so that your  saved changes are reflected in the working codebase used by Julia.
-This is done after launching Julia by executing `using Revise`.
+It is recommended that you use [Revise.jl](https://timholy.github.io/Revise.jl/stable/)
+so that your saved changes are reflected in the working codebase used by Julia.
 Please refer to the Revise.jl documentation for more details.
 
-To develop CVChannel.jl code enter package mode by entering `]` then run
-* `(@vx.x) pkg> develop --local .` to tell Julia to run code from the local version of the CVChannel.jl module.
+To open the CVChannel.jl package for development,
+* Enter package mode from the Julia REPL by entering `]`.
+* Run `(@vx.x) pkg> develop --local .`
 
-Now when you run `using CVChannel` it will load the local version that you are modifying.
+This tells Julia to run code from the local version of the CVChannel.jl module
+rather than from the github repository.
+Thus, `using CVChannel` will load the local version that you are modifying.
 
-## Run Tests
+### Scripts
+
+To run a script:
+* `$ julia --proj=./script ./script/path/to/script.jl`
+
+### Notebooks
+
+Jupyter notebooks are found in the `./notebook` directory.
+To run or develop notebooks, perform the following steps:
+
+1. Navigate to the `./notebook` directory `$ cd ./notebook`
+2. Run `$ julia --project=. -e "using IJulia; notebook(dir=pwd())"`
+
+At this point, the Jupyter Notebook interface will launch in your default web
+browser and you can then edit, create, or run the project notebooks.
+
+If you are committing changes to a notebook, make sure you restart the kernel and
+run all cells before committing.
+
+### Tests
 
 All tests can be run in two ways:
 * From the command prompt run `$ julia --proj=./test --color=yes test/runtests.jl`.
 * From package mode run `(@vx.x) pkg> test CVChannel`.
 
-To run a single test,  you can either run the test file like a script from the command line,
+To run a single test, you can either run the test from the command line like a script,
 or you can run it within your text editor.
 
-## Build Documentation
+### Documentation
 
-Please refer to the [Documnenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
-documentation for details on how  to write Julia documentation.
+Please refer to the [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
+documentation for details on how to write and build Julia documentation.
 
-To write documentation, you will need to  build the  site locally to verify  that
-the content renders properly.
-To build the documentation, run
+To verify that content renders properly, you'll need to build the documentation
+locally by running the `./docs/make.jl` script.
 * `$ julia --color=yes ./docs/make.jl`
 
-This will construct the HTML for the Julia documentation. You will want to  view
+This will build the HTML for the docs webpage.
+To view the webpage, spawn a local http server:
 the constructed website in your browser by spawning a local http server.
-This is done by navigating to the `./docs/build` directory
-and running the following  python command:
-* `$ python3 -m http.server --bind  localhost`
+1. Navigate to the `./docs/build/` directory.
+2. Run `$ python -m http.server --bind  localhost`
+3. Then copy/paste the returned url into your web browser.
 
-Then copy/paste the returned url into your web browser.
-For this to work, you will need to have python version 3 installed. The above
-command will deploy an http server on your local machine (`localhost`). The server
-will serve the `index.html` page in the build directory.
+For this to work properly, the `python` command should run python version 3 or greater.
 
-## Run Scripts
-
-To run a script:
-* `$ julia --proj=./script ./script/path/to/script.jl`
-
-## Dependencies
+### Dependencies
 
 Project dependencies are listed in `Project.toml`. To load the project environment
 in the `julia>` REPL type `]` to enter `Pkg` mode. Then run
 * `pkg> activate .`
 
-Each directory `./docs`, `./test`, and `./script` has its own `Project.toml` which
-specifies the dependencies of the code in that directory. These dependencies are
-independent of those in the main `Project.toml` file which specifies the `CVChannel`
-module dependencies.
+Each directory `./docs`, `./test`, `./script`, and `./notebook` has its own
+`Project.toml` which specifies the dependencies for the code in that directory
+These dependencies are independent from the `CVChannel` dependencies specified
+in `./Project.toml` file in the root directory.
 
-To add or updated packages in the the environment see [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/)
-for more details.
+See [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/) for details about how to
+add or update packages.
