@@ -1,7 +1,14 @@
 using LinearAlgebra
 using CVChannel
-using Convex
 using Test
+
+"""
+This verifies the multiplicativity of the [dephrasure channel](https://arxiv.org/abs/1806.08327)
+
+The dephrasure channel is parameterized by two parameters. We scan over these parameters
+and check that it is multiplicative at each point.
+...
+"""
 
 println("\nVerifying the multiplicativity of channel value for dephrasure channel...")
 

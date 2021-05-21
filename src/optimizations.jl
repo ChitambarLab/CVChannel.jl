@@ -7,12 +7,14 @@
 
 This function solves the SDP
 ```math
-\\min \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , X \\succeq 0 \\}
+\\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , X \\succeq 0 \\}
 ```
 and returns the optimal value and the optimizer, X.
 This is the primal problem of the SDP corresponding to the entanglement-assisted commmunication value.
 It is related to the channel min-entropy ``H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}`` by
 ``cv_{\\text{ea}}(\\mathcal{N}) = 2^{-H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}}``.
+(See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233) for further details about
+the min-entropy.)
 Note: we label the primal as the maximization problem.
 """
 function eaCVPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
@@ -39,6 +41,8 @@ and returns the optimal value and the optimizer, Y. This is the dual problem for
 corresponding to the entanglement-assisted commmunication value.
 It is related to the channel min-entropy ``H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}`` by
 ``cv_{\\text{ea}}(\\mathcal{N}) = 2^{-H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}}``.
+(See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233) for further details about
+the min-entropy.)
 Note: we label the primal as the maximization problem.
 """
 function eaCVDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
@@ -60,7 +64,7 @@ end
 
 This function solves the SDP
 ```math
-\\min \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , \\Gamma(X) \\succeq 0, X \\succeq 0 \\}
+\\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , \\Gamma(X) \\succeq 0, X \\succeq 0 \\}
 ```
 where ``\\Gamma( \\cdot)`` is the partial transpose with respect to the second system,
 and returns the optimal value and the optimizer, X.

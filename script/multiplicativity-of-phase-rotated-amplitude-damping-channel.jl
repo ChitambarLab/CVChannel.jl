@@ -1,7 +1,14 @@
 using LinearAlgebra
 using CVChannel
-using Convex
 using Test
+
+"""
+This verifies the multiplicativity of the phase rotated amplitude channel family.
+
+The channel family is parameterized by one parameters. We scan over this parameter
+and check that it is multiplicative at each point.
+...
+"""
 
 println("First we define the channel and verify it works.")
 function phaseRotAmpDamp(ρ :: Matrix{<:Number}, ε :: Union{Int,Float64}) :: Matrix{<:Number}
@@ -39,23 +46,23 @@ println("Now we are going to verify the multiplicativity of the channel")
     results = zeros(size(ε_vals)[1],4)
     println("\nBeginning to get the data...")
     println("\nPlease note it starts slow calling the solver.")
-    for ε_id in ε_vals
-        if (ε_id != 0)&&(Int(floor(ε_id*100)) % 5 == 0)
-            println("\nNow evaluating for ε = ", ε_id)
+    for ε_val in ε_vals
+        if (ε_val != 0)&&(Int(floor(ε_val*100)) % 5 == 0)
+            println("\nNow evaluating for ε = ", ε_val)
         end
-        phaseRotAmpDampVarep(ρ) = phaseRotAmpDamp(ρ,ε_id)
+        phaseRotAmpDampVarep(ρ) = phaseRotAmpDamp(ρ,ε_val)
         orig_choi = choi(phaseRotAmpDampVarep,2,2)
         test1 = pptCVDual(orig_choi,2,2)
         kron_par_choi = kron(orig_choi,orig_choi)
         par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[2,2,2,2])
         test2 = pptCVPrimal(par_choi,4,4)
-        results[ctr,:] = [ε_id, test1[1], test2[1], test2[1]-test1[1]^2]
+        results[ctr,:] = [ε_val, test1[1], test2[1], test2[1]-test1[1]^2]
         ctr = ctr + 1
     end
     println("\ncolumn labels at bottom")
     show(stdout, "text/plain", results)
     println("\n p     cv(N)   cv(N^2)  diff")
     println("\nThus by looking at the diff column, we see what we were verifying")
-    println("up to a numerical accuracy of 5e-6.")
-    @test all(result -> result > 0 || isapprox(result, 0, atol=5e-6), results[:,4])
+    println("up to a numerical accuracy of 1e-5 (some computers can do 5e-6).")
+    @test all(result -> result > 0 || isapprox(result, 0, atol=1e-5), results[:,4])
 end
