@@ -25,39 +25,8 @@ function hasMOSEKLicense() :: Bool
     return has_license
 end
 
-# "private" variable for keeping track of whether to use MOSEK.
-_USE_MOSEK = false
-
 """
-    useSCS() :: Bool
-
-Sets SCS as the active backend solver and returns the value of the
-`_USE_MOSEK` state variable.
-"""
-function useSCS() :: Bool
-    @warn "Using SCS backend."
-    global _USE_MOSEK = false
-end
-
-"""
-    useMOSEK() :: Bool
-
-Sets MOSEK as the active backend solver and returns the value  of the
-`_USE_MOSEK` state variable.
-Note that the  [`hasMOSEKLicense`](@ref) method must return `true` to use MOSEK.
-"""
-function useMOSEK() :: Bool
-    if hasMOSEKLicense()
-        @warn "Using MOSEK backend."
-        global _USE_MOSEK = true
-    else
-        @warn "No MOSEK license found. Using SCS backend."
-        global _USE_MOSEK = false
-    end
-end
-
-"""
-    qsolve!( problem :: Problem; cvx_kwargs... )
+    qsolve!( problem :: Problem; qsolve_kwargs..., cvx_kwargs... )
 
 A wrapper for `Convex.solve!(...)` that selects and configures the backend.
 The supported backends are SCS (default) and MOSEK (license required).
@@ -72,6 +41,10 @@ The name `qsolve!` is chosen to avoid a namespace conflict with the `Convex.solv
 This method is a featured utility for simplifying the interface with optimization
 software.
 
+`qsolve_kargs`:
+* `quiet :: Bool = true` - If true, solve messages are suppressed.
+* `use_mosek :: Bool = false` - If true, MOSEK is used instead of SCS (default).
+
 The `cvx_kwargs...` are keyword arguments passed to `Convex.solve!`:
 * `check_vexity :: Bool = true`
 * `verbose :: Bool = true`
@@ -80,7 +53,7 @@ The `cvx_kwargs...` are keyword arguments passed to `Convex.solve!`:
 
 For details, see [Convex.jl docs](https://jump.dev/Convex.jl/stable/reference/#Convex.solve!).
 """
-function qsolve!(problem::Problem; quiet::Bool=true, cvx_kwargs...)
-    optimizer = _USE_MOSEK ? Mosek.Optimizer(QUIET=quiet) : SCS.Optimizer(verbose=!quiet,eps=1e-6)
+function qsolve!(problem::Problem; quiet::Bool=true, use_mosek::Bool=false, cvx_kwargs...)
+    optimizer = (use_mosek && hasMOSEKLicense()) ? Mosek.Optimizer(QUIET=quiet) : SCS.Optimizer(verbose=!quiet,eps=1e-6)
     solve!(problem, () -> optimizer; cvx_kwargs... )
 end

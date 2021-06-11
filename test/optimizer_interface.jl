@@ -1,75 +1,10 @@
 using Test, LinearAlgebra, Convex, Suppressor
 using CVChannel
 
+# Check whether a Mosek license exists in the test ENV
+const has_MOSEK_LICENSE = hasMOSEKLicense()
+
 @testset "./src/optimizer_interface.jl" begin
-
-test_dir = joinpath(@__DIR__,"files")
-
-# WARNING: Modifying ENV is a good way to shoot yourself in the foot.
-
-# making a copy of the environment variables
-env_copy = copy(ENV)
-
-# restores the environment variables to original values
-_restoreENV() = begin
-    ENV["MOSEKLM_LICENSE_FILE"] = haskey(env_copy, "MOSEKLM_LICENSE_FILE") ? env_copy["MOSEKLM_LICENSE_FILE"] : ""
-    ENV["HOME"] = haskey(env_copy, "HOME") ? env_copy["HOME"] : ""
-    ENV["PROFILE"] = haskey(env_copy, "PROFILE") ? env_copy["PROFILE"] : ""
-end
-
-@testset "hasMOSEKLicense()" begin
-    ENV["MOSEKLM_LICENSE_FILE"] = ""
-    ENV["HOME"] = ""
-    ENV["PROFILE"] = ""
-    @test !hasMOSEKLicense()
-
-    ENV["MOSEKLM_LICENSE_FILE"] = joinpath(test_dir,"mosek","mosek.lic")
-    @test hasMOSEKLicense()
-
-    ENV["MOSEKLM_LICENSE_FILE"] = ""
-    ENV["HOME"] = test_dir
-    @test hasMOSEKLicense()
-
-    ENV["HOME"] = ""
-    ENV["PROFILE"] = test_dir
-    @test hasMOSEKLicense()
-
-    _restoreENV()
-end
-
-@testset "useSCS() and useMOSEK()" begin
-    ENV["MOSEKLM_LICENSE_FILE"] = ""
-    ENV["HOME"] = test_dir
-    ENV["PROFILE"] = ""
-    @test hasMOSEKLicense()
-
-    local return_val    # needed to probe inside @capture_err scope
-    err = @capture_err return_val = useSCS()
-    @test occursin(r"Warning: Using SCS backend\.", err)
-    @test !CVChannel._USE_MOSEK
-    @test !return_val
-
-    err = @capture_err return_val = useMOSEK()
-    @test occursin(r"Warning: Using MOSEK backend\.", err)
-    @test CVChannel._USE_MOSEK
-    @test return_val
-
-    # repeating SCS test now that we know the value of CVChannel._USE_MOSEK
-    err = @capture_err return_val = useSCS()
-    @test occursin(r"Warning: Using SCS backend\.", err)
-    @test !CVChannel._USE_MOSEK
-    @test !return_val
-
-    ENV["HOME"] = @__DIR__
-    @test !hasMOSEKLicense()
-
-    err = @capture_err return_val = useMOSEK()
-    @test occursin(r"Warning: No MOSEK license found\. Using SCS backend\.", err)
-    @test !return_val
-    @test !CVChannel._USE_MOSEK
-
-    _restoreENV()
-end
 
 @testset "qsolve!()" begin
     function _state_optimization()
@@ -88,48 +23,70 @@ end
     # NOTE: These test should really be testing which optimizer is running, but
     # Suppressor is not able to capture the outputs for some unknown reason.
     @testset "runs with SCS backend" begin
-        @suppress_err useSCS()
-        @test !CVChannel._USE_MOSEK
-
         (ρ, objective, constraints) = _state_optimization()
         problem = maximize(objective, constraints)
 
+        # unable to capture output from SCS with suppressor
+        # testing in default quiet mode
         qsolve!(problem)
 
         @test problem.optval ≈ 1
         @test ρ.value ≈ [0.5 0.5;0.5 0.5]
     end
 
-    # TODO: Test MOSEK with less fragility and ENV dependence than below.
-    # @testset "runs with mosek backend" begin
-    #     ENV["MOSEKLM_LICENSE_FILE"] = joinpath(test_dir,"mosek","mosek.lic")
-    #     ENV["HOME"] = ""
-    #     ENV["PROFILE"] = ""
-    #
-    #     @suppress_err useMOSEK()
-    #     @test CVChannel._USE_MOSEK
-    #
-    #     try
-    #         (ρ, objective, constraints) = _state_optimization()
-    #         problem = maximize(objective, constraints)
-    #
-    #         qsolve!(problem)
-    #
-    #         @test problem.optval ≈ 1
-    #         @test isapprox(ρ.value, [0.5 0.5;0.5 0.5], atol=1e-5)
-    #
-    #         println("no error")
-    #     catch err
-    #         println(err)
-    #     end
-    #
-    #     @suppress_err useSCS()
-    #     _restoreENV()
-    # end
+    if has_MOSEK_LICENSE
+        @testset "runs with mosek backend" begin
+            (ρ, objective, constraints) = _state_optimization()
+            problem = maximize(objective, constraints)
+
+            mosek_out = @capture_out qsolve!(problem, quiet=false, use_mosek=true)
+
+            @test occursin(r"Problem\n\s*Name\s*:\s*\n\s*Objective sense\s*:\s*max\s*\n", mosek_out)
+            @test problem.optval ≈ 1
+            @test isapprox(ρ.value, [0.5 0.5;0.5 0.5], atol=1e-5)
+        end
+    else
+        @warn "MOSEK tests skipped because a license was not found."
+    end
 end
 
-# NOTE: This must run last!
-# In case any tests failed, making sure environment variables are properly restored
-_restoreENV()
+@testset "hasMOSEKLicense()" begin
+    test_dir = joinpath(@__DIR__,"files")
+
+    # WARNING: Modifying ENV is a good way to shoot yourself in the foot.
+    # making a copy of the environment variables
+    env_copy = copy(ENV)
+
+    # restores the environment variables to original values
+    _restoreENV() = begin
+        ENV["MOSEKLM_LICENSE_FILE"] = haskey(env_copy, "MOSEKLM_LICENSE_FILE") ? env_copy["MOSEKLM_LICENSE_FILE"] : ""
+        ENV["HOME"] = haskey(env_copy, "HOME") ? env_copy["HOME"] : ""
+        ENV["PROFILE"] = haskey(env_copy, "PROFILE") ? env_copy["PROFILE"] : ""
+    end
+
+    @testset "modifying ENV to be different license states" begin
+        ENV["MOSEKLM_LICENSE_FILE"] = ""
+        ENV["HOME"] = ""
+        ENV["PROFILE"] = ""
+        @test !hasMOSEKLicense()
+
+        ENV["MOSEKLM_LICENSE_FILE"] = joinpath(test_dir,"mosek","mosek.lic")
+        @test hasMOSEKLicense()
+
+        ENV["MOSEKLM_LICENSE_FILE"] = ""
+        ENV["HOME"] = test_dir
+        @test hasMOSEKLicense()
+
+        ENV["HOME"] = ""
+        ENV["PROFILE"] = test_dir
+        @test hasMOSEKLicense()
+
+        _restoreENV()
+    end
+
+    # NOTE: This must run last!
+    # In case any tests failed, making sure environment variables are properly restored
+    _restoreENV()
+end
 
 end
