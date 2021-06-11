@@ -38,7 +38,7 @@ include("states.jl")
 export choi, depolarizingChannel, dephrasureChannel, wernerHolevoChannel
 include("channels.jl")
 
-export qsolve!, useMOSEK, useSCS, hasMOSEKLicense
+export qsolve!, hasMOSEKLicense
 include("optimizer_interface.jl")
 
 export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual
