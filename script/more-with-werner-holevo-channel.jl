@@ -150,13 +150,13 @@ print("\nThis completes our investigation of the non-multiplicativity of Werner 
 function noisyWHnonMult()
     print("\n\nOur final investigation of the Werner-Holevo channel is its non-multiplicativity's robustness to noise.")
     print("\nTo do this we just take a linear combination of the Werner-Holevo channel with the maximally")
-    print("depolarizing channel. We consider d=3 and p & mixing param in [0,0.05,...,0.4]")
+    print(" depolarizing channel. We consider d=3 and p in [0,0.05,...,0.3] and mixing parameter in [0,0.5,...,0.45].")
     print("\nNOTE: This will take a few minutes.")
 
     dim = 3
-    p_vals = [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4]
-    mix_vals = [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4]
-    depol_choi = Matrix(1.0*I,dim^2,dim^2)
+    p_vals = [0,0.05,0.1,0.15,0.2,0.25,0.3]
+    mix_vals = [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45]
+    depol_choi = Matrix(1/dim*I,dim^2,dim^2)
     len = length(p_vals); wid = length(mix_vals)
     mult_table = zeros(len,wid)
     cv_table = zeros(len,wid)
@@ -166,7 +166,7 @@ function noisyWHnonMult()
         wern_choi = dim*wernerState(dim,p)
         p_ctr = p_ctr + 1
         for mix_amt in mix_vals
-            if isapprox(mix_amt,0.2, atol = 1e-6)
+            if isapprox(mix_amt,0.3, atol = 1e-6)
                 print("\nNow halfway through this value of p.")
             end
             mix_choi = (1-mix_amt)*wern_choi + mix_amt*depol_choi #This uses linearity of Choi mapping
@@ -196,7 +196,7 @@ function noisyWHnonMult()
         print("\nIf you check your results, you will see there is non-multiplicative regime.")
         print(" The first table is the non-multiplicativity results. The second the original cv values.")
         print(" The rows are for fixed value of p in increasing amount of mixture left to right.")
-        print(" The rows are in descending value of p. \n")
+        print(" p increases as the rows go down. \n")
         return true
     end
 end
