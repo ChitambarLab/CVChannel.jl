@@ -105,3 +105,52 @@ function permuteSubsystems(ρ:: Matrix,perm::Vector{Int64},dims::Vector{Int64}) 
 
     return result
 end
+
+"""
+    shiftOperator(d::Int64) :: Matrix
+
+This function returns the operator that shifts the computational basis mod d
+for complex Euclidean space of dimension d. That is, it returns the operator ``S``
+defined by the action
+```math
+    S|e_{k}\\rangle = |e_{k+1}\\rangle (mod d)
+```
+"""
+
+function shiftOperator(d::Int64) :: Matrix
+    shift = zeros(1,d)
+    shift[1,d] = 1
+    row = zeros(1,d)
+    for i = 1: (d-1)
+        row[1,i] = 1
+        shift = vcat(shift,row)
+        row[1,i] = 0
+    end
+    return shift
+end
+
+"""
+    bellUnitary(m :: Int64, n :: Int64, d :: Int64)
+
+This function returns the (m,n)^th unitary for generating the generalized
+Bell basis. They are defined by their action on the computational basis:
+```math
+    U_{n,m}|e_{k}\\rangle = e^{2 \\pi mk i / d} |e_{k+n}\\rangle
+```
+These are actually the Weyl Operator basis. See https://arxiv.org/abs/0901.4729
+for further details.
+"""
+function bellUnitary(n :: Int64, m :: Int64, d :: Int64) :: Matrix
+    #There probably are better names for this function, but yeah
+    if m < 0 || n < 0
+        throw(DomainError((n,m), "Make sure m,n ∈ [0,1,...,d-1]."))
+    elseif m >= d || n >= d
+        throw(DomainError((n,m), "Make sure m,n < d."))
+    end
+    λ = exp(2*pi*1im / d)
+    U = zeros(ComplexF64,d,d)
+    for k = 0 : d-1
+        U[k+1,((k+m) % d) + 1] = λ^(k*n)
+    end
+    return U
+end
