@@ -108,3 +108,36 @@ function pptCVDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int, dual=true :: B
     qsolve!(problem)
     return problem.optval, Y1.value, Y2.value
 end
+
+"""
+    twoSymCVPrimal(
+        ρ :: Matrix{<:Number},
+        dimA :: Int,
+        dimB :: Int
+    ) :: Tuple{Float64,  Matrix{ComplexF64}}
+
+This function solves the SDP
+```math
+\\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} ,
+                                        \\Gamma^{B_{1}}(X) \\succeq 0,
+                                        X = (I_{A} \\otimes \\mathbb{F}_{B})X(I_{A} \\otimes \\mathbb{F}_{B}),
+                                        X \\succeq 0 \\}
+```
+where ``\\Gamma^{B_{1}}( \\cdot)`` is the partial transpose with respect to the second system,
+and returns the optimal value and the optimizer, X. The conditions on X demand it is two-symmetric, i.e.
+an element of the lowest level of the [DPS hierarchy.](https://arxiv.org/abs/quant-ph/0308032)
+Note: we label the primal as the maximization problem.
+"""
+function twoSymCVPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
+    X = HermitianSemidefinite(dimA*dimB*dimB)
+    idA = Matrix(1I, dimA, dimA); idB = Matrix(1I, dimB, dimB)
+    F = swapOperator(dimB)
+    objective = real(tr(kron(ρ,idB)' * X))
+    constraints = [partialtrace(partialtrace(X, 1, [dimA,dimB,dimB]),2,[dimB,dimB]) == Matrix{Float64}(I,dimB,dimB),
+                   X - (kron(idA,F)*X*kron(idA,F)') == 0,
+                   partialtranspose(X,2,[dimA,dimB,dimB]) ⪰ 0]
+    problem = maximize(objective,constraints)
+    qsolve!(problem)
+    return problem.optval, X.value
+end
+#I don't write the dual program because it's too big to be useful anyways
