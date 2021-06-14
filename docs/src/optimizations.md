@@ -8,4 +8,5 @@ eaCVPrimal
 eaCVDual
 pptCVPrimal
 pptCVDual
+twoSymCVPrimal
 ```
