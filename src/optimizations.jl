@@ -108,3 +108,40 @@ function pptCVDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int, dual=true :: B
     qsolve!(problem)
     return problem.optval, Y1.value, Y2.value
 end
+
+"""
+    WHID_LP(
+        d1 :: Int64,
+        d2 :: Int64,
+        λ :: Union{Int,Float64}
+    ) :: Float64
+
+This function implements the linear program (LP) to determine the communication
+value of the Werner-Holevo channel tensored with the identity channel, when the
+problem is relaxed to optimizing over the PPT cone. (See cite for derivation).
+d1,d2 are the input-output dimensions of the Werner-Holevo and identity channel
+respectively. λ is the parameter defining the Werener-Holevo channel.
+*Note it is the opposite of what we use for the rest of the code. This should be
+rectified at some point when things are written up and the code is finalized*
+"""
+function WHIDLP(d1 :: Int64, d2 :: Int64, λ :: Union{Int,Float64} ) :: Float64
+    #This is the vector of variables and we use alphabetical order x[1] = w, x[2] = x,...
+    v = Variable(4)
+    #Given the number of constraints we define the problem and add constraints
+    objective = (v[1]+v[3]*d2+(1-2λ)*(v[2]+v[4]*d2))
+    problem = maximize(objective)
+    problem.constraints += [
+        0 <= v[1]-v[2]+d2*v[3]-d2*v[4],
+        0 <= v[1]-v[2],
+        0 <= v[1]+v[2]+d2*v[3]+d2*v[4],
+        0 <= v[1]+v[2],
+        0 <= v[1] + d1*v[2] - v[3] - d1*v[4],
+        0 <= v[1] - v[3],
+        0 <= v[1] + d1*v[2] + v[3] + d1*v[4],
+        0 <= v[1] + v[3],
+        1 == d1*d2*v[1]+d2*v[2]+d1*v[3] + v[4]
+    ]
+    qsolve!(problem)
+
+    return d1*d2*problem.optval
+end
