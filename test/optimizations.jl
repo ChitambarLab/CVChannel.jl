@@ -49,7 +49,7 @@ end
         par_choi = permuteSubsystems(kron_par_choi, [1,3,2,4], [d1,d1,d2,d2])
         par_cv = pptCVPrimal(par_choi, d1*d2, d1*d2)
         par_cv_LP = WHIDLP(d1, d2, λ)
-        @test isapprox(par_cv[1], par_cv_LP, atol=1e-6)
+        @test isapprox(par_cv[1], par_cv_LP, atol=1e-5)
     end
 end
 
