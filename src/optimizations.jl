@@ -110,7 +110,7 @@ function pptCVDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int, dual=true :: B
 end
 
 """
-    WHID_LP(
+    WHIDLP(
         d1 :: Int64,
         d2 :: Int64,
         λ :: Union{Int,Float64}
