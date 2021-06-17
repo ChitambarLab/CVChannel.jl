@@ -8,7 +8,6 @@ using DelimitedFiles
 This code first verifies the non-multiplicativity of the Werner-Holevo over the PPT
 cone when tensored with the identity. This is different than over the separable cone.
 We verify this using an a linear program (LP) that we scan over.
-Second, this code investigates the noise robustness of the Werner-Holevo channel
 """
 #This script looks at multiplicativity of WH with identity over PPT cone
 println("\nFirst we convince ourselves that the choi states of the Werner-Holevo (WH)")
