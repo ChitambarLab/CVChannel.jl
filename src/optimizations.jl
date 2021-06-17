@@ -121,8 +121,10 @@ value of the Werner-Holevo channel tensored with the identity channel, when the
 problem is relaxed to optimizing over the PPT cone. (See cite for derivation).
 d1,d2 are the input-output dimensions of the Werner-Holevo and identity channel
 respectively. λ is the parameter defining the Werener-Holevo channel.
-*Note it is the opposite of what we use for the rest of the code. This should be
-rectified at some point when things are written up and the code is finalized*
+
+!!! warning
+    The `λ` parameter of `WHIDLP` relates to the mixing probability `p` used
+    throughout as `p = (1 - λ)`. This will likely be rectified in a future version.
 """
 function WHIDLP(d1 :: Int64, d2 :: Int64, λ :: Union{Int,Float64} ) :: Float64
     #This is the vector of variables and we use alphabetical order x[1] = w, x[2] = x,...
