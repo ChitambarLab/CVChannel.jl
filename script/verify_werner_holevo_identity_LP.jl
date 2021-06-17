@@ -7,6 +7,7 @@ to be able to run. This is not part of the test files because it added
 30 seconds to running the tests even though it is only three small cases,
 though it takes less than 10 seconds if you have the solvers initialized.
 """
+
 println("We now verify the LP and SDP agree on three settings.")
 @testset "verify WHIDLP" begin
     conditions = [[2,2,0],[3,2,0],[2,3,0.25]]
