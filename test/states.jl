@@ -43,9 +43,9 @@ end
     end
 
     @testset "light scan over range " begin
-        y_step = 0.1
-        x_step = 0.1
-        for d in 2:5
+        y_step = 0.5
+        x_step = 0.5
+        for d in 2:4
             y_bounds = CVChannel._axisymmetric_y_bounds(d)
             for y in y_bounds[1]:y_step:y_bounds[2]
                 x_constraints = CVChannel._axisymmetric_x_constraints(d,y)
