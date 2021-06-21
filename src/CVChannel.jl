@@ -29,7 +29,7 @@ module CVChannel
 using Convex, SCS, MosekTools
 using LinearAlgebra
 
-export isPPT, swapOperator, permuteSubsystems
+export isPPT, swapOperator, permuteSubsystems, shiftOperator, bellUnitary
 include("operations.jl")
 
 export wernerState
@@ -41,7 +41,11 @@ include("channels.jl")
 export qsolve!, hasMOSEKLicense
 include("optimizer_interface.jl")
 
+<<<<<<< HEAD
 export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual, WHIDLP
+=======
+export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual, twoSymCVPrimal
+>>>>>>> d244dda29da3786038fa5ef904512840b79d7528
 include("optimizations.jl")
 
 end

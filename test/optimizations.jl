@@ -35,6 +35,7 @@ end
     @test isapprox(pptCVDual(maxEntState,2,2)[2],1/2*[1 0 ; 0 1], atol = 1e-6)
 end
 
+<<<<<<< HEAD
 @testset "WHIDLP" begin
     identChan(X) = X
     conditions = [[2,2,0],[3,2,0],[2,3,0.25]]
@@ -53,4 +54,19 @@ end
     end
 end
 
+=======
+@testset "twoSymCVPrimal" begin
+    #We can't really test a lot with this since we don't really know much
+    #Here we verify that it gives answers we know it should give even over
+    #the separable cone
+    test1 = 3*wernerState(3,0)
+    cv1 = pptCVPrimal(test1,3,3)
+    cv1_two_sym = twoSymCVPrimal(test1,3,3)
+    @test isapprox(cv1[1],cv1_two_sym[1], atol=1e-6)
+    test2 = vec([1 0 0 ; 0 1 0 ; 0 0 1])*vec([1 0 0 ; 0 1 0 ; 0 0 1])'
+    cv2 = pptCVPrimal(test2,3,3)
+    cv2_two_sym = twoSymCVPrimal(test2,3,3)
+    @test isapprox(cv2[1],cv2_two_sym[1], atol=2e-6)
+end
+>>>>>>> d244dda29da3786038fa5ef904512840b79d7528
 end
