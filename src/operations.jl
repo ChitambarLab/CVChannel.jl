@@ -105,7 +105,6 @@ function permuteSubsystems(ρ:: Matrix,perm::Vector{Int64},dims::Vector{Int64}) 
 
     return result
 end
-
 """
     shiftOperator(d::Int64) :: Matrix
 

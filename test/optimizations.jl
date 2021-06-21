@@ -35,26 +35,6 @@ end
     @test isapprox(pptCVDual(maxEntState,2,2)[2],1/2*[1 0 ; 0 1], atol = 1e-6)
 end
 
-<<<<<<< HEAD
-@testset "WHIDLP" begin
-    identChan(X) = X
-    conditions = [[2,2,0],[3,2,0],[2,3,0.25]]
-    for (d1f,d2f,λ) in conditions
-        d1 = Int(d1f)
-        d2 = Int(d2f)
-        p = 1 - λ    # parameterization is backwards between LP and WernerState
-
-        wern_choi = d1*wernerState(d1, p)
-        ident_choi = choi(identChan, d2, d2)
-        kron_par_choi = kron(wern_choi,ident_choi)
-        par_choi = permuteSubsystems(kron_par_choi, [1,3,2,4], [d1,d1,d2,d2])
-        par_cv = pptCVPrimal(par_choi, d1*d2, d1*d2)
-        par_cv_LP = WHIDLP(d1, d2, λ)
-        @test isapprox(par_cv[1], par_cv_LP, atol=1e-5)
-    end
-end
-
-=======
 @testset "twoSymCVPrimal" begin
     #We can't really test a lot with this since we don't really know much
     #Here we verify that it gives answers we know it should give even over
@@ -68,5 +48,4 @@ end
     cv2_two_sym = twoSymCVPrimal(test2,3,3)
     @test isapprox(cv2[1],cv2_two_sym[1], atol=2e-6)
 end
->>>>>>> d244dda29da3786038fa5ef904512840b79d7528
 end
