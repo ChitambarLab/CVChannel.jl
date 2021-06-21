@@ -16,6 +16,7 @@ wernerHolevoChannel
 
 ```@docs
 wernerState
+axisymmetricState
 ```
 
 ## Operations
