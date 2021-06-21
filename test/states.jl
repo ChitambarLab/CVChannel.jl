@@ -42,6 +42,21 @@ end
         end
     end
 
+    @testset "light scan over range " begin
+        y_step = 0.1
+        x_step = 0.1
+        for d in 2:5
+            y_bounds = CVChannel._axisymmetric_y_bounds(d)
+            for y in y_bounds[1]:y_step:y_bounds[2]
+                x_constraints = CVChannel._axisymmetric_x_constraints(d,y)
+                for x in x_constraints[1]:x_step:x_constraints[2]
+                    ρ_axi = axisymmetricState(d,x,y)
+                    @test is_density_matrix(ρ_axi)
+                end
+            end
+        end
+    end
+
     @testset "domain errors" begin
         @test_throws DomainError axisymmetricState(1,0.,0.)
         @test_throws DomainError axisymmetricState(2,0.,2.)
