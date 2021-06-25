@@ -28,9 +28,14 @@ function wernerState(d :: Int, p ::Union{Int,Float64}) :: Matrix{Float64}
 end
 
 """
-    axisymmetricState(d :: Int64, x :: Float64, y :: Float64) :: Matrix{Float64}
+    axisymmetricState(
+        d :: Int64,
+        x :: Union{Int,Float64},
+        y :: Union{Int,Float64}
+    ) :: Matrix{Float64}
 
-Construct the axisymmetric state ``\\rho^{\\text{axi}}`` as described by [https://arxiv.org/pdf/1505.01833.pdf](https://arxiv.org/pdf/1505.01833.pdf).
+Construct the axisymmetric state ``\\rho^{\\text{axi}}`` as described in section
+IV.C. of [this paper](https://arxiv.org/pdf/1505.01833.pdf).
 This state is a bipartite quantum state with each subspace having dimension `d`.
 The diagonal of ``\\rho^{\\text{axi}}`` is parameterized as
 
@@ -45,15 +50,20 @@ while the off-diagonals are expressed as
 ```
 
 where ``a = y\\frac{d-1}{d}`` and ``b = \\frac{x}{\\sqrt{d(d-1)}}``.
+All remaining elements of ``\\rho^{\\text{axi}}`` are zero.
 Inputs `x` and `y` of the `axisymmetricState` function parameterize ``\\rho^{\\text{axi}}``
 and are constrained as:
 * ``-\\frac{1}{d\\sqrt{d-1}} \\leq y \\leq \\frac{\\sqrt{d-1}}{d}``
-* ``-\\frac{1}{d(d-1)}\\leq x \\leq \\sqrt{\\frac{d-1}{d}}``
+* ``-\\frac{1}{\\sqrt{d(d-1)}}\\leq x \\leq \\sqrt{\\frac{d-1}{d}}``
 * ``-\\frac{1}{\\sqrt{d}}\\left( y + \\frac{1}{d\\sqrt{d-1}}\\right) \\leq x \\leq \\frac{d-1}{\\sqrt{d}}\\left(y + \\frac{1}{d\\sqrt{d-1}} \\right)``
 
 If any of the constraints above do not hold, a `DomainError` is thrown.
 """
-function axisymmetricState(d :: Int64, x :: Float64, y :: Float64) :: Matrix{Float64}
+function axisymmetricState(
+    d :: Int64,
+    x :: Union{Int,Float64},
+    y :: Union{Int,Float64}
+) :: Matrix{Float64}
     y_bounds = _axisymmetric_y_bounds(d)
     x_bounds = _axisymmetric_x_bounds(d)
     x_constraints = _axisymmetric_x_constraints(d,y)

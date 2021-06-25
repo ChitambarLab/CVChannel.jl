@@ -19,8 +19,8 @@ end
 
 @testset "axisymmetricState" begin
     @testset "x=0., y=0. is maximally mixed" begin
-        x = 0.
-        y = 0.
+        x = 0
+        y = 0
         for d in 2:8
             d = 2
             ρ_axi = axisymmetricState(d,x,y)
