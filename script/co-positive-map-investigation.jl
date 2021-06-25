@@ -93,7 +93,7 @@ println("This also gives us a chance to initialize the solver.")
     cv11 = pptCVPrimal(state11,9,9)
     cv12 = pptCVPrimal(state12,9,9)
     cv22 = pptCVPrimal(state22,9,9)
-    @test isapprox(cv11[1] - cv1[1]^2, 0, atol = 1e-6)
+    @test isapprox(cv11[1] - cv1[1]^2, 0, atol = 5e-6)
     @test isapprox(cv12[1] - cv1[1]*cv2[1], 0, atol = 5e-6)
     @test isapprox(cv22[1] - cv2[1]^2, 0, atol = 5e-6)
 end
