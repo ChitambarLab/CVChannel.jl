@@ -149,7 +149,9 @@ function WHIDLP(d1 :: Int64, d2 :: Int64, λ :: Union{Int,Float64} ) :: Float64
 end
 
 """
-    generalWHLPConstraints(n :: Int, d :: Int, λ_vec :: Vector{Float64})
+    generalWHLPConstraints(n :: Int,
+                           d :: Int,
+                           λ_vec :: Union{Vector{Float64},Vector{Int64}})
     :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
 
 This function returns the linear program constraints for calculating the PPT
@@ -160,7 +162,7 @@ communication value of the Werner-Holevo channels run in parallel for arbitrary
     It takes ``O(n2^{2n})`` steps to generate. If one wants a large dimension,
     we suggest you save the resulting constraints.
 """
-function generalWHLPConstraints(n :: Int, d :: Int, λ_vec :: Vector{Float64}) :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
+function generalWHLPConstraints(n :: Int, d :: Int, λ_vec :: Union{Vector{Float64},Vector{Int64}}) :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
     #Quick sanity checks
     if n > 11
         println("WARNING: You are trying to generate constraints at a size where the time it will take is non-trivial.")

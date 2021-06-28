@@ -41,7 +41,8 @@ include("channels.jl")
 export qsolve!, hasMOSEKLicense
 include("optimizer_interface.jl")
 
-export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual, WHIDLP
+export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual
+export WHIDLP, generalWHLPConstraints
 include("optimizations.jl")
 
 end

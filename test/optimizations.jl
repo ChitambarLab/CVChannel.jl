@@ -54,7 +54,25 @@ end
 end
 
 @testset "generalWHLPConstraints" begin
-    
-end
+    #Domain Error Checks
+    @test_throws DomainError generalWHLPConstraints(3,3,ones(4))
+    @test_throws DomainError generalWHLPConstraints(2,4,[1.,6])
 
+    #Generating Constraints Checks
+    n,d,λ = 1,2,1
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+    λ = 0.8
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+    d = 4
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+    n,d,λ = 2,3,1
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    targA = [1 1 1 1 ; 1 -1 1 -1 ; 1 1 -1 -1 ; 1 -1 -1 1]
+    targB = [1. 0 0 0 ; 1 d 0 0 ; 1 0 d 0 ; 1 d d d^2]
+    targa = reshape([1. 1 1 1],:,1)
+    targg = [d^2 d d 1]
+    @test A == targA && B == targB && a == targa && g == targg
 end
