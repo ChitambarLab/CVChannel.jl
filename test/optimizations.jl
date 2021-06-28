@@ -62,12 +62,15 @@ end
     n,d,λ = 1,2,1
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
     @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+
     λ = 0.8
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
     @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+
     d = 4
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
     @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+
     n,d,λ = 2,3,1
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
     targA = [1 1 1 1 ; 1 -1 1 -1 ; 1 1 -1 -1 ; 1 -1 -1 1]
@@ -75,4 +78,30 @@ end
     targa = reshape([1. 1 1 1],:,1)
     targg = [d^2 d d 1]
     @test A == targA && B == targB && a == targa && g == targg
+end
+
+@testset "wernerHolevoCVPPT" begin
+    n,d,λ = 1,3,0
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    lp_cv_ppt, opt = wernerHolevoCVPPT(n,d,A,B,g,a)
+    orig_choi = 3*wernerState(3,0)
+    test1 = pptCVDual(orig_choi,3,3)
+    @test isapprox(test1[1], lp_cv_ppt, atol = 1e-6)
+
+    λ = 0.2
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    lp_cv_ppt, opt = wernerHolevoCVPPT(n,d,A,B,g,a)
+    choi_2 = 3*wernerState(3,λ)
+    test2 = pptCVDual(choi_2,3,3)
+    @test isapprox(test2[1], lp_cv_ppt, atol = 1e-6)
+
+    n,λ = 2,0
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    lp_cv_ppt, opt = wernerHolevoCVPPT(n,d,A,B,g,a)
+    kron_par_choi = kron(orig_choi,orig_choi)
+    par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[3,3,3,3])
+    test3 = pptCVPrimal(par_choi,9,9)
+    @test isapprox(test3[1], lp_cv_ppt, atol = 1e-6)
+end
+
 end

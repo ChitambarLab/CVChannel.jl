@@ -149,10 +149,11 @@ function WHIDLP(d1 :: Int64, d2 :: Int64, λ :: Union{Int,Float64} ) :: Float64
 end
 
 """
-    generalWHLPConstraints(n :: Int,
-                           d :: Int,
-                           λ_vec :: Union{Vector{Float64},Vector{Int64}})
-    :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
+    generalWHLPConstraints(
+        n :: Int,
+        d :: Int,
+        λ_vec :: Union{Vector{Float64},Vector{Int64}}
+    ) :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
 
 This function returns the linear program constraints for calculating the PPT
 communication value of the Werner-Holevo channels run in parallel for arbitrary
@@ -225,4 +226,33 @@ function WH_lambda_coeff(i,bit,λ_vec)
     else
         return (1-λ_vec[i])
     end
+end
+
+"""
+    wernerHolevoCVPPT(
+        n :: Int64
+        d :: Int64,
+        A :: Matrix{Float64},
+        B :: Matrix{Float64},
+        g :: Matrix{Float64},
+        a :: Matrix{Float64}
+    ):: Tuple{Float64, Matrix{Float64}}
+
+This function evaluates the linear program for the PPT relaxation of the communication
+value of the Werner-Holevo channel using the form that [`generalWHLPConstraints`](@ref)
+outputs. It returns the cvPPT value and the optimizer.
+
+!!! warning
+    For ``n \\geq 10`` the solver may be slow.
+"""
+function wernerHolevoCVPPT(n :: Int64, d :: Int64, A :: Matrix{Float64}, B :: Matrix{Float64}, g :: Matrix{Float64}, a :: Matrix{Float64}) :: Tuple{Float64, Matrix{Float64}}
+    v = Variable(2^n)
+    objective = a' * v
+    problem = maximize(objective)
+    problem.constraints += [
+        A * v >= 0 ; B * v >= 0 ; g * v == 1
+    ]
+    qsolve!(problem)
+    cvPPT = d^n * problem.optval
+    return cvPPT, v.value
 end

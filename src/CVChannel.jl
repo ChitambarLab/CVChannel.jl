@@ -42,7 +42,7 @@ export qsolve!, hasMOSEKLicense
 include("optimizer_interface.jl")
 
 export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual
-export WHIDLP, generalWHLPConstraints
+export WHIDLP, generalWHLPConstraints, wernerHolevoCVPPT
 include("optimizations.jl")
 
 end
