@@ -3,15 +3,10 @@ using CVChannel
 using Test
 
 """
-This function calculates the PPT communication value of the Werner-Holevo
+This function allows you to calculate the PPT communication value of the Werner-Holevo
 channel in higher dimensions. It does this by generating the constraints
 as matrices.
 """
-
-n = 2 #This is the number of states you are tensoring
-d = 3 #This is the dimension of your Werner-Holevo channels
-
-
 #These are helper functions
 function coeff_sign(x)
     if isodd(x)
@@ -20,12 +15,7 @@ function coeff_sign(x)
         return 1
     end
 end
-#For simplicity, we assume its the same channel n fold times. The function is
-#written so it could be altered for the more general case easily, by hard-coding
-#the lambda vector into the function and then using i to pick which lambda
-function lambda_coeff(i,bit)
-    λ = 0.9
-    λ_vec = λ*ones(4)
+function lambda_coeff(i,bit,λ_vec)
     if bit == 0
         return λ_vec[i]
     else
@@ -33,7 +23,16 @@ function lambda_coeff(i,bit)
     end
 end
 
-function generalLPConstraints()
+function generalWHLPConstraints(n,d,λ_vec)
+    #Quick sanity checks
+    if n > 11
+        println("WARNING: You are trying to generate constraints at a size where the time it will take is non-trivial.")
+    elseif length(λ_vec) != n
+        throw(DomainError(λ_vec, "λ_vec must have the length of n."))
+    elseif !all(λ_vec -> λ_vec >= 0 && λ_vec <= 1, λ_vec)
+        throw(DomainError(λ_vec, "λ_vec must contain values in [0,1]"))
+    end
+
     #Note that the objective function will need to be scaled by d after the calculation
     A = zeros(2^n,2^n)
     B = zeros(2^n,2^n)
@@ -53,7 +52,7 @@ function generalLPConstraints()
             A[j+1,s+1] = coeff_sign(w_sj)
             #This is for the objective function
             if j <= n -1
-                ζ[s+1] = ζ[s+1]*lambda_coeff(j+1,s_string[j+1])
+                ζ[s+1] = ζ[s+1]*lambda_coeff(j+1,s_string[j+1],λ_vec)
             end
             #This whole loop is the ppt constraint
             B_nonzero = true
@@ -62,7 +61,6 @@ function generalLPConstraints()
                 if s_string[i+1] == 1 && j_string[i+1] == 0
                     B_nonzero = false
                 end
-                #println(ζ)
             end
             if B_nonzero
                 B[j+1,s+1] = d^(w_s) #d^(-1. *(n - w_s)) original scaling
@@ -71,10 +69,12 @@ function generalLPConstraints()
             end
         end
     end
-    #println(A)
-    #println(ζ)
     a = A*ζ
     return A, B, g, a
 end
 
-A,B,g,a = generalLPConstraints()
+
+n = 2 #This is the number of states you are tensoring
+d = 3 #This is the dimension of your Werner-Holevo channels
+λ_vec = 1*ones(1,n)
+A,B,g,a = generalWHLPConstraints(n,d,λ_vec)
