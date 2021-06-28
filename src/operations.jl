@@ -115,16 +115,10 @@ defined by the action
     S|e_{k}\\rangle = |e_{k+1}\\rangle (mod d)
 ```
 """
-
 function shiftOperator(d::Int64) :: Matrix
-    shift = zeros(1,d)
-    shift[1,d] = 1
-    row = zeros(1,d)
-    for i = 1: (d-1)
-        row[1,i] = 1
-        shift = vcat(shift,row)
-        row[1,i] = 0
-    end
+    id = Matrix(I,d,d)
+    shift = id[[end,1:(end-1)...],:]
+
     return shift
 end
 

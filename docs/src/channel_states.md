@@ -24,4 +24,6 @@ wernerState
 isPPT
 swapOperator
 permuteSubsystems
+shiftOperator
+bellUnitary
 ```

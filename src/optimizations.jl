@@ -122,6 +122,9 @@ where ``\\Gamma^{B_{1}}( \\cdot)`` is the partial transpose with respect to the 
 and returns the optimal value and the optimizer, X. The conditions on X demand it is two-symmetric, i.e.
 an element of the lowest level of the [DPS hierarchy.](https://arxiv.org/abs/quant-ph/0308032)
 Note: we label the primal as the maximization problem.
+
+!!! warning "Runs Out of Memory Easily"
+    This function  will run out of memory for the tensor product of even qutrit to qutrit channels.
 """
 function twoSymCVPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
     X = HermitianSemidefinite(dimA*dimB^2)

@@ -10,15 +10,11 @@ Eqn. (82) of https://arxiv.org/abs/1004.1655
 
 Note we know co-positive maps have multiplicativity (cite Theorem/proposition
 when we have a write-up; see my note for proof), so the only way to check this
-at all is implementing the DPS hierarchy.
+at all is implementing the DPS hierarchy. Here we look at the 3-symmetric
+extension of the communication value, and that there exist cases where it is
+better.
 """
 
-println("First we define the set of bound entangled states we will use.")
-println("We note they can be scaled to channels as they are bell diagonal.")
-
-#We need this variation on the bellUnitary function because the authors
-#decided to do something non-standard to generate them in a different
-#order, I guess
 function bellUnitaryVar(m :: Int64, n :: Int64, d :: Int64) :: Matrix
     #There probably are better names for this function, but yeah
     if m < 0 || n < 0
@@ -98,48 +94,24 @@ println("This also gives us a chance to initialize the solver.")
     @test isapprox(cv22[1] - cv2[1]^2, 0, atol = 5e-6)
 end
 
-print("\n\nThis motivates attempting to use the DPS hierarchy, but we will now")
-print(" see that we run out of memory to do that.")
-@testset "No memory for DPS hierarchy" begin
-    test_state1 = 3*boundBell(0.25)
-    cv1 = pptCVDual(test_state1,3,3)
-    state11 = permuteSubsystems(kron(test_state1,test_state1),[1,3,2,4],[3,3,3,3])
-    out_of_mem = false
-    try
-        cv11 = twoSymCVPrimal(state11,9,9)
-    catch
-        out_of_mem = true
-    end
-    @test out_of_mem
-end
-
-print("\n\nGiven this, one question is if we can see the communication value of a given channel")
-print(" decrease as our approximation gets tighter. Here we show it does.")
-@testset "2-symmetric extension improvement" begin
-    println("First we see that the two symmetric communication value can be tighter than PPT.")
-    scan_range = [0.45:0.02:0.75;]
+println("\nNow we can see that there exist cases where three symmetric communication value is tighter than two symmetric.")
+@testset "3-Sym Extension Improvment" begin
+    scan_range = [0.45:0.05:0.75;]
     len = length(scan_range)
-    update_report = [scan_range[Int(round(len/4))], scan_range[Int(round(len/2))], scan_range[Int(round(3*len/4))]]
-    data_table = zeros(len,4)
+    data_table = zeros(len,6)
     ctr = 1
-    update_ctr = 1
     for val in scan_range
-        if val in update_report
-            println("Now ", string(update_ctr),"/4 of the way through scanning.")
-            update_ctr += 1
-        end
+        println("Now evaluating ", ctr," of ",length(scan_range)," points.")
         test_state1 = 3*boundBell(val)
         cv1 = pptCVDual(test_state1,3,3)
         cv2 = twoSymCVPrimal(test_state1,3,3)
-        data_table[ctr,1] = val
-        data_table[ctr,2] = cv1[1]
-        data_table[ctr,3] = cv2[1]
-        data_table[ctr,4] = cv1[1]-cv2[1]
+        cv3 = threeSymCVPrimal(test_state1,3,3)
+        data_table[ctr,:] = [val cv1[1] cv2[1] cv3[1] cv1[1]-cv2[1] cv2[1]-cv3[1]]
         ctr += 1
     end
 
-    println("Here we see there is indeed an improvement.")
-    label_vec = ["input val" "PPT CV" "2 Sym CV" "Diff"]
+    println("Here we again see there is indeed an improvement.")
+    label_vec = ["input val" "PPT CV" "2 Sym CV" "3 Sym CV" "PPT-2Sym" "2Sym - 3Sym"]
     show(stdout, "text/plain", vcat(label_vec,data_table))
 
     info_vec = Vector{Union{Nothing,String}}(nothing, len+1)
@@ -152,72 +124,11 @@ print(" decrease as our approximation gets tighter. Here we show it does.")
     file_to_open = string(file_name,".csv")
     writedlm(file_to_open, data_to_save, ',')
 
-    if all(data_table -> data_table < 1e-4 , data_table[:,4])
+    if all(data_table -> data_table < 1e-4 , data_table[:,6])
         println("Something went awry. Please check your results.")
-        two_sym_helps = false
+        three_sym_helps = false
     else
-        two_sym_helps = true
+        three_sym_helps = true
     end
-
-    @test two_sym_helps
-end
-
-println("\nNow we can see that there exist cases where three symmetric communication value is even tighter.")
-function wantsToContinue() :: Bool
-    println("Warning: This takes quite a bit of time, would you like to continue? (y/n)")
-    proper_response = false
-    while !proper_response
-        user_response = readline()
-        if user_response=="y"
-            return true
-        elseif user_response == "n"
-            print("\n See you later!")
-            return false
-        else
-            print("Please respond with `y` or `n`. \n ")
-        end
-    end
-end
-
-willContinue = wantsToContinue()
-if willContinue
-    @testset "3-Sym Extension Improvment" begin
-        scan_range = [0.45:0.05:0.75;]
-        len = length(scan_range)
-        data_table = zeros(len,6)
-        ctr = 1
-        for val in scan_range
-            println("Now evaluating ", ctr," of ",length(scan_range)," points.")
-            test_state1 = 3*boundBell(val)
-            cv1 = pptCVDual(test_state1,3,3)
-            cv2 = twoSymCVPrimal(test_state1,3,3)
-            cv3 = threeSymCVPrimal(test_state1,3,3)
-            data_table[ctr,:] = [val cv1[1] cv2[1] cv3[1] cv1[1]-cv2[1] cv2[1]-cv3[1]]
-            ctr += 1
-        end
-
-        println("Here we again see there is indeed an improvement.")
-        label_vec = ["input val" "PPT CV" "2 Sym CV" "3 Sym CV" "PPT-2Sym" "2Sym - 3Sym"]
-        show(stdout, "text/plain", vcat(label_vec,data_table))
-
-        info_vec = Vector{Union{Nothing,String}}(nothing, len+1)
-        info_vec[1] = "INFO:"
-        info_vec[2] = "Generated by co-positive-map-investigation.jl"
-        info_vec[3] = "scan_range = " * string(scan_range)
-        data_to_save = hcat(vcat(label_vec,data_table),info_vec)
-        println("Please name the file you'd like to write the results to: \n")
-        file_name = readline()
-        file_to_open = string(file_name,".csv")
-        writedlm(file_to_open, data_to_save, ',')
-
-        if all(data_table -> data_table < 1e-4 , data_table[:,4])
-            println("Something went awry. Please check your results.")
-            three_sym_helps = false
-        else
-            three_sym_helps = true
-        end
-
-        @test three_sym_helps
-    end
-else
+    @test three_sym_helps
 end
