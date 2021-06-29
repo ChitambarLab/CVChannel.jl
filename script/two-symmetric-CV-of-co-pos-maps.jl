@@ -17,24 +17,6 @@ extension of the communication value.
 println("First we define the set of bound entangled states we will use.")
 println("We note they can be scaled to channels as they are bell diagonal.")
 
-#We need this variation on the bellUnitary function because the authors
-#decided to do something non-standard to generate them in a different
-#order, I guess
-function bellUnitaryVar(m :: Int64, n :: Int64, d :: Int64) :: Matrix
-    #There probably are better names for this function, but yeah
-    if m < 0 || n < 0
-        throw(DomainError((n,m), "Make sure m,n ∈ [0,1,...,d-1]."))
-    elseif m >= d || n >= d
-        throw(DomainError((n,m), "Make sure m,n < d."))
-    end
-    λ = exp(2*pi*1im / d)
-    U = zeros(ComplexF64,d,d)
-    for k = 0 : d-1
-        U[((k+n) % d) + 1,k+1] = λ^(k*m)
-    end
-    return U
-end
-
 function boundBell(ε :: Union{Int,Float64}) :: Matrix
     if ε <= 0
         throw(DomainError(ε, "Make sure ε > 0."))

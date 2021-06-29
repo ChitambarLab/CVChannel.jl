@@ -8,6 +8,7 @@ eaCVPrimal
 eaCVDual
 pptCVPrimal
 pptCVDual
+WHIDLP
 twoSymCVPrimal
 threeSymCVPrimal
 ```
