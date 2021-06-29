@@ -9,4 +9,6 @@ eaCVDual
 pptCVPrimal
 pptCVDual
 WHIDLP
+generalWHLPConstraints
+wernerHolevoCVPPT
 ```
