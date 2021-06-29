@@ -15,21 +15,6 @@ extension of the communication value, and that there exist cases where it is
 better.
 """
 
-function bellUnitaryVar(m :: Int64, n :: Int64, d :: Int64) :: Matrix
-    #There probably are better names for this function, but yeah
-    if m < 0 || n < 0
-        throw(DomainError((n,m), "Make sure m,n ∈ [0,1,...,d-1]."))
-    elseif m >= d || n >= d
-        throw(DomainError((n,m), "Make sure m,n < d."))
-    end
-    λ = exp(2*pi*1im / d)
-    U = zeros(ComplexF64,d,d)
-    for k = 0 : d-1
-        U[((k+n) % d) + 1,k+1] = λ^(k*m)
-    end
-    return U
-end
-
 function boundBell(ε :: Union{Int,Float64}) :: Matrix
     if ε <= 0
         throw(DomainError(ε, "Make sure ε > 0."))
@@ -40,8 +25,8 @@ function boundBell(ε :: Union{Int,Float64}) :: Matrix
     #Π operators defined in (40) and implicitly using (35)
     Π1 = zeros(9,9); Π2 = zeros(9,9)
     for i = 0:2
-        Π1 = Π1 + kron(id_mat,bellUnitaryVar(i,1,3))*bell*kron(id_mat,bellUnitaryVar(i,1,3)')
-        Π2 = Π2 + kron(id_mat,bellUnitaryVar(i,2,3))*bell*kron(id_mat,bellUnitaryVar(i,2,3)')
+        Π1 = Π1 + kron(id_mat,discreteWeylOperator(i,1,3))*bell*kron(id_mat,discreteWeylOperator(i,1,3)')
+        Π2 = Π2 + kron(id_mat,discreteWeylOperator(i,2,3))*bell*kron(id_mat,discreteWeylOperator(i,2,3)')
     end
     #They don't say to normalize it, but otherwise it isn't a state
     Π1 = 1/tr(Π1) * Π1 ; Π2 = 1/tr(Π2) * Π2
@@ -95,6 +80,7 @@ println("This also gives us a chance to initialize the solver.")
 end
 
 println("\nNow we can see that there exist cases where three symmetric communication value is tighter than two symmetric.")
+println("WARNING: This takes a while.")
 @testset "3-Sym Extension Improvment" begin
     scan_range = [0.45:0.05:0.75;]
     len = length(scan_range)

@@ -25,5 +25,5 @@ isPPT
 swapOperator
 permuteSubsystems
 shiftOperator
-bellUnitary
+discreteWeylOperator
 ```

@@ -25,7 +25,7 @@ module CVChannel
 using Convex, SCS, MosekTools
 using LinearAlgebra
 
-export isPPT, swapOperator, permuteSubsystems, shiftOperator, bellUnitary
+export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
 include("operations.jl")
 
 export wernerState

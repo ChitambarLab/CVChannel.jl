@@ -69,17 +69,16 @@ end
     @test shiftOperator(4)*[0;0;0;1] == [1;0;0;0]
 end
 
-@testset "bellUnitary" begin
+@testset "discreteWeylOperator" begin
     #This guarantees it generates the Weyl basis in 2d
-    @test bellUnitary(0,0,2) == [1 0 ; 0 1]
-    @test bellUnitary(0,1,2) == [0 1 ; 1 0]
-    @test isapprox(bellUnitary(1,0,2),[1 0 ; 0 -1],atol=1e-6)
-    @test isapprox(bellUnitary(1,1,2), [0 1 ; -1 0],atol=1e-6)
+    @test discreteWeylOperator(0,0,2) == [1 0 ; 0 1]
+    @test discreteWeylOperator(0,1,2) == [0 1 ; 1 0]
+    @test isapprox(discreteWeylOperator(1,0,2),[1 0 ; 0 -1],atol=1e-6)
+    @test isapprox(discreteWeylOperator(1,1,2), [0 -1 ; 1 0],atol=1e-6)
     #This checks that it is doing the right thing as the dimension grows
-    #See https://arxiv.org/abs/0901.4729
-    @test isapprox(bellUnitary(0,2,3),[0 0 1 ; 1 0 0 ; 0 1 0], atol=1e-6)
-    @test isapprox(bellUnitary(1,1,3),[0 1 0 ; 0 0 exp(pi*2im/3); exp(-pi*2im/3) 0 0 ], atol=1e-6)
-    @test isapprox(bellUnitary(2,0,3),[1 0 0 ; 0 exp(-pi*2im/3) 0 ; 0 0 exp(pi*2im/3)], atol=1e-6)
+    @test discreteWeylOperator(0,0,3) == [1 0 0 ; 0 1 0 ; 0 0 1]
+    @test discreteWeylOperator(0,2,3) == [0 1 0 ; 0 0 1 ; 1 0 0]
+    @test isapprox(discreteWeylOperator(2,0,3),[1 0 0 ; 0 exp(pi*4im/3) 0 ; 0 0 exp(pi*8im/3)], atol=1e-6)
 end
 
 end

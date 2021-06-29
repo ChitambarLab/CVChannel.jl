@@ -45,8 +45,8 @@ function boundBell(ε :: Union{Int,Float64}) :: Matrix
     #Π operators defined in (40) and implicitly using (35)
     Π1 = zeros(9,9); Π2 = zeros(9,9)
     for i = 0:2
-        Π1 = Π1 + kron(id_mat,bellUnitaryVar(i,1,3))*bell*kron(id_mat,bellUnitaryVar(i,1,3)')
-        Π2 = Π2 + kron(id_mat,bellUnitaryVar(i,2,3))*bell*kron(id_mat,bellUnitaryVar(i,2,3)')
+        Π1 = Π1 + kron(id_mat,discreteWeylOperator(i,1,3))*bell*kron(id_mat,discreteWeylOperator(i,1,3)')
+        Π2 = Π2 + kron(id_mat,discreteWeylOperator(i,2,3))*bell*kron(id_mat,discreteWeylOperator(i,2,3)')
     end
     #They don't say to normalize it, but otherwise it isn't a state
     Π1 = 1/tr(Π1) * Π1 ; Π2 = 1/tr(Π2) * Π2
