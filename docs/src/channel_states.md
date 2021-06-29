@@ -25,4 +25,6 @@ axisymmetricState
 isPPT
 swapOperator
 permuteSubsystems
+shiftOperator
+discreteWeylOperator
 ```
