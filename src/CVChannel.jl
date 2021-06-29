@@ -28,7 +28,7 @@ using LinearAlgebra
 export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
 include("operations.jl")
 
-export wernerState
+export wernerState, axisymmetricState
 include("states.jl")
 
 export choi, depolarizingChannel, dephrasureChannel, wernerHolevoChannel

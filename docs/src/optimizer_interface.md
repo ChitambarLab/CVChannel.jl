@@ -12,7 +12,5 @@ which abstracts the backend from the optimization.
 
 ```@docs
 qsolve!
-useSCS
-useMOSEK
 hasMOSEKLicense
 ```
