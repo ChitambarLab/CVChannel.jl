@@ -16,6 +16,7 @@ wernerHolevoChannel
 
 ```@docs
 wernerState
+axisymmetricState
 ```
 
 ## Operations
@@ -24,4 +25,6 @@ wernerState
 isPPT
 swapOperator
 permuteSubsystems
+shiftOperator
+discreteWeylOperator
 ```

@@ -105,3 +105,48 @@ function permuteSubsystems(ρ:: Matrix,perm::Vector{Int64},dims::Vector{Int64}) 
 
     return result
 end
+"""
+    shiftOperator(d::Int64) :: Matrix
+
+This function returns the operator that shifts the computational basis mod d
+for complex Euclidean space of dimension d. That is, it returns the operator ``S``
+defined by the action
+```math
+    S|k\\rangle = |k+1 \\mod d \\rangle
+```
+"""
+function shiftOperator(d::Int64) :: Matrix
+    id = Matrix(I,d,d)
+    shift = id[[end,1:(end-1)...],:]
+
+    return shift
+end
+
+"""
+    discreteWeylOperator(m :: Int64, n :: Int64, d :: Int64)
+
+This function returns the (m,n)^th unitary for generating the generalized
+Bell basis. They are defined by their action on the computational basis:
+```math
+    U_{m,n}|e_{k}\\rangle = e^{2 \\pi mk i / d} |e_{k+n}\\rangle
+```
+These are the discrete Weyl Operator basis. See
+[Section 3 of this paper](https://arxiv.org/abs/1004.1655) for further details.
+
+!!! warning
+    Different works define the discrete Weyl operators differently such that
+    the phase or ordering may differ. Please check your reference.
+"""
+function discreteWeylOperator(m :: Int64, n :: Int64, d :: Int64) :: Matrix
+    if m < 0 || n < 0
+        throw(DomainError((n,m), "Make sure m,n ∈ [0,1,...,d-1]."))
+    elseif m >= d || n >= d
+        throw(DomainError((n,m), "Make sure m,n < d."))
+    end
+    λ = exp(2*pi*1im / d)
+    U = zeros(ComplexF64,d,d)
+    for k = 0 : d-1
+        U[((k+n) % d) + 1,k+1] = λ^(k*m)
+    end
+    return U
+end

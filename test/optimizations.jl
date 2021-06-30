@@ -104,4 +104,17 @@ end
     @test isapprox(test3[1], lp_cv_ppt, atol = 1e-6)
 end
 
+@testset "twoSymCVPrimal" begin
+    #We can't really test a lot with this since we don't really know much
+    #Here we verify that it gives answers we know it should give even over
+    #the separable cone
+    test1 = 3*wernerState(3,0)
+    cv1 = pptCVPrimal(test1,3,3)
+    cv1_two_sym = twoSymCVPrimal(test1,3,3)
+    @test isapprox(cv1[1],cv1_two_sym[1], atol=1e-6)
+    test2 = vec([1 0 0 ; 0 1 0 ; 0 0 1])*vec([1 0 0 ; 0 1 0 ; 0 0 1])'
+    cv2 = pptCVPrimal(test2,3,3)
+    cv2_two_sym = twoSymCVPrimal(test2,3,3)
+    @test isapprox(cv2[1],cv2_two_sym[1], atol=2e-6)
+end
 end

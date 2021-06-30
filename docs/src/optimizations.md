@@ -11,4 +11,6 @@ pptCVDual
 WHIDLP
 generalWHLPConstraints
 wernerHolevoCVPPT
+twoSymCVPrimal
+threeSymCVPrimal
 ```
