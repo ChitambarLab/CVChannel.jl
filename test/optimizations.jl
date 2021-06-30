@@ -101,7 +101,7 @@ end
     kron_par_choi = kron(orig_choi,orig_choi)
     par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[3,3,3,3])
     test3 = pptCVPrimal(par_choi,9,9)
-    @test isapprox(test3[1], lp_cv_ppt, atol = 1e-6)
+    @test isapprox(test3[1], lp_cv_ppt, atol = 1e-5)
 end
 
 @testset "twoSymCVPrimal" begin
