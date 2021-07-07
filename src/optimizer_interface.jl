@@ -30,13 +30,6 @@ end
 
 A wrapper for `Convex.solve!(...)` that selects and configures the backend.
 The supported backends are SCS (default) and MOSEK (license required).
-The [`useSCS`](@ref) or [`useMOSEK`](@ref) methods declare the backend.
-
-!!! warning "Mutability"
-    The selected backend is mutable and determined by the internal
-    variable `_USE_MOSEK`. This value should only be set by the [`useSCS`](@ref)
-    or [`useMOSEK`](@ref) interfaces.
-
 The name `qsolve!` is chosen to avoid a namespace conflict with the `Convex.solve!`.
 This method is a featured utility for simplifying the interface with optimization
 software.
