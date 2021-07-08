@@ -14,7 +14,6 @@ Werner-Holevo channel for multiple copies and its relation to the parameters
     println("Our interest is largely in how it scales in d.")
     println("We scan over for n ≤ 4, λ in [0,0.25,0.5], and d in [3,10,30,100,250,500,750]")
 
-
     d_list = [3,10,30,100,250,500,750]
     n_list = [1:4;]
     λ_list = [0,0.25,0.5]
@@ -65,7 +64,9 @@ Werner-Holevo channel for multiple copies and its relation to the parameters
     file_to_open = string(file_name,".csv")
     writedlm(file_to_open, data_to_save, ',')
 
-    @test isapprox(data_table_0[2:3,7],data_table_0[2:3,8],atol=1e-2)
-    @test isapprox(data_table_1[2:3,7],data_table_1[2:3,8],atol=1e-3)
-    @test isapprox(data_table_2[2:3,7],data_table_2[2:3,8],atol=1e-2)
+    print("\nWe verify that the values converge for all lambda for")
+    print(" n<4, because for n=4, the LP doesn't behave well (see printed data). \n")
+    @test isapprox(data_table_0[2:4,7],data_table_0[2:4,8],atol=1e-2)
+    @test isapprox(data_table_1[2:4,7],data_table_1[2:4,8],atol=1e-2)
+    @test isapprox(data_table_2[2:4,7],data_table_2[2:4,8],atol=1e-2)
 end

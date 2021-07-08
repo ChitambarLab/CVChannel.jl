@@ -35,7 +35,7 @@ println("This also allows us to generate our non-multiplicativity results.")
         (data_table[2,:] - data_table[1,:].^2)';
         (data_table[4,:] - data_table[2,:].^2)';
         (data_table[8,:] - data_table[4,:].^2)';
-        ]
+    ]
     header_p_1 = ["n\\lambda:" 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
     header_p_2 = ["lambda:" 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
     col_inf_p_2 = ["cv(N^2) - cv(N)^2";"cv(N^4) - cv(N^2)^2";"cv(N^8) - cv(N^4)^2"]

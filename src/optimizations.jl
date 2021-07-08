@@ -151,7 +151,15 @@ end
 
 This function returns the linear program constraints for calculating the PPT
 communication value of the Werner-Holevo channels run in parallel for arbitrary
-``n''. See (need to cite something) for derivation.
+``n``. ``n`` is the number of Werner-Holevo channels, ``d`` is the dimension of
+every Werner-Holevo channel (assumed to be the same), and ``\\lambda_{\\text{vec}}``
+is such that ``\\lambda_{\\text{vec}}[i]`` is the λ parameter for the ``i^{th}``
+Werner-Holevo channel. The returned matrices represent the linear maps enforcing
+the constraints on the optimizer. ``A`` is the poistivity constraint, ``B`` is
+the PPT constraint, ``g`` is the trace constraint, and ``a`` defines the objective
+function.
+
+See (need to cite something) for derivation.
 
 !!! warning
     It takes ``O(n2^{2n})`` steps to generate. If one wants a large dimension,
@@ -183,10 +191,10 @@ function generalWHLPConstraints(n :: Int, d :: Int, λ_vec :: Union{Vector{Float
             #This is the positivity condition
             #This is the hamming weight of bit and of s and j
             w_sj = sum(digits(Int8,(s&j),base=2,pad=n))
-            A[j+1,s+1] = WH_coeff_sign(w_sj)
+            A[j+1,s+1] = _WH_coeff_sign(w_sj)
             #This is for the objective function
             if j <= n -1
-                ζ[s+1] = ζ[s+1]*WH_lambda_coeff(j+1,s_string[j+1],λ_vec)
+                ζ[s+1] = ζ[s+1]*_WH_lambda_coeff(j+1,s_string[j+1],λ_vec)
             end
             #This whole loop is the ppt constraint
             B_nonzero = true
@@ -207,19 +215,11 @@ function generalWHLPConstraints(n :: Int, d :: Int, λ_vec :: Union{Vector{Float
     return A, B, g, a
 end
 #These are helper functions
-function WH_coeff_sign(x)
-    if isodd(x)
-        return -1
-    else
-        return 1
-    end
+function _WH_coeff_sign(x)
+    isodd(x) ? -1 : 1
 end
-function WH_lambda_coeff(i,bit,λ_vec)
-    if bit == 0
-        return λ_vec[i]
-    else
-        return (1-λ_vec[i])
-    end
+function _WH_lambda_coeff(i,bit,λ_vec)
+    return bit == 0 ? λ_vec[i] : (1-λ_vec[i])
 end
 
 """
@@ -233,13 +233,27 @@ end
     ):: Tuple{Float64, Matrix{Float64}}
 
 This function evaluates the linear program for the PPT relaxation of the communication
-value of the Werner-Holevo channel using the form that [`generalWHLPConstraints`](@ref)
-outputs. It returns the cvPPT value and the optimizer.
+value of the Werner-Holevo channel. The LP is written
+```math
+    \\max \\{\\langle a, v \\rangle : Ax \\geq 0 , Bx \\geq 0 , \\langle g , v \\rangle = 1 \\}
+```
+This function takes as inputs: ``n``, the number of Werner-Holevo channels,
+``d``, the dimension of every Werner-Holevo Channel, and the constraints
+``A,B,g,a`` which are obtained from [`generalWHLPConstraints`](@ref) outputs.
+It returns the cvPPT value and the optimizer.
 
 !!! warning
     For ``n \\geq 10`` the solver may be slow.
 """
-function wernerHolevoCVPPT(n :: Int64, d :: Int64, A :: Matrix{Float64}, B :: Matrix{Float64}, g :: Matrix{Float64}, a :: Matrix{Float64}) :: Tuple{Float64, Matrix{Float64}}
+function wernerHolevoCVPPT(
+        n :: Int64,
+        d :: Int64,
+        A :: Matrix{Float64},
+        B :: Matrix{Float64},
+        g :: Matrix{Float64},
+        a :: Matrix{Float64}
+    ) :: Tuple{Float64, Matrix{Float64}}
+
     v = Variable(2^n)
     objective = a' * v
     problem = maximize(objective)

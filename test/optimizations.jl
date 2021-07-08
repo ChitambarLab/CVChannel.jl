@@ -61,15 +61,30 @@ end
     #Generating Constraints Checks
     n,d,λ = 1,2,1
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
-    @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+    @testset "n,d,λ = 1,2,1" begin
+        @test A == [1 1 ; 1 -1]
+        @test B == [1 0 ; 1 d]
+        @test a == reshape([1.;(2λ-1)],:,1)
+        @test g == [d 1]
+    end
 
     λ = 0.8
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
-    @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+    @testset "n,d,λ = 1,2,0.8" begin
+        @test A == [1 1 ; 1 -1]
+        @test B == [1 0 ; 1 d]
+        @test a == reshape([1.;(2λ-1)],:,1)
+        @test g == [d 1]
+    end
 
     d = 4
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
-    @test A == [1 1 ; 1 -1] && B == [1 0 ; 1 d] && a == reshape([1.;(2λ-1)],:,1) && g == [d 1]
+    @testset "n,d,λ = 1,4,0.8" begin
+        @test A == [1 1 ; 1 -1]
+        @test B == [1 0 ; 1 d]
+        @test a == reshape([1.;(2λ-1)],:,1)
+        @test g == [d 1]
+    end
 
     n,d,λ = 2,3,1
     A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
@@ -77,7 +92,12 @@ end
     targB = [1. 0 0 0 ; 1 d 0 0 ; 1 0 d 0 ; 1 d d d^2]
     targa = reshape([1. 1 1 1],:,1)
     targg = [d^2 d d 1]
-    @test A == targA && B == targB && a == targa && g == targg
+    @testset "n,d,λ = 2,3,1" begin
+        @test A == targA
+        @test B == targB
+        @test a == targa
+        @test g == targg
+    end
 end
 
 @testset "wernerHolevoCVPPT" begin
