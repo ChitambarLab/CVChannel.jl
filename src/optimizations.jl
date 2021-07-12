@@ -143,6 +143,128 @@ function WHIDLP(d1 :: Int64, d2 :: Int64, λ :: Union{Int,Float64} ) :: Float64
 end
 
 """
+    generalWHLPConstraints(
+        n :: Int,
+        d :: Int,
+        λ_vec :: Union{Vector{Float64},Vector{Int64}}
+    ) :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
+
+This function returns the linear program constraints for calculating the PPT
+communication value of the Werner-Holevo channels run in parallel for arbitrary
+``n``. ``n`` is the number of Werner-Holevo channels, ``d`` is the dimension of
+every Werner-Holevo channel (assumed to be the same), and ``\\lambda_{\\text{vec}}``
+is such that ``\\lambda_{\\text{vec}}[i]`` is the λ parameter for the ``i^{th}``
+Werner-Holevo channel. The returned matrices represent the linear maps enforcing
+the constraints on the optimizer. ``A`` is the poistivity constraint, ``B`` is
+the PPT constraint, ``g`` is the trace constraint, and ``a`` defines the objective
+function.
+
+See (need to cite something) for derivation.
+
+!!! warning
+    It takes ``O(n2^{2n})`` steps to generate. If one wants a large dimension,
+    we suggest you save the resulting constraints.
+"""
+function generalWHLPConstraints(n :: Int, d :: Int, λ_vec :: Union{Vector{Float64},Vector{Int64}}) :: Tuple{Matrix{Float64},Matrix{Float64},Matrix{Float64},Matrix{Float64}}
+    #Quick sanity checks
+    if n > 11
+        println("WARNING: You are trying to generate constraints at a size where the time it will take is non-trivial.")
+    elseif length(λ_vec) != n
+        throw(DomainError(λ_vec, "λ_vec must have the length of n."))
+    elseif !all(λ_vec -> λ_vec >= 0 && λ_vec <= 1, λ_vec)
+        throw(DomainError(λ_vec, "λ_vec must contain values in [0,1]"))
+    end
+
+    #Note that the objective function will need to be scaled by d after the calculation
+    A = zeros(2^n,2^n)
+    B = zeros(2^n,2^n)
+    g = zeros(1,2^n)
+    #a = zeros(2^n,1)
+    ζ = ones(2^n,1)
+    for s in [0:2^n - 1;]
+        #Trace condition
+        s_string = digits(Int8, s, base=2, pad=n) |> reverse
+        w_s = sum(s_string) #This is the hamming weight
+        g[s+1] = d^(n-w_s) #This is d to the power of the hamming weight
+        for j in [0:2^n - 1;]
+            j_string = digits(Int8, j, base=2, pad=n) |> reverse
+            #This is the positivity condition
+            #This is the hamming weight of bit and of s and j
+            w_sj = sum(digits(Int8,(s&j),base=2,pad=n))
+            A[j+1,s+1] = _WH_coeff_sign(w_sj)
+            #This is for the objective function
+            if j <= n -1
+                ζ[s+1] = ζ[s+1]*_WH_lambda_coeff(j+1,s_string[j+1],λ_vec)
+            end
+            #This whole loop is the ppt constraint
+            B_nonzero = true
+            for i in [0:n-1;]
+                #This is for the ppt constraint
+                if s_string[i+1] == 1 && j_string[i+1] == 0
+                    B_nonzero = false
+                end
+            end
+            if B_nonzero
+                B[j+1,s+1] = d^(w_s) #d^(-1. *(n - w_s)) original scaling
+            else
+                B[j+1,s+1] = 0
+            end
+        end
+    end
+    a = A*ζ
+    return A, B, g, a
+end
+#These are helper functions
+function _WH_coeff_sign(x)
+    isodd(x) ? -1 : 1
+end
+function _WH_lambda_coeff(i,bit,λ_vec)
+    return bit == 0 ? λ_vec[i] : (1-λ_vec[i])
+end
+
+"""
+    wernerHolevoCVPPT(
+        n :: Int64
+        d :: Int64,
+        A :: Matrix{Float64},
+        B :: Matrix{Float64},
+        g :: Matrix{Float64},
+        a :: Matrix{Float64}
+    ):: Tuple{Float64, Matrix{Float64}}
+
+This function evaluates the linear program for the PPT relaxation of the communication
+value of the Werner-Holevo channel. The LP is written
+```math
+    \\max \\{\\langle a, v \\rangle : Ax \\geq 0 , Bx \\geq 0 , \\langle g , v \\rangle = 1 \\}
+```
+This function takes as inputs: ``n``, the number of Werner-Holevo channels,
+``d``, the dimension of every Werner-Holevo Channel, and the constraints
+``A,B,g,a`` which are obtained from [`generalWHLPConstraints`](@ref) outputs.
+It returns the cvPPT value and the optimizer.
+
+!!! warning
+    For ``n \\geq 10`` the solver may be slow.
+"""
+function wernerHolevoCVPPT(
+        n :: Int64,
+        d :: Int64,
+        A :: Matrix{Float64},
+        B :: Matrix{Float64},
+        g :: Matrix{Float64},
+        a :: Matrix{Float64}
+    ) :: Tuple{Float64, Matrix{Float64}}
+
+    v = Variable(2^n)
+    objective = a' * v
+    problem = maximize(objective)
+    problem.constraints += [
+        A * v >= 0 ; B * v >= 0 ; g * v == 1
+    ]
+    qsolve!(problem)
+    cvPPT = d^n * problem.optval
+    return cvPPT, v.value
+end
+"""
     twoSymCVPrimal(
         ρ :: Matrix{<:Number},
         dimA :: Int,

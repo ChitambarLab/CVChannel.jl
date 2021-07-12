@@ -53,6 +53,77 @@ end
     end
 end
 
+@testset "generalWHLPConstraints" begin
+    #Domain Error Checks
+    @test_throws DomainError generalWHLPConstraints(3,3,ones(4))
+    @test_throws DomainError generalWHLPConstraints(2,4,[1.,6])
+
+    #Generating Constraints Checks
+    n,d,λ = 1,2,1
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    @testset "n,d,λ = 1,2,1" begin
+        @test A == [1 1 ; 1 -1]
+        @test B == [1 0 ; 1 d]
+        @test a == reshape([1.;(2λ-1)],:,1)
+        @test g == [d 1]
+    end
+
+    λ = 0.8
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    @testset "n,d,λ = 1,2,0.8" begin
+        @test A == [1 1 ; 1 -1]
+        @test B == [1 0 ; 1 d]
+        @test a == reshape([1.;(2λ-1)],:,1)
+        @test g == [d 1]
+    end
+
+    d = 4
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    @testset "n,d,λ = 1,4,0.8" begin
+        @test A == [1 1 ; 1 -1]
+        @test B == [1 0 ; 1 d]
+        @test a == reshape([1.;(2λ-1)],:,1)
+        @test g == [d 1]
+    end
+
+    n,d,λ = 2,3,1
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    targA = [1 1 1 1 ; 1 -1 1 -1 ; 1 1 -1 -1 ; 1 -1 -1 1]
+    targB = [1. 0 0 0 ; 1 d 0 0 ; 1 0 d 0 ; 1 d d d^2]
+    targa = reshape([1. 1 1 1],:,1)
+    targg = [d^2 d d 1]
+    @testset "n,d,λ = 2,3,1" begin
+        @test A == targA
+        @test B == targB
+        @test a == targa
+        @test g == targg
+    end
+end
+
+@testset "wernerHolevoCVPPT" begin
+    n,d,λ = 1,3,0
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    lp_cv_ppt, opt = wernerHolevoCVPPT(n,d,A,B,g,a)
+    orig_choi = 3*wernerState(3,0)
+    test1 = pptCVDual(orig_choi,3,3)
+    @test isapprox(test1[1], lp_cv_ppt, atol = 1e-6)
+
+    λ = 0.2
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    lp_cv_ppt, opt = wernerHolevoCVPPT(n,d,A,B,g,a)
+    choi_2 = 3*wernerState(3,λ)
+    test2 = pptCVDual(choi_2,3,3)
+    @test isapprox(test2[1], lp_cv_ppt, atol = 1e-6)
+
+    n,λ = 2,0
+    A,B,g,a = generalWHLPConstraints(n,d,λ*ones(n))
+    lp_cv_ppt, opt = wernerHolevoCVPPT(n,d,A,B,g,a)
+    kron_par_choi = kron(orig_choi,orig_choi)
+    par_choi = permuteSubsystems(kron_par_choi,[1,3,2,4],[3,3,3,3])
+    test3 = pptCVPrimal(par_choi,9,9)
+    @test isapprox(test3[1], lp_cv_ppt, atol = 1e-5)
+end
+
 @testset "twoSymCVPrimal" begin
     #We can't really test a lot with this since we don't really know much
     #Here we verify that it gives answers we know it should give even over
