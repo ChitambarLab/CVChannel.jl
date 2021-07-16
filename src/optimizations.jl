@@ -117,7 +117,7 @@ end
             ) :: Vector
 
 This function takes the Choi operators of two channels
-``\\mathcal{N}_{A_{1} \\to B_{1}}`` and ``\\mathcal{M}_{A_{1} \\to B_{1}}``
+``\\mathcal{N}_{A_{1} \\to B_{1}}`` and ``\\mathcal{M}_{A_{2} \\to B_{2}}``
 along with their input and output dimensions and returns ``cv_{ppt}(\\mathcal{N})``,
 ``cv_{ppt}(\\mathcal{M})``, and ``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M})``.
 It uses [`pptCVPrimal`](@ref) for the single channel values as this provides
