@@ -16,38 +16,30 @@ println("\nVerifying the multiplicativity of channel value for dephrasure channe
     println("We are going to check the multiplicativity when p,q in {0,0.1,...0.9,1}.")
     p_vals = [0.0:0.1:1;]; q_vals = [0.0:0.1:1;];
     pCtr = 0; qCtr = 0;
-    pq_array = zeros(11,11);
-    cv_array = zeros(11,11);
-    cv2_array = zeros(11,11);
-    for p_id in p_vals
-        print("\nStarting p= ", p_id,". \n")
-        for q_id in q_vals
+    max_diff = 0;
+    for q_id in q_vals
+        print("\nStarting q= ", q_id,". \n")
+        orig_cv = 2 - q_id
+        for p_id in p_vals
             #Get Data
             dephrasurepq(ρ) = dephrasureChannel(ρ,p_id,q_id)
             orig_choi = choi(dephrasurepq,2,3);
-            val1, opt1 = pptCVDual(orig_choi,2,3);
-            parallel_choi = permuteSubsystems(kron(orig_choi,orig_choi),[1,3,2,4],[2,3,2,3]);
-            val2, opt2 = pptCVPrimal(parallel_choi,4,9);
+            par_choi = permuteSubsystems(kron(orig_choi,orig_choi),[1,3,2,4],[2,3,2,3]);
 
-            #Store Data
-            cv_array[pCtr+1,qCtr+1] = val1;
-            cv2_array[pCtr+1,qCtr+1] = val2;
+            #This guarantees upper bound which is important since the claim
+            #is cv = cv_ppt
+            par_cv, opt1, opt2 = pptCVDual(par_choi,4,9);
+
+            diff = par_cv - orig_cv^2
+            abs(diff) > max_diff ? max_diff = abs(diff) : nothing
 
             #Iterate
-            qCtr = qCtr + 1;
+            pCtr = pCtr + 1
         end
-        pCtr = pCtr + 1; qCtr = 0;
+        qCtr += 1
+        pCtr = 0
     end
-    diff_array = cv2_array - cv_array.^2;
-    for i in [1:1:11;]
-        for j in [1:1:11;]
-            if abs(diff_array[i,j]) <= 1e-5
-                diff_array[i,j] = 0
-            end
-        end
-    end
-    println("The difference between single copy channel value and parallel is approximately:")
-    show(stdout, "text/plain", diff_array)
-    println("\n")
-    @test diff_array == zeros(11,11)
+
+    println("The difference between single copy channel value and parallel is upper bounded by:", max_diff)
+    @test max_diff <= 5e-6
 end
