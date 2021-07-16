@@ -56,20 +56,4 @@ println("for p less than 0.3, by searching over p in {0,0.01,...,0.3}.")
     println("\n p     cv(N)   cv(N^2)  diff")
     println("\nThus by looking at the diff column, we see what we were verifying.")
     @test all(result -> result > 0 || isapprox(result, 0, atol=1e-6), results[:,4])
-
-    #I leave this here in case one wants it, but the print out
-    #is sufficient and I don't see why one would want this if running
-    #from the command prompt
-    #using Plots
-    #using LaTeXStrings
-    #x = [0:0.01:0.3;];
-    #y = results[:,2:4];
-    #title_str = "Multiplicativity of Holevo-Werner Channel";
-    #label_str = [L"cv(\mathcal{N})" L"cv \left(\mathcal{N}^{\otimes 2} \right)" L"cv \left(\mathcal{N}^{\otimes 2} \right) - cv(\mathcal{N})"];
-    #plot(x,
-    #     y,
-    #     xlims = (0,0.31),
-    #     title = title_str,
-    #     label= label_str,
-    #     lw=1)
 end

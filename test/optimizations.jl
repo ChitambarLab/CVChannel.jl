@@ -35,6 +35,21 @@ end
     @test isapprox(pptCVDual(maxEntState,2,2)[2],1/2*[1 0 ; 0 1], atol = 1e-6)
 end
 
+@testset "pptMultiplicativity" begin
+    choi_ident3 = vec([1 0 0 ; 0 1 0 ; 0 0 1])*vec([1 0 0 ; 0 1 0 ; 0 0 1])'
+    v1 = pptMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3)
+    v2 = pptMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3,true)
+    #Check single copy
+    @test isapprox(v1[1],2, atol=1e-6)
+    @test isapprox(v1[2],3, atol=1e-6)
+    @test isapprox(v2[1],2, atol=1e-6)
+    @test isapprox(v2[2],3, atol=1e-6)
+    #Check parallel answer
+    @test v1[3]!=v2[3]
+    @test isapprox(v1[3],v2[3], atol=1e-5)
+    @test isapprox(v1[3],6, atol=1e-5)
+end
+
 @testset "WHIDLP" begin
     identChan(X) = X
     conditions = [[2,2,0],[3,2,0],[2,3,0.25]]

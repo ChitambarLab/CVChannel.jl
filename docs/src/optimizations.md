@@ -8,6 +8,7 @@ eaCVPrimal
 eaCVDual
 pptCVPrimal
 pptCVDual
+pptMultiplicativity
 WHIDLP
 generalWHLPConstraints
 wernerHolevoCVPPT

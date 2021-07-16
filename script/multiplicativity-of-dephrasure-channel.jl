@@ -27,7 +27,7 @@ println("\nVerifying the multiplicativity of channel value for dephrasure channe
             par_choi = permuteSubsystems(kron(orig_choi,orig_choi),[1,3,2,4],[2,3,2,3]);
 
             #This guarantees upper bound which is important since the claim
-            #is cv = cv_ppt
+            #is (effectively) cv = cv_ppt
             par_cv, opt1, opt2 = pptCVDual(par_choi,4,9);
 
             diff = par_cv - orig_cv^2
