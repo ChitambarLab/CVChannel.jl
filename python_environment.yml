@@ -1,0 +1,8 @@
+name: cv-channel-notebook
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - notebook
+  - matplotlib
+  - numpy

@@ -42,8 +42,13 @@ To run a script:
 
 ### Notebooks
 
-Jupyter notebooks are found in the `./notebook` directory.
+Jupyter notebooks are found in the `./notebook` directory and  are written
+either with Python or Julia.
+If you are committing changes to a notebook, make sure you restart the kernel and
+run all cells before committing.
 To run or develop notebooks, perform the following steps:
+
+#### Julia Notebooks
 
 1. Navigate to the `./notebook` directory `$ cd ./notebook`
 2. Run `$ julia --project=. -e "using IJulia; notebook(dir=pwd())"`
@@ -51,8 +56,14 @@ To run or develop notebooks, perform the following steps:
 At this point, the Jupyter Notebook interface will launch in your default web
 browser and you can then edit, create, or run the project notebooks.
 
-If you are committing changes to a notebook, make sure you restart the kernel and
-run all cells before committing.
+#### Python Notebooks
+
+1. Create the `cv-channel-notebook` Conda environment with `$ conda env create -f python_environment.yml`.
+2. Activate the `cv-channel-notebook` environment `$ conda acticate cv-channel-environment`.
+3. Launch the Jupyter notebook server with `$ jupyter-notebook`.
+
+At this point, the Jupyter Notebook interface will launch in your default web
+browser and you can then edit, create, or run the project notebooks.
 
 ### Tests
 
