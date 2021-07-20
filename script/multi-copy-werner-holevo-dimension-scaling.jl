@@ -10,13 +10,12 @@ Werner-Holevo channel for multiple copies and its relation to the parameters
 """
 
 @testset "PPTcv in dimension" begin
-    println("Here we are going to generate data about the PPT relaxation of cv.")
-    println("Our interest is largely in how it scales in d.")
-    println("We scan over for n ≤ 4, λ in [0,0.25,0.5], and d in [3,10,30,100,250,500,750]")
-
-    d_list = [3,10,30,100,250,500,750]
+    d_list = append!(append!([3],[10:10:100;]),[100:25:750;])
     n_list = [1:4;]
     λ_list = [0,0.25,0.5]
+    println("Here we are going to generate data about the PPT relaxation of cv.")
+    println("Our interest is largely in how it scales in d.")
+    println("We scan over for n ≤ 4, λ in ", λ_list," and d in ", d_list)
     data_table = zeros(length(n_list),length(d_list),length(λ_list))
     λ_ctr = 1
     for λ_val in λ_list
@@ -38,13 +37,14 @@ Werner-Holevo channel for multiple copies and its relation to the parameters
     data_table_0 = vcat(header,hcat(n_list,data_table[:,:,1]))
     data_table_1 = vcat(header,hcat(n_list,data_table[:,:,2]))
     data_table_2 = vcat(header,hcat(n_list,data_table[:,:,3]))
-    println("Here are the results. Note that each converges to a value as d increases.")
+    println("Here is a susbset of the results.")
+    println("Note that each converges to a value as d increases and that n=4 is numerically unstable.")
     println("\nλ=", λ_list[1],":")
-    show(stdout, "text/plain", data_table_0)
+    show(stdout, "text/plain", data_table_0[:,1:12])
     println("\nλ=", λ_list[2],":")
-    show(stdout, "text/plain", data_table_1)
+    show(stdout, "text/plain", data_table_1[:,1:3:end])
     println("\nλ=", λ_list[3],":")
-    show(stdout, "text/plain", data_table_2)
+    show(stdout, "text/plain", data_table_2[:,1:3:end])
 
     ell = size(data_table_0)[2]
     data_to_save = vcat(data_table_0,zeros(ell)')
@@ -66,7 +66,7 @@ Werner-Holevo channel for multiple copies and its relation to the parameters
 
     print("\nWe verify that the values converge for all lambda for")
     print(" n<4, because for n=4, the LP doesn't behave well (see printed data). \n")
-    @test isapprox(data_table_0[2:4,7],data_table_0[2:4,8],atol=1e-2)
-    @test isapprox(data_table_1[2:4,7],data_table_1[2:4,8],atol=1e-2)
-    @test isapprox(data_table_2[2:4,7],data_table_2[2:4,8],atol=1e-2)
+    @test isapprox(data_table_0[2:4,38],data_table_0[2:4,39],atol=1e-2)
+    @test isapprox(data_table_1[2:4,38],data_table_1[2:4,39],atol=1e-2)
+    @test isapprox(data_table_2[2:4,38],data_table_2[2:4,39],atol=1e-2)
 end
