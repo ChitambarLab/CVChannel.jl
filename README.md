@@ -59,7 +59,7 @@ browser and you can then edit, create, or run the project notebooks.
 #### Python Notebooks
 
 1. Create the `cv-channel-notebook` Conda environment with `$ conda env create -f python_environment.yml`.
-2. Activate the `cv-channel-notebook` environment `$ conda acticate cv-channel-environment`.
+2. Activate the `cv-channel-notebook` environment with `$ conda activate cv-channel-environment`.
 3. Launch the Jupyter notebook server with `$ jupyter-notebook`.
 
 At this point, the Jupyter Notebook interface will launch in your default web
