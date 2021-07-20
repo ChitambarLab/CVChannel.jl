@@ -35,18 +35,28 @@ end
     @test isapprox(pptCVDual(maxEntState,2,2)[2],1/2*[1 0 ; 0 1], atol = 1e-6)
 end
 
-@testset "pptMultiplicativity" begin
+@testset "pptCVMultiplicativity" begin
     choi_ident3 = vec([1 0 0 ; 0 1 0 ; 0 0 1])*vec([1 0 0 ; 0 1 0 ; 0 0 1])'
-    v1 = pptMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3)
-    v2 = pptMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3,true)
+    v1 = pptCVMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3)
+    v2 = pptCVMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3,step1isdual = true)
+    v3 = pptCVMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3,step2isprimal = true)
+    @test_throws TypeError pptCVMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3,step2isprimal = "cat")
+    @test_throws TypeError pptCVMultiplicativity(2*maxEntState,2,2,choi_ident3,3,3,step1isdual = 12)
     #Check single copy
     @test isapprox(v1[1],2, atol=1e-6)
     @test isapprox(v1[2],3, atol=1e-6)
     @test isapprox(v2[1],2, atol=1e-6)
     @test isapprox(v2[2],3, atol=1e-6)
+    @test isapprox(v3[1],2, atol=1e-6)
+    @test isapprox(v3[2],3, atol=1e-6)
+    @test v1[1] != v2[1]
+    @test v1[2] != v2[2]
     #Check parallel answer
-    @test v1[3]!=v2[3]
+    @test v1[3]==v2[3]
+    @test v1[3]!=v3[3]
+    @test v2[3]!=v3[3]
     @test isapprox(v1[3],v2[3], atol=1e-5)
+    @test isapprox(v1[3],v3[3], atol=1e-5)
     @test isapprox(v1[3],6, atol=1e-5)
 end
 

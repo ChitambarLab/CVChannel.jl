@@ -106,50 +106,58 @@ function pptCVDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int, dual=true :: B
 end
 
 """
-    pptMultiplicativity(
+    pptCVMultiplicativity(
             JN :: Matrix,
             Ndin :: Int,
             Ndout :: Int,
             JM :: Matrix,
             Mdin :: Int,
-            Mdout :: Int,
-            primal_twice = nothing
+            Mdout :: Int;
+            step1isdual = false :: Bool,
+            step2isprimal = false :: Bool
             ) :: Vector
 
 This function takes the Choi operators of two channels
 ``\\mathcal{N}_{A_{1} \\to B_{1}}`` and ``\\mathcal{M}_{A_{2} \\to B_{2}}``
 along with their input and output dimensions and returns ``cv_{ppt}(\\mathcal{N})``,
 ``cv_{ppt}(\\mathcal{M})``, and ``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M})``.
-It uses [`pptCVPrimal`](@ref) for the single channel values as this provides
-a lower bound. By default, it uses [`pptCVDual`](@ref) for the parallel case as
+By default, it uses [`pptCVPrimal`](@ref) for the single channel values, as this
+provides a lower bound, and [`pptCVDual`](@ref) for the parallel case, as
 this is always an upper bound. If the dimension is such that the dual can't be
-used, there is an optional argument for using [`pptCVPrimal`](@ref).
+used, there is an optional argument for using [`pptCVPrimal`](@ref). There is
+also an optional argument to use [`pptCVDual`](@ref) for single channel values.
 """
-function pptMultiplicativity(
-        JN :: Matrix,
-        Ndin :: Int,
-        Ndout :: Int,
-        JM :: Matrix,
-        Mdin :: Int,
-        Mdout :: Int,
-        primal_twice = nothing
-    ) :: Vector
+function pptCVMultiplicativity(
+    JN :: Matrix,
+    Ndin :: Int,
+    Ndout :: Int,
+    JM :: Matrix,
+    Mdin :: Int,
+    Mdout :: Int;
+    step1isdual = false :: Bool,
+    step2isprimal = false :: Bool
+) :: Vector
 
-    cv_1, opt_1 = pptCVPrimal(JN, Ndin, Ndout)
-    cv_2, opt_2 = pptCVPrimal(JM, Mdin, Mdout)
+    if step1isdual
+        cv_1, opt_1 = pptCVPrimal(JN, Ndin, Ndout)
+        cv_2, opt_2 = pptCVPrimal(JM, Mdin, Mdout)
+    else
+        cv_1, opt_11, opt_21 = pptCVDual(JN, Ndin, Ndout)
+        cv_2, opt_12, opt_22 = pptCVDual(JM, Mdin, Mdout)
+    end
 
     perm_vec = [1,3,2,4]
     dimVec = [Ndin, Ndout, Mdin, Mdout]
     tot_din = Ndin*Mdin
     tot_dout = Ndout*Mdout
     par_choi = permuteSubsystems(kron(JN,JM),perm_vec,dimVec)
-    if primal_twice == nothing
-        par_cv, opt1, opt2 = pptCVDual(par_choi,tot_din,tot_dout)
-    else
+    if step2isprimal
         par_cv, opt1 = pptCVPrimal(par_choi,tot_din,tot_dout)
+    else
+        par_cv, opt1, opt2 = pptCVDual(par_choi,tot_din,tot_dout)
     end
 
-    return [cv_1,cv_2,par_cv]
+    return [cv_1,cv_2,par_cv, par_cv - (cv_1 * cv_2)]
 end
 
 """
