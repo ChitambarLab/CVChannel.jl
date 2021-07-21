@@ -25,6 +25,8 @@ module CVChannel
 using Convex, SCS, MosekTools
 using LinearAlgebra
 
+import Base: show
+
 export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
 include("operations.jl")
 

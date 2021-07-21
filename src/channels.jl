@@ -48,6 +48,14 @@ struct Choi{T<:Number}
     ) = Choi( choi(N, dimA, dimB), dimA, dimB)
 end
 
+# print out matrix forms when Choi types are displayed
+function show(io::IO, mime::MIME{Symbol("text/plain")}, choi_op :: Choi)
+    summary(io, choi_op)
+    print("\ndimA : ", choi_op.dimA, ", dimB : ", choi_op.dimB)
+    print("\nJN : ")
+    show(io, mime, choi_op.JN)
+end
+
 """
     choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 
