@@ -1,7 +1,57 @@
 """
+    is_choi_matrix(JN :: AbstractMatrix, dimA :: Int, dimB :: Int) :: Bool
+
+Returns `true` if the supplied matrix `JN` is a Choi operator.
+This function returns `false` if
+* `size(JN) != (dimA * dimB, dimA * dimB)`
+"""
+function is_choi_matrix(JN :: AbstractMatrix, dimA :: Int, dimB :: Int) :: Bool
+    JN_dim = dimA*dimB
+    if size(JN) != (JN_dim, JN_dim)
+        return false
+    end
+
+    return true
+end
+
+"""
+    Choi( JN :: AbstractMatrix, dimA :: Int, dimB :: Int ) :: Choi{<:Number}
+
+    Choi( N :: Function, dimA :: Int, dimB :: Int ) :: Choi{<:Number}
+
+Constructs the choi matrix representation of a quantum channel.
+If a function `N` is provided as input, the [`choi`](@ref) method is used to
+construct the Choi matrix.
+
+The `Choi` type contains the fields:
+* `JN :: Matrix{<:Number}` - The choi matrix.
+* `dimA :: Int` - The channel's input dimension.
+* `dimB :: Int` - The Channel's output dimension.
+
+A `DomainError` is thrown if [`is_choi_matrix`](@ref) returns `false`.
+"""
+struct Choi{T<:Number}
+    JN :: Matrix{T}
+    dimA :: Int
+    dimB :: Int
+    Choi(
+        JN :: AbstractMatrix,
+        dimA :: Int,
+        dimB::Int
+    ) = is_choi_matrix(JN, dimA, dimB) ? new{eltype(JN)}(JN, dimA, dimB) : throw(
+        DomainError(JN, "The choi matrix dimension are not valid.")
+    )
+    Choi(
+        N :: Function,
+        dimA :: Int,
+        dimB :: Int
+    ) = Choi( choi(N, dimA, dimB), dimA, dimB)
+end
+
+"""
     choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 
-This function returns the Choi state of a channel 𝒩. It does this using that
+This function returns the Choi state of a channel `𝒩`. It does this using that
 
 ```math
         J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
@@ -16,7 +66,7 @@ in this module have multiple parameters, please note that if you have a channel 
 `𝒩(ρ, p, q)` that calculates ``\\mathcal{N}_{p,q}(\\rho)``, you can declare a function
 `𝒩_xy(ρ) = 𝒩(ρ,x,y)` for fixed `(x,y)` and then call, `choi(𝒩_xy, Σ)`.
 """
-function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
+function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{<:Number}
     eab_matrix = zeros(Σ,Σ)
     choi_matrix = zeros(Σ*Λ,Σ*Λ)
     for i in 1 : Σ

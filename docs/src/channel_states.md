@@ -6,6 +6,8 @@ CurrentModule = CVChannel
 ## Channels
 
 ```@docs
+Choi
+is_choi_matrix
 choi
 depolarizingChannel
 dephrasureChannel
