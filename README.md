@@ -1,5 +1,8 @@
 # CV-Channel
-A numerical analysis of the communication values accessible to quantum and classical channels.
+
+*A numerical analysis of the communication values accessible to quantum and classical channels.*
+
+[![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)
 
 ## SDP Solvers
 
