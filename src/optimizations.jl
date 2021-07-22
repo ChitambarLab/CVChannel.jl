@@ -1,4 +1,18 @@
 """
+    eaCV( channel :: Choi, method :: Symbol = :primal )
+
+Numerically solves for the entanglement-assisted communication value
+for the given [`Choi`](@ref) operator representation of a quantum channel.
+The primal or dual formulation of the problem can be specified with the `method`
+parameter set as `:primal` or `:dual` respectively.
+See [`eaCVPrimal`](@ref) and [`eaCVDual`](@ref) for details regarding the
+respective optimization problems.
+"""
+eaCV(channel :: Choi, method::Symbol=:primal) = eaCV(channel, Val(method))
+eaCV(channel :: Choi, ::Val{:primal}) = eaCVPrimal(channel.JN, channel.in_dim, channel.out_dim)
+eaCV(channel :: Choi, ::Val{:dual}) = eaCVDual(channel.JN, channel.in_dim, channel.out_dim)
+
+"""
     eaCVPrimal(
         ρ :: Matrix{<:Number},
         dimA :: Int,
@@ -54,6 +68,21 @@ function eaCVDual(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float6
 end
 
 """
+    pptCV( channel :: Choi, method :: Symbol = :primal )
+
+Numerically solves for the positive partial transpose (PPT) relaxation of the
+communication value for the given [`Choi`](@ref) operator representation of a
+quantum channel.
+The primal or dual formulation of the problem can be specified with the `method`
+parameter set as `:primal` or `:dual` respectively.
+See [`pptCVPrimal`](@ref) and [`pptCVDual`](@ref) for details regarding the
+respective optimization problems.
+"""
+pptCV(channel :: Choi, method::Symbol=:primal) = pptCV(channel, Val(method))
+pptCV(channel :: Choi, ::Val{:primal}) = pptCVPrimal(channel.JN, channel.in_dim, channel.out_dim)
+pptCV(channel :: Choi, ::Val{:dual}) = pptCVDual(channel.JN, channel.in_dim, channel.out_dim)
+
+"""
     pptCVPrimal(
         ρ :: Matrix{<:Number},
         dimA :: Int,
@@ -107,6 +136,48 @@ end
 
 """
     pptCVMultiplicativity(
+        channel1 :: Choi,
+        channel2 :: Choi;
+        singular_method::Symbol = :primal,
+        parallel_method::Symbol = :dual
+    ) :: Vector
+
+This function takes the [`Choi`](@ref) operators of two channels
+`channel1` (``\\mathcal{N}_{A_{1} \\to B_{1}}``) and `channel2`
+(``\\mathcal{M}_{A_{2} \\to B_{2}}``) and returns as an array
+``cv_{ppt}(\\mathcal{N})``, ``cv_{ppt}(\\mathcal{M})``,
+ ``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M})``, and
+``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M}) - cv_{ppt}(\\mathcal{N})cv_{ppt}(\\mathcal{M})``.
+
+By default, it uses [`pptCVPrimal`](@ref) for the single channel uses, as this
+provides a lower bound, and [`pptCVDual`](@ref) for the parallel case, as
+this is always an upper bound.
+These defaults can be overridden with the keyword args `singular_method` and
+`parallel_method` which each accept the symbol values `:primal` and `:dual`.
+"""
+function pptCVMultiplicativity(
+    channel1 :: Choi,
+    channel2 :: Choi;
+    singular_method::Symbol = :primal,
+    parallel_method::Symbol = :dual
+) :: Vector
+    # singular channel use
+    cv_1, = pptCV(channel1, singular_method)
+    cv_2, = pptCV(channel2, singular_method)
+
+    # parallel channel uses
+    par_dims = [channel1.in_dim, channel1.out_dim, channel2.in_dim, channel2.out_dim]
+    par_JN = permuteSubsystems(kron(channel1.JN, channel2.JN), [1,3,2,4], par_dims)
+    par_in_dim = channel1.in_dim * channel2.in_dim
+    par_out_dim = channel1.out_dim * channel2.out_dim
+
+    par_cv, = pptCV(Choi(par_JN, par_in_dim, par_out_dim), parallel_method)
+
+    return [cv_1,cv_2,par_cv, par_cv - (cv_1 * cv_2)]
+end
+
+"""
+    pptCVMultiplicativity(
             JN :: Matrix,
             Ndin :: Int,
             Ndout :: Int,
@@ -115,7 +186,7 @@ end
             Mdout :: Int;
             step1isdual = false :: Bool,
             step2isprimal = false :: Bool
-            ) :: Vector
+    ) :: Vector
 
 This function takes the Choi operators of two channels
 ``\\mathcal{N}_{A_{1} \\to B_{1}}`` and ``\\mathcal{M}_{A_{2} \\to B_{2}}``
@@ -320,12 +391,14 @@ function wernerHolevoCVPPT(
     return cvPPT, v.value
 end
 """
+    twoSymCVPrimal(channel :: Choi) :: Tuple{Float64,  Matrix{ComplexF64}}
     twoSymCVPrimal(
         ρ :: Matrix{<:Number},
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}}
-This function solves the SDP
+Given the [`Choi`](@ref) operator representation of a channel, or alternatively,
+the Choi matrix `ρ` and its input output dimensions, this function solves the SDP
 ```math
 \\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} ,
                                         \\Gamma^{B_{1}}(X) \\succeq 0,
@@ -340,6 +413,7 @@ Note: we label the primal as the maximization problem.
 !!! warning "Runs Out of Memory Easily"
     This function  will run out of memory for the tensor product of even qutrit to qutrit channels.
 """
+twoSymCVPrimal(channel :: Choi) :: Tuple{Float64,  Matrix{ComplexF64}} = twoSymCVPrimal(channel.JN, channel.in_dim, channel.out_dim)
 function twoSymCVPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
     X = HermitianSemidefinite(dimA*dimB^2)
     idA = Matrix(1I, dimA, dimA); idB = Matrix(1I, dimB, dimB)
@@ -355,12 +429,14 @@ end
 #I don't write the dual program because it's too big to be useful anyways
 
 """
+    threeSymCVPrimal(channel :: Choi) :: Tuple{Float64,  Matrix{ComplexF64}}
     threeSymCVPrimal(
         ρ :: Matrix{<:Number},
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}}
-This function solves the SDP
+Given the [`Choi`](@ref) operator representation of a channel, or alternatively,
+the Choi matrix `ρ` and its input output dimensions, this function solves the SDP
 ```math
 \\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} ,
                                         \\Gamma^{B_{1}}(X) \\succeq 0,
@@ -373,6 +449,7 @@ The function returns the optimal value and the optimizer, X. The conditions on X
 an element of the lowest level of the [DPS hierarchy.](https://arxiv.org/abs/quant-ph/0308032)
 Note: we label the primal as the maximization problem.
 """
+threeSymCVPrimal(channel :: Choi) :: Tuple{Float64,  Matrix{ComplexF64}} = threeSymCVPrimal(channel.JN, channel.in_dim, channel.out_dim)
 function threeSymCVPrimal(ρ :: AbstractArray, dimA :: Int, dimB :: Int) :: Tuple{Float64,  Matrix{ComplexF64}}
     """
     This is a helper function for threeSymCVPrimal because permuteSubsystems would need

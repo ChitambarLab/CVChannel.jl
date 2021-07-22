@@ -1,4 +1,4 @@
-using Test
+using Test, LinearAlgebra
 using CVChannel
 
 @testset "./src/channels.jl" begin
@@ -11,6 +11,38 @@ maxMixState = 0.25 * [1 0 0 0 ; 0 1 0 0 ; 0 0 1 0 ; 0 0 0 1]
     identChan(X) = X
     @test isapprox(choi(identChan,2,2),2*maxEntState, atol = 1e-6)
     @test isapprox(choi(depolChan,2,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
+end
+
+@testset "is_choi_matrix" begin
+    @test is_choi_matrix(Matrix(I, 6, 6), 2, 3)
+    @test !is_choi_matrix(Matrix(I, 4, 4), 2, 3)
+end
+
+@testset "Choi" begin
+    @testset "function instantiation" begin
+        depolChan(X) = 1/2*[1 0; 0 1]
+        depolChoi = Choi(depolChan, 2, 2)
+
+        @test depolChoi isa Choi{Float64}
+        @test depolChoi.JN isa Matrix{Float64}
+        @test depolChoi.in_dim == 2
+        @test depolChoi.out_dim == 2
+    end
+
+    @testset "matrix instantiation" begin
+        JN = [1 0 0 1;0 0 0 0;0 0 0 0;1 0 0 1]
+        choi_channel = Choi(JN, 2, 2)
+
+        @test choi_channel isa Choi{Int}
+        @test choi_channel.JN isa Matrix{Int}
+        @test choi_channel.JN == JN
+        @test choi_channel.in_dim == 2
+        @test choi_channel.out_dim == 2
+    end
+
+    @testset "DomainError" begin
+        @test_throws DomainError Choi(Matrix(I, 4, 4), 2, 3)
+    end
 end
 
 @testset "depolarizingChannel" begin

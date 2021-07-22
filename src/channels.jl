@@ -1,7 +1,65 @@
 """
+    is_choi_matrix(JN :: AbstractMatrix, dimA :: Int, dimB :: Int) :: Bool
+
+Returns `true` if the supplied matrix `JN` is a Choi operator.
+This function returns `false` if
+* `size(JN) != (dimA * dimB, dimA * dimB)`
+"""
+function is_choi_matrix(JN :: AbstractMatrix, dimA :: Int, dimB :: Int) :: Bool
+    JN_dim = dimA*dimB
+    if size(JN) != (JN_dim, JN_dim)
+        return false
+    end
+
+    return true
+end
+
+"""
+    Choi( JN :: AbstractMatrix, in_dim :: Int, out_dim :: Int ) :: Choi{<:Number}
+
+    Choi( N :: Function, in_dim :: Int, out_dim :: Int ) :: Choi{<:Number}
+
+Constructs the Choi matrix representation of a quantum channel.
+If a function `N` is provided as input, the [`choi`](@ref) method is used to
+construct the Choi matrix.
+
+The `Choi` type contains the fields:
+* `JN :: Matrix{<:Number}` - The choi matrix.
+* `in_dim :: Int` - The channel's input dimension.
+* `out_dim :: Int` - The Channel's output dimension.
+
+A `DomainError` is thrown if [`is_choi_matrix`](@ref) returns `false`.
+"""
+struct Choi{T<:Number}
+    JN :: Matrix{T}
+    in_dim :: Int
+    out_dim :: Int
+    Choi(
+        JN :: AbstractMatrix,
+        in_dim :: Int,
+        out_dim :: Int
+    ) = is_choi_matrix(JN, in_dim, out_dim) ? new{eltype(JN)}(JN, in_dim, out_dim) : throw(
+        DomainError(JN, "The Choi matrix dimensions are not valid.")
+    )
+    Choi(
+        N :: Function,
+        in_dim :: Int,
+        out_dim :: Int
+    ) = Choi( choi(N, in_dim, out_dim), in_dim, out_dim)
+end
+
+# print out matrix forms when Choi types are displayed
+function show(io::IO, mime::MIME{Symbol("text/plain")}, choi_op :: Choi)
+    summary(io, choi_op)
+    print(io, "\nin_dim : ", choi_op.in_dim, ", out_dim : ", choi_op.out_dim)
+    print(io, "\nJN : ")
+    show(io, mime, choi_op.JN)
+end
+
+"""
     choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 
-This function returns the Choi state of a channel 𝒩. It does this using that
+This function returns the Choi state of a channel `𝒩`. It does this using that
 
 ```math
         J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
@@ -16,7 +74,7 @@ in this module have multiple parameters, please note that if you have a channel 
 `𝒩(ρ, p, q)` that calculates ``\\mathcal{N}_{p,q}(\\rho)``, you can declare a function
 `𝒩_xy(ρ) = 𝒩(ρ,x,y)` for fixed `(x,y)` and then call, `choi(𝒩_xy, Σ)`.
 """
-function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
+function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{<:Number}
     eab_matrix = zeros(Σ,Σ)
     choi_matrix = zeros(Σ*Λ,Σ*Λ)
     for i in 1 : Σ

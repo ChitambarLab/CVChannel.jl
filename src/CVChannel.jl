@@ -25,19 +25,23 @@ module CVChannel
 using Convex, SCS, MosekTools
 using LinearAlgebra
 
+import Base: show
+
 export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
 include("operations.jl")
 
 export wernerState, axisymmetricState
 include("states.jl")
 
-export choi, depolarizingChannel, dephrasureChannel, wernerHolevoChannel
+export choi, is_choi_matrix, Choi
+export depolarizingChannel, dephrasureChannel, wernerHolevoChannel
 include("channels.jl")
 
 export qsolve!, hasMOSEKLicense
 include("optimizer_interface.jl")
 
-export eaCVPrimal, eaCVDual, pptCVPrimal, pptCVDual, pptCVMultiplicativity
+export eaCV, eaCVPrimal, eaCVDual
+export pptCV, pptCVPrimal, pptCVDual, pptCVMultiplicativity
 export WHIDLP, generalWHLPConstraints, wernerHolevoCVPPT
 export twoSymCVPrimal, threeSymCVPrimal
 include("optimizations.jl")

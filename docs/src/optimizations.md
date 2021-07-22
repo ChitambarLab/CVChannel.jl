@@ -4,8 +4,10 @@ CurrentModule = CVChannel
 #  Optimizations
 
 ```@docs
+eaCV
 eaCVPrimal
 eaCVDual
+pptCV
 pptCVPrimal
 pptCVDual
 pptCVMultiplicativity
