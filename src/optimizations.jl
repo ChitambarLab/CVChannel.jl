@@ -1,7 +1,7 @@
 """
     eaCV( channel :: Choi, method :: Symbol = :primal )
 
-Numerically solves for the positive entanglement-assisted communication value
+Numerically solves for the entanglement-assisted communication value
 for the given [`Choi`](@ref) operator representation of a quantum channel.
 The primal or dual formulation of the problem can be specified with the `method`
 parameter set as `:primal` or `:dual` respectively.
