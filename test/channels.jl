@@ -25,8 +25,8 @@ end
 
         @test depolChoi isa Choi{Float64}
         @test depolChoi.JN isa Matrix{Float64}
-        @test depolChoi.dimA == 2
-        @test depolChoi.dimB == 2
+        @test depolChoi.in_dim == 2
+        @test depolChoi.out_dim == 2
     end
 
     @testset "matrix instantiation" begin
@@ -36,8 +36,8 @@ end
         @test choi_channel isa Choi{Int}
         @test choi_channel.JN isa Matrix{Int}
         @test choi_channel.JN == JN
-        @test choi_channel.dimA == 2
-        @test choi_channel.dimB == 2
+        @test choi_channel.in_dim == 2
+        @test choi_channel.out_dim == 2
     end
 
     @testset "DomainError" begin

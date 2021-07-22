@@ -15,44 +15,44 @@ function is_choi_matrix(JN :: AbstractMatrix, dimA :: Int, dimB :: Int) :: Bool
 end
 
 """
-    Choi( JN :: AbstractMatrix, dimA :: Int, dimB :: Int ) :: Choi{<:Number}
+    Choi( JN :: AbstractMatrix, in_dim :: Int, out_dim :: Int ) :: Choi{<:Number}
 
-    Choi( N :: Function, dimA :: Int, dimB :: Int ) :: Choi{<:Number}
+    Choi( N :: Function, in_dim :: Int, out_dim :: Int ) :: Choi{<:Number}
 
-Constructs the choi matrix representation of a quantum channel.
+Constructs the Choi matrix representation of a quantum channel.
 If a function `N` is provided as input, the [`choi`](@ref) method is used to
 construct the Choi matrix.
 
 The `Choi` type contains the fields:
 * `JN :: Matrix{<:Number}` - The choi matrix.
-* `dimA :: Int` - The channel's input dimension.
-* `dimB :: Int` - The Channel's output dimension.
+* `in_dim :: Int` - The channel's input dimension.
+* `out_dim :: Int` - The Channel's output dimension.
 
 A `DomainError` is thrown if [`is_choi_matrix`](@ref) returns `false`.
 """
 struct Choi{T<:Number}
     JN :: Matrix{T}
-    dimA :: Int
-    dimB :: Int
+    in_dim :: Int
+    out_dim :: Int
     Choi(
         JN :: AbstractMatrix,
-        dimA :: Int,
-        dimB::Int
-    ) = is_choi_matrix(JN, dimA, dimB) ? new{eltype(JN)}(JN, dimA, dimB) : throw(
-        DomainError(JN, "The choi matrix dimension are not valid.")
+        in_dim :: Int,
+        out_dim :: Int
+    ) = is_choi_matrix(JN, in_dim, out_dim) ? new{eltype(JN)}(JN, in_dim, out_dim) : throw(
+        DomainError(JN, "The Choi matrix dimensions are not valid.")
     )
     Choi(
         N :: Function,
-        dimA :: Int,
-        dimB :: Int
-    ) = Choi( choi(N, dimA, dimB), dimA, dimB)
+        in_dim :: Int,
+        out_dim :: Int
+    ) = Choi( choi(N, in_dim, out_dim), in_dim, out_dim)
 end
 
 # print out matrix forms when Choi types are displayed
 function show(io::IO, mime::MIME{Symbol("text/plain")}, choi_op :: Choi)
     summary(io, choi_op)
-    print("\ndimA : ", choi_op.dimA, ", dimB : ", choi_op.dimB)
-    print("\nJN : ")
+    print(io, "\nin_dim : ", choi_op.in_dim, ", out_dim : ", choi_op.out_dim)
+    print(io, "\nJN : ")
     show(io, mime, choi_op.JN)
 end
 
