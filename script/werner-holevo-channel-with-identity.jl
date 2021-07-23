@@ -10,19 +10,6 @@ cone when tensored with the identity. This is different than over the separable 
 We verify this using an a linear program (LP) that we scan over.
 """
 #This script looks at multiplicativity of WH with identity over PPT cone
-println("\nFirst we convince ourselves that the choi states of the Werner-Holevo (WH)")
-println("channels are the werner states multiplied by the dimension, so that we can")
-println("just use the werner states.")
-
-@testset "Verifying werner states are choi states of WH channels" begin
-    wernerHolevoChannel_0(ρ) = wernerHolevoChannel(ρ,0)
-    wernerHolevoChannel_1(ρ) = wernerHolevoChannel(ρ,1)
-    wernerHolevoChannel_05(ρ) = wernerHolevoChannel(ρ,0.5)
-    @test 3*wernerState(3,0) == choi(wernerHolevoChannel_0,3,3)
-    @test 3*wernerState(3,1) == choi(wernerHolevoChannel_1,3,3)
-    @test 3*(0.5*wernerState(3,0)+0.5*wernerState(3,1)) == choi(wernerHolevoChannel_05,3,3)
-end
-
 println("\nHere we initialize the identity channel and the solver. (One moment please...)")
 identChan(X) = X
 eaCVDual(choi(identChan,2,2),2,2)
@@ -46,21 +33,20 @@ function nonMultWHID()
         #Note the LP is parameterized backwards with respect to how our SDP is
         for d1 in d1_range
             println("Now evaluating for d = ", d1, "...")
-            #Here we get the communication value of the Werner-Holevo channel itself using an
-            wern_choi = d1*wernerState(d1,(1-λ))
-            wern_cv = pptCVDual(wern_choi,d1,d1)
-            cv_WH = wern_cv[1]
+            #Here we get the communication value of the Werner-Holevo channel itself
+            A,B,g,a = generalWHLPConstraints(1,3,(1-λ)*ones(1))
+            cv_WH, v1 =wernerHolevoCVPPT(1,3,A,B,g,a)
 
             for d2 in d2_range
                 cv = WHIDLP(d1,d2,λ)
                 table_vals[table_ctr,:] = [
-                    1-λ, #parameter
-                    d1,  #WH dimension
-                    d2,  #identity channel dimension
-                    cv_WH,  #comm val of WH
-                    d2,     #comm val of id (redundant)
-                    cv, #comm val of WH ⊗ id
-                    cv - cv_WH*d2 #Non-multiplicativity over PPT
+                    1-λ,            #parameter
+                    d1,             #WH dimension
+                    d2,             #identity channel dimension
+                    cv_WH,          #comm val of WH
+                    cv_WH*d2,       #cv(𝒩_WH ⊗ id)
+                    cv,             #cv^{PPT}(𝒩_WH ⊗ id)
+                    cv - cv_WH*d2   #cv^{PPT} - cv
                 ];
                 table_ctr = table_ctr + 1;
             end
@@ -68,7 +54,7 @@ function nonMultWHID()
         λ_ctr = λ_ctr + 1
     end
 
-    header = ["parameter" "WH Dim" "id Dim" "cv(WH)" "cv(id)" "cv(WH o id)" "Non-mult"]
+    header = ["param" "WH Dim" "id Dim" "cv(WH)" "cv" "cv_ppt" "diff"]
     data_to_save = vcat(header,table_vals)
     info_vec = Vector{Union{Nothing,String}}(nothing, size(data_to_save)[1])
     info_vec[1] = "INFO:"
@@ -102,11 +88,8 @@ function nonMultWHID()
         println("\nFor the full data, please see the saved results.")
         return true
     end
-end
+    end
 
 @testset "non-multiplicativity" begin
     @test nonMultWHID()
 end
-
-println("This completes our investigation of the non-multiplicativity of Werner with the identity over PPT cone.")
-println("Goodbye!")
