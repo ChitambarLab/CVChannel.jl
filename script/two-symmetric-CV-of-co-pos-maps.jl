@@ -85,9 +85,8 @@ print("\n\nThis motivates attempting to use the DPS hierarchy.")
 println("Unfortunately, we run out of memory if we try to do that.")
 
 print("\n\nGiven this, one question is if we can see the communication value of a given channel")
-print(" decrease as our approximation gets tighter. Here we show it does.")
+print("decrease as our approximation gets tighter. Here we show it does.")
 @testset "2-symmetric extension improvement" begin
-    println("First we see that the two symmetric communication value can be tighter than PPT.")
     scan_range = [0.45:0.02:0.75;]
     len = length(scan_range)
     update_report = [scan_range[Int(round(len/4))], scan_range[Int(round(len/2))], scan_range[Int(round(3*len/4))]]
