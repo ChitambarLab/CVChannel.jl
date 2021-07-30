@@ -41,7 +41,6 @@ end
     end
 end
 
-
 println("Next we look at the parallel communication value")
 println("Since we know cv(N) is at least 2 always, all we need to do is check that cvPPT(N ⊗ N) = 4 always.")
 @testset "Verify that cv is 2 and cv(N ⊗ N) is multiplicative"

@@ -82,7 +82,7 @@ end
 println("\nNow we can see that there exist cases where three symmetric communication value is tighter than two symmetric.")
 println("WARNING: This takes a while.")
 @testset "3-Sym Extension Improvment" begin
-    scan_range = [0.45:0.05:0.75;]
+    scan_range = [0.45:0.02:0.75;]
     len = length(scan_range)
     data_table = zeros(len,6)
     ctr = 1
