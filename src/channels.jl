@@ -206,3 +206,31 @@ function wernerHolevoChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}) ::
     term_2 = 1/(dim-1) * (tr(ρ)*I - transpose(ρ))
     return p *term_1 + (1-p)*term_2
 end
+#The aligned below makes the documenter space the bmatrix properly
+"""
+    siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matrix{<:Number}
+
+This function calculates the action of the Siddhu channel ``N_{s}`` which is defined by Kraus operators:
+```math
+    \\begin{aligned}
+    K_{0} = \\begin{bmatrix} \\sqrt{s} & 0 & 0 \\\\ 0 & 0 & 0 \\\\ 0 & 1 & 0 \\end{bmatrix}
+    \\hspace{5mm}
+    K_{0} = \\begin{bmatrix} 0 & 0 & 0 \\\\ \\sqrt{1-s} & 0 & 0 \\\\ 0 & 0 & 1 \\end{bmatrix} ,
+    \\end{aligned}
+```
+where ``s \\in [0,1/2]``.
+This channel was introduced in Equation 9 of [this paper](https://arxiv.org/abs/2003.10367).
+"""
+function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matrix{<:Number}
+    if !isequal(size(ρ)...)
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif size(ρ)[1] != 3
+        throw(DomainError(ρ, "The input must be a qutrit operator."))
+    elseif !(0 ≤ s ≤ 1/2)
+        throw(DomainError(s, "siddhuChannel requires s ∈ [0,1/2]."))
+    end
+
+    K0 = [sqrt(s) 0 0 ; 0 0 0 ; 0 1 0]
+    K1 = [0 0 0 ; sqrt(1-s) 0 0 ; 0 0 1]
+    return K0*ρ*K0' + K1*ρ*K1'
+end

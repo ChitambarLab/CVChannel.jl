@@ -130,4 +130,34 @@ end
     end
 end
 
+@testset "siddhuChannel" begin
+    @testset "verify channel definition" begin
+        for s in [0:0.1:0.5;]
+            sidchan(X) = siddhuChannel(X,s)
+            testchan = Choi(sidchan,3,3)
+            α = 1-s
+            γ = sqrt(s)
+            β = sqrt(1-s)
+            @test isapprox(testchan.JN,
+                [s 0 0 0 0 γ 0 0 0;
+                0 α 0 0 0 0 0 0 β;
+                0 0 0 0 0 0 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                γ 0 0 0 0 1 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                0 β 0 0 0 0 0 0 1
+                ],
+                atol = 1e-6
+                )
+        end
+    end
+
+    @testset "errors" begin
+        @test_throws DomainError siddhuChannel([1 0 ; 0 0; 0 0], 0.2)
+        @test_throws DomainError siddhuChannel([1 0 ; 0 0], 0.3)
+        @test_throws DomainError siddhuChannel([1 0 0 ; 0 0 0 ; 0 0 0], 7)
+    end
+end
 end

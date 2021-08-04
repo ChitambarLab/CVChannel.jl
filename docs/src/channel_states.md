@@ -13,6 +13,7 @@ choi
 depolarizingChannel
 dephrasureChannel
 wernerHolevoChannel
+siddhuChannel
 ```
 
 ## States
