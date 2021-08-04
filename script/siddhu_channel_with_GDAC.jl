@@ -85,11 +85,7 @@ print(" Siddhu and GDAC channel in parallel.")
                 gad_chan = Choi(symgadchan,2,2)
                 sid_chan= Choi(sidchan,3,3)
 
-                par_dims = [sid_chan.in_dim, sid_chan.out_dim, gad_chan.in_dim, gad_chan.out_dim]
-                par_JN = permuteSubsystems(kron(sid_chan.JN, gad_chan.JN), [1,3,2,4], par_dims)
-                par_in_dim = sid_chan.in_dim * gad_chan.in_dim
-                par_out_dim = sid_chan.out_dim * gad_chan.out_dim
-                par_cv, = pptCVDual(par_JN, par_in_dim, par_out_dim)
+                par_cv, = pptCV(parChoi(sid_chan, gad_chan), :dual)
 
                 non_mult = par_cv - target_val
                 !isapprox(non_mult,0,atol=5e-6) ? is_mult = false : nothing

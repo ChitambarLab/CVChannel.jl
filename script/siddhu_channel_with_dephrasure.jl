@@ -63,11 +63,7 @@ print(" case this considers the erasure channel.")
                 dephr_chan = Choi(dephrasurepq,2,3)
                 sid_chan= Choi(sidchan,3,3)
 
-                par_dims = [sid_chan.in_dim, sid_chan.out_dim, dephr_chan.in_dim, dephr_chan.out_dim]
-                par_JN = permuteSubsystems(kron(sid_chan.JN, dephr_chan.JN), [1,3,2,4], par_dims)
-                par_in_dim = sid_chan.in_dim * dephr_chan.in_dim
-                par_out_dim = sid_chan.out_dim * dephr_chan.out_dim
-                par_cv, = pptCVDual(par_JN, par_in_dim, par_out_dim)
+                par_cv, = pptCV(parChoi(sid_chan, dephr_chan), :dual)
 
                 non_mult = par_cv - target_val
                 !isapprox(non_mult,0,atol=3e-6) ? is_mult = false : nothing

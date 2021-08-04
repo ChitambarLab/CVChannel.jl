@@ -57,6 +57,29 @@ function show(io::IO, mime::MIME{Symbol("text/plain")}, choi_op :: Choi)
 end
 
 """
+    parChoi(chan1 :: Choi, chan2 :: Choi) :: Choi
+
+Returns the tensor product of two [`Choi`](@ref) matrices
+
+```math
+    J^{A:B}_{\\mathcal{N}}\\otimes J^{A':B'}_{\\mathcal{M}} \\to
+    J^{AA':BB'}_{\\mathcal{N}\\otimes\\mathcal{M}}
+```
+
+where ``J^{A:B}_{\\mathcal{N}}`` and ``J^{A':B'}_{\\mathcal{M}}`` are the Choi
+matrices for `chan1` and `chan2` respectively.
+Note the implicit swap between systems ``B \\leftrightarrow A'``.
+"""
+function parChoi(chan1 :: Choi, chan2 :: Choi) :: Choi
+    par_dims = [chan1.in_dim, chan1.out_dim, chan2.in_dim, chan2.out_dim]
+    par_JN = permuteSubsystems(kron(chan1.JN, chan2.JN), [1,3,2,4], par_dims)
+    par_in_dim = chan1.in_dim * chan2.in_dim
+    par_out_dim = chan1.out_dim * chan2.out_dim
+
+    return Choi(par_JN, par_in_dim, par_out_dim)
+end
+
+"""
     choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 
 This function returns the Choi state of a channel `𝒩`. It does this using that

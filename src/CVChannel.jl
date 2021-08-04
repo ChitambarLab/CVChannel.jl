@@ -33,7 +33,7 @@ include("operations.jl")
 export wernerState, axisymmetricState
 include("states.jl")
 
-export choi, is_choi_matrix, Choi
+export choi, is_choi_matrix, Choi, parChoi
 export depolarizingChannel, dephrasureChannel, wernerHolevoChannel
 include("channels.jl")
 

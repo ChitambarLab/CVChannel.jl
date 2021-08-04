@@ -45,6 +45,51 @@ end
     end
 end
 
+@testset "parChoi" begin
+    @testset "subsystem system swap" begin
+        chan = Choi(2*maxEntState, 2, 2)
+        par_chan = parChoi(chan, chan)
+
+        @test par_chan isa Choi{Float64}
+        @test par_chan.in_dim == 4
+        @test par_chan.out_dim == 4
+
+        @test par_chan.JN == [
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+        ]
+    end
+
+    @testset "subsystem dims" begin
+        dephrasure_chan(ρ) = dephrasureChannel(ρ, 0 ,0)
+        identity_chan(ρ) = ρ
+
+        deph_chan = Choi(dephrasure_chan, 2,3)
+        id_chan = Choi(identity_chan, 2, 2)
+
+        par_choi = parChoi(deph_chan, id_chan)
+
+        @test par_choi isa Choi{Complex{Float64}}
+        @test par_choi.in_dim == 4
+        @test par_choi.out_dim == 6
+        @test size(par_choi.JN) == (24,24)
+    end
+end
+
 @testset "depolarizingChannel" begin
     @test isapprox(depolarizingChannel(maxEntState,0),maxEntState, atol=1e-6)
     @test isapprox(depolarizingChannel(maxEntState,1),maxMixState, atol=1e-6)

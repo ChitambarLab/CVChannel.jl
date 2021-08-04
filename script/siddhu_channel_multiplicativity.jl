@@ -54,11 +54,7 @@ println("Since we know cv(N) is at least 2 always, all we need to do is check th
         # parallel channel uses
         sidchan(X) = siddhuChannel(X,s_id)
         sid_chan= Choi(sidchan,3,3)
-        par_dims = [sid_chan.in_dim, sid_chan.out_dim, sid_chan.in_dim, sid_chan.out_dim]
-        par_JN = permuteSubsystems(kron(sid_chan.JN, sid_chan.JN), [1,3,2,4], par_dims)
-        par_in_dim = sid_chan.in_dim * sid_chan.in_dim
-        par_out_dim = sid_chan.out_dim * sid_chan.out_dim
-        par_cv, = pptCVDual(par_JN, 9, 9)
+        par_cv, = pptCV(parChoi(sid_chan, sid_chan), :dual)
         !isapprox(par_cv,4,atol=3e-6) ? is_mult = false : nothing
         ctr += 1
     end
