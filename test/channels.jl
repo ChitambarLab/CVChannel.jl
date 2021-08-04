@@ -182,6 +182,12 @@ end
             end
         end
     end
+    @testset "errors" begin
+        @test_throws DomainError generalizedSiddhu([1 0 ; 0 0; 0 0], 0.2,1)
+        @test_throws DomainError generalizedSiddhu([1 0 ; 0 0], 0.3,1)
+        @test_throws DomainError generalizedSiddhu([1 0 0 ; 0 0 0 ; 0 0 0], 7,1)
+        @test_throws DomainError generalizedSiddhu([1 0 0 ; 0 0 0 ; 0 0 0], 0.2,7)
+    end
 end
 
 @testset "GADChannel" begin
