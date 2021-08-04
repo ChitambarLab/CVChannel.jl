@@ -235,6 +235,48 @@ function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matri
     return K0*ρ*K0' + K1*ρ*K1'
 end
 """
+    generalizedSiddhu(
+        ρ :: Matrix{<:Number},
+        s :: Union{Int,Float64},
+        μ :: Union{Int,Float64}
+    ):: Matrix{<:Number}
+
+This function calculates the action of the generalized Siddhu channel ``N_{s,\\mu}``
+which is defined by Kraus operators:
+```math
+    \\begin{aligned}
+    K_{0} = \\begin{bmatrix}
+                \\sqrt{s} & 0 & 0 \\\\
+                0 & \\sqrt{1-\\mu} & 0 \\\\
+                0 & 0 & \\sqrt{\\mu}
+             \\end{bmatrix}
+    \\hspace{5mm}
+    K_{1} = \\begin{bmatrix}
+                0 & 0 & \\sqrt{1-\\mu} \\\\
+                \\sqrt{1-s} & 0 & 0 \\\\
+                0 & \\sqrt{\\mu} & 0
+            \\end{bmatrix} ,
+    \\end{aligned}
+```
+where ``s \\in [0,1/2]``.
+This channel was introduced by Leditzky et al (cite when on arxiv).
+"""
+function generalizedSiddhu(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}, μ :: Union{Int,Float64}) :: Matrix{<:Number}
+    if !isequal(size(ρ)...)
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif size(ρ)[1] != 3
+        throw(DomainError(ρ, "The input must be a qutrit operator."))
+    elseif !(0 ≤ s ≤ 1/2)
+        throw(DomainError(s, "generalizedSiddhu requires s ∈ [0,1/2]."))
+    elseif !(0 ≤ μ ≤ 1)
+        throw(DomainError(μ, "generalizedSiddhu requires μ ∈ [0,1]."))
+    end
+
+    K0 = [sqrt(s) 0 0 ; 0 sqrt(1-μ) 0 ; 0 0 sqrt(μ)]
+    K1 = [0 0 sqrt(1-μ) ; sqrt(1-s) 0 0 ; 0 sqrt(μ) 0]
+    return K0*ρ*K0' + K1*ρ*K1'
+end
+"""
     GADChannel(
         ρ :: Matrix{<:Number},
         p :: Union{Int,Float64},
