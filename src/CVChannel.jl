@@ -34,7 +34,8 @@ export wernerState, axisymmetricState
 include("states.jl")
 
 export choi, is_choi_matrix, Choi, parChoi
-export depolarizingChannel, dephrasureChannel, wernerHolevoChannel, siddhuChannel
+export depolarizingChannel, dephrasureChannel
+export wernerHolevoChannel, siddhuChannel, GADChannel
 include("channels.jl")
 
 export qsolve!, hasMOSEKLicense

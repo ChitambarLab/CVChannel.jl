@@ -2,10 +2,7 @@ using CVChannel
 using Test
 
 """
-This script invesetigates the channel which we call
-the Siddhu channel when tensored with itself.
-It is defined in (9) of https://arxiv.org/abs/2003.10367.
-It is parameterized by s∈[0,1/2]
+This script shows the multiplicativity of the Siddhu channel with itself.
 """
 
 println("In this script we look at the parallel communication value of the Siddhu channel with itself.")

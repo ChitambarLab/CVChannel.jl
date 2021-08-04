@@ -234,3 +234,42 @@ function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matri
     K1 = [0 0 0 ; sqrt(1-s) 0 0 ; 0 0 1]
     return K0*ρ*K0' + K1*ρ*K1'
 end
+"""
+    GADChannel(
+        ρ :: Matrix{<:Number},
+        p :: Union{Int,Float64},
+        n :: Union{Int,Float64}
+    ) :: Matrix{<:Number}
+
+This function calculates the action of the generalized (qubit) amplitude damping channel ``\\mathcal{A}_{p,n}``
+which is defined by Kraus operators:
+```math
+    \\begin{aligned}
+    K_{0} =& \\sqrt{1-n} \\begin{bmatrix} 1 & 0 \\\\ 0 & \\sqrt{1-p} \\end{bmatrix}
+    \\hspace{5mm}
+    K_{1} =& \\sqrt{p(1-n)} \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}  \\\\
+    K_{2} =& \\sqrt{n} \\begin{bmatrix} \\sqrt{1-p} & 0 \\\\ 0 & 1 \\end{bmatrix}
+    \\hspace{5mm}
+    K_{3} =& \\sqrt{pn} \\begin{bmatrix} 0 & 0 \\\\ 1 & 0 \\end{bmatrix}
+    \\end{aligned}
+```
+where ``p,n \\in [0,1]``.
+This channel may be found in Section 3 of [this paper](https://arxiv.org/abs/2107.13486).
+"""
+function GADChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}, n :: Union{Int,Float64}) :: Matrix{<:Number}
+    if !isequal(size(ρ)...)
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif size(ρ)[1] != 2
+        throw(DomainError(ρ, "The input must be a qubit operator."))
+    elseif !(0 ≤ p ≤ 1)
+        throw(DomainError(p, "siddhuChannel requires p ∈ [0,1]."))
+    elseif !(0 ≤ n ≤ 1)
+        throw(DomainError(n, "siddhuChannel requires n ∈ [0,1]."))
+    end
+
+    K0 = sqrt(1-n)*[1 0 ; 0 sqrt(1-p)]
+    K1 = sqrt(p*(1-n))*[0 1 ; 0 0]
+    K2 = sqrt(n)*[sqrt(1-p) 0 ; 0 1]
+    K3 = sqrt(p*n)*[0 0 ; 1 0]
+    return K0*ρ*K0' + K1*ρ*K1' + K2*ρ*K2' + K3*ρ*K3'
+end
