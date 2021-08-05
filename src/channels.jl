@@ -215,7 +215,7 @@ This function calculates the action of the Siddhu channel ``N_{s}`` which is def
     \\begin{aligned}
     K_{0} = \\begin{bmatrix} \\sqrt{s} & 0 & 0 \\\\ 0 & 0 & 0 \\\\ 0 & 1 & 0 \\end{bmatrix}
     \\hspace{5mm}
-    K_{0} = \\begin{bmatrix} 0 & 0 & 0 \\\\ \\sqrt{1-s} & 0 & 0 \\\\ 0 & 0 & 1 \\end{bmatrix} ,
+    K_{1} = \\begin{bmatrix} 0 & 0 & 0 \\\\ \\sqrt{1-s} & 0 & 0 \\\\ 0 & 0 & 1 \\end{bmatrix} ,
     \\end{aligned}
 ```
 where ``s \\in [0,1/2]``.
