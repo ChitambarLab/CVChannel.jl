@@ -15,7 +15,7 @@ println("This also allows us to generate our non-multiplicativity results.")
 @testset "Generate cv as function of n and lambda" begin
     d = 3
     n_list = [1:8;]
-    λ_list = [0:0.1:1;]
+    λ_list = [0:0.01:1;]
     data_table = zeros(length(n_list),length(λ_list))
     for n_val in n_list
         println("Now obtaining values for n = ", n_val)
@@ -36,10 +36,15 @@ println("This also allows us to generate our non-multiplicativity results.")
         (data_table[4,:] - data_table[2,:].^2)';
         (data_table[8,:] - data_table[4,:].^2)';
     ]
-    header_p_1 = ["n\\lambda:" 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
-    header_p_2 = ["lambda:" 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
+    λ_header = zeros(1,length(λ_list))
+    spacing = ""
+    for i in 1:length(λ_list)
+        λ_header[i] = λ_list[i]
+        spacing = [spacing ""]
+    end
+    header_p_1 = hcat("n\\lambda:", λ_header)
+    header_p_2 = hcat("lambda:", λ_header)
     col_inf_p_2 = ["cv(N^2) - cv(N)^2";"cv(N^4) - cv(N^2)^2";"cv(N^8) - cv(N^4)^2"]
-    spacing = ["" "" "" "" "" "" "" "" "" "" "" ""]
     data_to_save_p_1 = vcat(hcat(n_list, data_table),spacing)
     data_to_save_p_2 = vcat(header_p_2,hcat(col_inf_p_2,mult_table))
     data_to_save = vcat(header_p_1,vcat(data_to_save_p_1,data_to_save_p_2))

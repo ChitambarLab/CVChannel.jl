@@ -57,6 +57,29 @@ function show(io::IO, mime::MIME{Symbol("text/plain")}, choi_op :: Choi)
 end
 
 """
+    parChoi(chan1 :: Choi, chan2 :: Choi) :: Choi
+
+Returns the tensor product of two [`Choi`](@ref) matrices
+
+```math
+    J^{A:B}_{\\mathcal{N}}\\otimes J^{A':B'}_{\\mathcal{M}} \\to
+    J^{AA':BB'}_{\\mathcal{N}\\otimes\\mathcal{M}}
+```
+
+where ``J^{A:B}_{\\mathcal{N}}`` and ``J^{A':B'}_{\\mathcal{M}}`` are the Choi
+matrices for `chan1` and `chan2` respectively.
+Note the implicit swap between systems ``B \\leftrightarrow A'``.
+"""
+function parChoi(chan1 :: Choi, chan2 :: Choi) :: Choi
+    par_dims = [chan1.in_dim, chan1.out_dim, chan2.in_dim, chan2.out_dim]
+    par_JN = permuteSubsystems(kron(chan1.JN, chan2.JN), [1,3,2,4], par_dims)
+    par_in_dim = chan1.in_dim * chan2.in_dim
+    par_out_dim = chan1.out_dim * chan2.out_dim
+
+    return Choi(par_JN, par_in_dim, par_out_dim)
+end
+
+"""
     choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
 
 This function returns the Choi state of a channel `𝒩`. It does this using that
@@ -182,4 +205,71 @@ function wernerHolevoChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}) ::
     term_1 = 1/(dim+1) * (tr(ρ)*I + transpose(ρ))
     term_2 = 1/(dim-1) * (tr(ρ)*I - transpose(ρ))
     return p *term_1 + (1-p)*term_2
+end
+#The aligned below makes the documenter space the bmatrix properly
+"""
+    siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matrix{<:Number}
+
+This function calculates the action of the Siddhu channel ``N_{s}`` which is defined by Kraus operators:
+```math
+    \\begin{aligned}
+    K_{0} = \\begin{bmatrix} \\sqrt{s} & 0 & 0 \\\\ 0 & 0 & 0 \\\\ 0 & 1 & 0 \\end{bmatrix}
+    \\hspace{5mm}
+    K_{1} = \\begin{bmatrix} 0 & 0 & 0 \\\\ \\sqrt{1-s} & 0 & 0 \\\\ 0 & 0 & 1 \\end{bmatrix} ,
+    \\end{aligned}
+```
+where ``s \\in [0,1/2]``.
+This channel was introduced in Equation 9 of [this paper](https://arxiv.org/abs/2003.10367).
+"""
+function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matrix{<:Number}
+    if !isequal(size(ρ)...)
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif size(ρ)[1] != 3
+        throw(DomainError(ρ, "The input must be a qutrit operator."))
+    elseif !(0 ≤ s ≤ 1/2)
+        throw(DomainError(s, "siddhuChannel requires s ∈ [0,1/2]."))
+    end
+
+    K0 = [sqrt(s) 0 0 ; 0 0 0 ; 0 1 0]
+    K1 = [0 0 0 ; sqrt(1-s) 0 0 ; 0 0 1]
+    return K0*ρ*K0' + K1*ρ*K1'
+end
+"""
+    GADChannel(
+        ρ :: Matrix{<:Number},
+        p :: Union{Int,Float64},
+        n :: Union{Int,Float64}
+    ) :: Matrix{<:Number}
+
+This function calculates the action of the generalized (qubit) amplitude damping channel ``\\mathcal{A}_{p,n}``
+which is defined by Kraus operators:
+```math
+    \\begin{aligned}
+    K_{0} =& \\sqrt{1-n} \\begin{bmatrix} 1 & 0 \\\\ 0 & \\sqrt{1-p} \\end{bmatrix}
+    \\hspace{5mm}
+    K_{1} =& \\sqrt{p(1-n)} \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}  \\\\
+    K_{2} =& \\sqrt{n} \\begin{bmatrix} \\sqrt{1-p} & 0 \\\\ 0 & 1 \\end{bmatrix}
+    \\hspace{5mm}
+    K_{3} =& \\sqrt{pn} \\begin{bmatrix} 0 & 0 \\\\ 1 & 0 \\end{bmatrix}
+    \\end{aligned}
+```
+where ``p,n \\in [0,1]``.
+This channel may be found in Section 3 of [this paper](https://arxiv.org/abs/2107.13486).
+"""
+function GADChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}, n :: Union{Int,Float64}) :: Matrix{<:Number}
+    if !isequal(size(ρ)...)
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
+    elseif size(ρ)[1] != 2
+        throw(DomainError(ρ, "The input must be a qubit operator."))
+    elseif !(0 ≤ p ≤ 1)
+        throw(DomainError(p, "siddhuChannel requires p ∈ [0,1]."))
+    elseif !(0 ≤ n ≤ 1)
+        throw(DomainError(n, "siddhuChannel requires n ∈ [0,1]."))
+    end
+
+    K0 = sqrt(1-n)*[1 0 ; 0 sqrt(1-p)]
+    K1 = sqrt(p*(1-n))*[0 1 ; 0 0]
+    K2 = sqrt(n)*[sqrt(1-p) 0 ; 0 1]
+    K3 = sqrt(p*n)*[0 0 ; 1 0]
+    return K0*ρ*K0' + K1*ρ*K1' + K2*ρ*K2' + K3*ρ*K3'
 end
