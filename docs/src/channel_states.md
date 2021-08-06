@@ -8,10 +8,13 @@ CurrentModule = CVChannel
 ```@docs
 Choi
 is_choi_matrix
+parChoi
 choi
 depolarizingChannel
 dephrasureChannel
 wernerHolevoChannel
+siddhuChannel
+GADChannel
 ```
 
 ## States

@@ -45,6 +45,51 @@ end
     end
 end
 
+@testset "parChoi" begin
+    @testset "subsystem system swap" begin
+        chan = Choi(2*maxEntState, 2, 2)
+        par_chan = parChoi(chan, chan)
+
+        @test par_chan isa Choi{Float64}
+        @test par_chan.in_dim == 4
+        @test par_chan.out_dim == 4
+
+        @test par_chan.JN == [
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+            1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+        ]
+    end
+
+    @testset "subsystem dims" begin
+        dephrasure_chan(ρ) = dephrasureChannel(ρ, 0 ,0)
+        identity_chan(ρ) = ρ
+
+        deph_chan = Choi(dephrasure_chan, 2,3)
+        id_chan = Choi(identity_chan, 2, 2)
+
+        par_choi = parChoi(deph_chan, id_chan)
+
+        @test par_choi isa Choi{Complex{Float64}}
+        @test par_choi.in_dim == 4
+        @test par_choi.out_dim == 6
+        @test size(par_choi.JN) == (24,24)
+    end
+end
+
 @testset "depolarizingChannel" begin
     @test isapprox(depolarizingChannel(maxEntState,0),maxEntState, atol=1e-6)
     @test isapprox(depolarizingChannel(maxEntState,1),maxMixState, atol=1e-6)
@@ -85,4 +130,55 @@ end
     end
 end
 
+@testset "siddhuChannel" begin
+    @testset "verify channel definition" begin
+        for s in [0:0.1:0.5;]
+            sidchan(X) = siddhuChannel(X,s)
+            testchan = Choi(sidchan,3,3)
+            α = 1-s
+            γ = sqrt(s)
+            β = sqrt(1-s)
+            @test isapprox(testchan.JN,
+                [s 0 0 0 0 γ 0 0 0;
+                0 α 0 0 0 0 0 0 β;
+                0 0 0 0 0 0 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                γ 0 0 0 0 1 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                0 0 0 0 0 0 0 0 0 ;
+                0 β 0 0 0 0 0 0 1
+                ],
+                atol = 1e-6
+                )
+        end
+    end
+
+    @testset "errors" begin
+        @test_throws DomainError siddhuChannel([1 0 ; 0 0; 0 0], 0.2)
+        @test_throws DomainError siddhuChannel([1 0 ; 0 0], 0.3)
+        @test_throws DomainError siddhuChannel([1 0 0 ; 0 0 0 ; 0 0 0], 7)
+    end
+end
+
+@testset "GADChannel" begin
+    @testset "Verify Channel Definition" begin
+        #By linearity we just need to check the computational basis
+        zero_state, one_state = [1 0 ; 0 0], [0 0 ; 0 1]
+        scan_range = [0:0.1:1;]
+        for p in scan_range
+            for n in scan_range
+                @test isapprox(GADChannel(zero_state,p,n),[1-p*n 0 ; 0 p*n], atol = 1e-6)
+                @test isapprox(GADChannel(one_state,p,n),[(1-n)*p 0 ; 0 1-p+p*n], atol = 1e-6)
+            end
+        end
+    end
+
+    @testset "errors" begin
+        @test_throws DomainError GADChannel([1 0 ; 0 0; 0 0], 0.2,0.4)
+        @test_throws DomainError GADChannel([1 0 0 ; 0 0 0; 0 0 0], 0.4, 0.2)
+        @test_throws DomainError GADChannel([1 0 0 ; 0 0 0 ; 0 0 0], 0.3,1.2)
+        @test_throws DomainError GADChannel([1 0 0 ; 0 0 0 ; 0 0 0], 1.5,0.1)
+    end
+end
 end

@@ -164,14 +164,9 @@ function pptCVMultiplicativity(
     # singular channel use
     cv_1, = pptCV(channel1, singular_method)
     cv_2, = pptCV(channel2, singular_method)
-
-    # parallel channel uses
-    par_dims = [channel1.in_dim, channel1.out_dim, channel2.in_dim, channel2.out_dim]
-    par_JN = permuteSubsystems(kron(channel1.JN, channel2.JN), [1,3,2,4], par_dims)
-    par_in_dim = channel1.in_dim * channel2.in_dim
-    par_out_dim = channel1.out_dim * channel2.out_dim
-
-    par_cv, = pptCV(Choi(par_JN, par_in_dim, par_out_dim), parallel_method)
+    
+    # parallel channel use
+    par_cv, = pptCV(parChoi(channel1, channel2), parallel_method)
 
     return [cv_1,cv_2,par_cv, par_cv - (cv_1 * cv_2)]
 end
