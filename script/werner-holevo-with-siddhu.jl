@@ -1,6 +1,4 @@
-using LinearAlgebra
 using CVChannel
-using Convex
 using Test
 using DelimitedFiles
 
@@ -10,38 +8,7 @@ with the Siddhu channel.
 """
 
 print("\nThis script shows that there is non-multiplicativity of")
-print(" the Werner-Holevo channel tensored with the Siddhu channel.")
-
-println("First we define the channel function.")
-function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64})
-    K0 = [sqrt(s) 0 0 ; 0 0 0 ; 0 1 0]
-    K1 = [0 0 0 ; sqrt(1-s) 0 0 ; 0 0 1]
-    return K0*ρ*K0' + K1*ρ*K1'
-end
-
-@testset "verify Siddhu channel" begin
-    for s in [0:0.1:0.5;]
-        sidchan(X) = siddhuChannel(X,s)
-        testchan = Choi(sidchan,3,3)
-        α = 1-s
-        γ = sqrt(s)
-        β = sqrt(1-s)
-        @test isapprox(testchan.JN,
-            [s 0 0 0 0 γ 0 0 0;
-             0 α 0 0 0 0 0 0 β;
-             0 0 0 0 0 0 0 0 0 ;
-             0 0 0 0 0 0 0 0 0 ;
-             0 0 0 0 0 0 0 0 0 ;
-             γ 0 0 0 0 1 0 0 0 ;
-             0 0 0 0 0 0 0 0 0 ;
-             0 0 0 0 0 0 0 0 0 ;
-             0 β 0 0 0 0 0 0 1
-            ],
-            atol = 1e-6
-        )
-    end
-end
-
+print("cvPPT for the Werner-Holevo channel tensored with the Siddhu channel.")
 
 @testset "Werner-Holevo with Siddhu is Non-Multiplicative" begin
     println("Now we actually verify non-multiplicativity.")
@@ -61,11 +28,7 @@ end
             sidchan(X) = siddhuChannel(X,s_id)
             sid_chan= Choi(sidchan,3,3)
 
-            par_dims = [wh_chan.in_dim, wh_chan.out_dim, sid_chan.in_dim, sid_chan.out_dim]
-            par_JN = permuteSubsystems(kron(wh_chan.JN, sid_chan.JN), [1,3,2,4], par_dims)
-            par_in_dim = wh_chan.in_dim * sid_chan.in_dim
-            par_out_dim = wh_chan.out_dim * sid_chan.out_dim
-            par_cv, = pptCVDual(par_JN, par_in_dim, par_out_dim)
+            par_cv, = pptCV(parChoi(wh_chan, sid_chan), :dual)
 
             non_mult = par_cv - target_val
             isapprox(non_mult,0,atol=3e-6) ?

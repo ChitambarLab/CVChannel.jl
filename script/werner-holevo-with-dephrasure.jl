@@ -1,6 +1,4 @@
-using LinearAlgebra
 using CVChannel
-using Convex
 using Test
 using DelimitedFiles
 
@@ -10,10 +8,8 @@ with the dephrasure channel
 """
 
 print("\nThis script shows that there is non-multiplicativity of")
-print(" the Werner-Holevo channel tensored with the dephrasure channel.")
-
+print(" cvPPT for the Werner-Holevo channel tensored with the dephrasure channel.")
 @testset "Werner-Holevo with Dephrasure is Non-Multiplicative" begin
-
     λ_range = [0:0.05:0.3;]
     p_range = [0,0.1,0.2,0.8,0.9,1]
     q_range = [0:0.1:1;]
@@ -32,11 +28,7 @@ print(" the Werner-Holevo channel tensored with the dephrasure channel.")
                 dephrasurepq(X) = dephrasureChannel(X,p_id,q_id)
                 dephr_chan = Choi(dephrasurepq,2,3)
 
-                par_dims = [wh_chan.in_dim, wh_chan.out_dim, dephr_chan.in_dim, dephr_chan.out_dim]
-                par_JN = permuteSubsystems(kron(wh_chan.JN, dephr_chan.JN), [1,3,2,4], par_dims)
-                par_in_dim = wh_chan.in_dim * dephr_chan.in_dim
-                par_out_dim = wh_chan.out_dim * dephr_chan.out_dim
-                par_cv, = pptCVDual(par_JN, par_in_dim, par_out_dim)
+                par_cv, = pptCV(parChoi(wh_chan, dephr_chan), :dual)
 
                 non_mult = par_cv - target_val
                 isapprox(non_mult,0,atol=3e-6) ?
@@ -80,7 +72,6 @@ print(" the Werner-Holevo channel tensored with the dephrasure channel.")
     file_name = readline()
     file_to_open = string(file_name,".csv")
     writedlm(file_to_open, data_to_save, ',')
-
 
     #This is sufficient for checking that there is non-multiplicativity somewhere
     @test data_table[1:1:1] > [0.1]
