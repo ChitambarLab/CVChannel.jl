@@ -15,17 +15,17 @@ print(" cvPPT for the Werner-Holevo channel tensored with the dephrasure channel
     q_range = [0:0.1:1;]
     λ_ctr, p_ctr, q_ctr = 1,1,1
     data_table = zeros(length(λ_range),length(p_range),length(q_range))
-    for λ_id in λ_range
-        println("---Now scanning λ=",λ_id,"---")
-        A,B,g,a = generalWHLPConstraints(1,3,λ_id*ones(1))
+    for λ in λ_range
+        println("---Now scanning λ=",λ,"---")
+        A,B,g,a = generalWHLPConstraints(1,3,λ*ones(1))
         cvWH, v1 =wernerHolevoCVPPT(1,3,A,B,g,a)
-        whChan(X) = wernerHolevoChannel(X,λ_id)
+        whChan(X) = wernerHolevoChannel(X,λ)
         wh_chan = Choi(whChan,3,3)
-        for q_id in q_range
-            println("Now scanning q=",q_id,".")
-            target_val = (2-q_id)*cvWH
-            for p_id in p_range
-                dephrasurepq(X) = dephrasureChannel(X,p_id,q_id)
+        for q in q_range
+            println("Now scanning q=",q,".")
+            target_val = (2-q)*cvWH
+            for p in p_range
+                dephrasurepq(X) = dephrasureChannel(X,p,q)
                 dephr_chan = Choi(dephrasurepq,2,3)
 
                 par_cv, = pptCV(parChoi(wh_chan, dephr_chan), :dual)
