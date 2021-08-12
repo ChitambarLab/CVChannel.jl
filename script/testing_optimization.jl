@@ -1,7 +1,7 @@
 using Convex, SCS
 using LinearAlgebra
 
-#Do not type the output
+#Do not restrict the type on the output
 function testChan(X :: Variable)
     krausOps = Any[]
     push!(krausOps,sqrt(1/2)*[1 0 ; 0 -1])
@@ -20,3 +20,14 @@ problem.constraints += [tr(X) == 1]
 problem.constraints += [testChan(X) == X]
 solve!(problem,SCS.Optimizer)
 α, X = problem.optval, X.value
+
+function cvkPrimal(k :: Integer, krausOps :: Vector{Any})
+    dim_B , dim_A = size(kraus_ops[1])
+    dim_E = length(kraus_ops)
+    comp_kraus = complementaryChannel(krausOps)
+
+    #Declare variables
+    σ = HermitianSemidefinite(k*dim_E)
+    Htotal = ComplexVariable()
+    objective = tr(X) + tr(X')
+end

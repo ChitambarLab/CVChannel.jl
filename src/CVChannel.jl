@@ -28,6 +28,7 @@ using LinearAlgebra
 import Base: show
 
 export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
+export isometricRep, complementaryChannel
 include("operations.jl")
 
 export wernerState, axisymmetricState

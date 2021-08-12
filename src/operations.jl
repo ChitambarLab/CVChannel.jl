@@ -150,3 +150,50 @@ function discreteWeylOperator(m :: Int64, n :: Int64, d :: Int64) :: Matrix
     end
     return U
 end
+
+"""
+    isometricChannel(kraus_ops :: Vector{Any}) :: Matrix
+
+This function builds the isometric representation ``V`` of a
+channel 𝒩: A → B from the Kraus operators ``\\{K_{i}\\}``.
+It does this by calculating
+```math
+    V = \\sum_{i} K_{i} \\otimes |i\\rangle
+```
+"""
+function isometricRep(kraus_ops :: Vector{Any}) :: Matrix
+    dim_B , dim_A = size(kraus_ops[1])
+    dim_E = length(kraus_ops)
+    V, e_vec = zeros(dim_B*dim_E,dim_A), zeros(dim_E)
+    for i in [1:dim_E;]
+        e_vec[i] = 1
+        V += kron(kraus_ops[i],e_vec)
+        e_vec[i] = 0
+    end
+    return V
+end
+
+"""
+    complementaryChannel(kraus_ops :: Vector{Any}) :: Vector{Any}
+
+This function takes a set of Kraus operators for a channel ``\\mathcal{N}_{A \\to B}``
+and returns a set of Kraus operators for the complementary channel,
+``\\mathcal{N}_{A \\to E}``. It does this by generating the Kraus operators of
+the isometric representation of the channel followed by partial trace on the
+``B`` space.
+"""
+function complementaryChannel(kraus_ops :: Vector{Any}) :: Vector{Any}
+    V = isometricRep(kraus_ops)
+    dim_B , dim_A = size(kraus_ops[1])
+    dim_E = length(kraus_ops)
+
+    comp_kraus = Any[]
+    b_vec, e_id = zeros(dim_B), Matrix(1I,dim_E,dim_E)
+    for i in [1:dim_B;]
+        b_vec[i] = 1
+        push!(comp_kraus, kron(b_vec,e_id)'*V)
+        b_vec[i] = 0
+    end
+
+    return comp_kraus
+end
