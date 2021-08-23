@@ -1,5 +1,6 @@
 using CVChannel
 using Test
+using DelimitedFiles
 """
 This script understands the communication value of the
 generalized Siddhu channel.
@@ -36,7 +37,9 @@ end
 
 s_range = [0:0.1:0.5;]
 μ_range = [0:0.1:1;]
-data_table = zeros(length(s_range),length(μ_range))
+data_table_ppt_cv = zeros(length(s_range),length(μ_range))
+data_table_2sym_cv = zeros(length(s_range),length(μ_range))
+data_table_3sym_cv = zeros(length(s_range),length(μ_range))
 s_ctr, μ_ctr = 1,1
 for s_id in s_range
     println("---Now scanning for s=",s_id,"---")
@@ -44,13 +47,21 @@ for s_id in s_range
         println("μ=",μ_id)
         genSidChan(X) = generalizedSiddhu(X,s_id,μ_id)
         gensid_chan = Choi(genSidChan,3,3)
-        cv, = pptCV(gensid_chan, :dual)
-        data_table[s_ctr,μ_ctr] =cv
+        cv_ppt, = pptCV(gensid_chan, :dual)
+        #cv_2sym, = twoSymCVPrimal(gensid_chan)
+        cv_3sym, = threeSymCVPrimal(gensid_chan)
+        data_table_ppt_cv[s_ctr,μ_ctr] = cv_ppt
+        #data_table_2sym_cv[s_ctr,μ_ctr] = cv_2sym
+        data_table_3sym_cv[s_ctr,μ_ctr] = cv_3sym
         μ_ctr += 1
     end
     s_ctr += 1
     μ_ctr = 1
 end
+
+file_name = readline()
+file_to_open = string(file_name,".csv")
+writedlm(file_to_open, data_table_3sym_cv, ',')
 
 using LinearAlgebra
 using Convex

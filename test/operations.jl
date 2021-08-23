@@ -102,12 +102,12 @@ end
         @test comp_kraus[2] == 1/sqrt(2)*[0 0; 0 1]
         @test comp_kraus[3] == 1/sqrt(2)*[0 0; 0 1]
     end
-    @testset "Second Map" begin #This shows it treats it as a scalar
+    @testset "Unitary Map" begin
         kraus_set2 = Any[]
         push!(kraus_set2, [1 0 ; 0 -1])
         comp_kraus = complementaryChannel(kraus_set2)
-        @test comp_kraus[1] == [1. 0.]
-        @test comp_kraus[2] == [0. -1.]
+        @test comp_kraus[1] == [1 0 ; 0 0]
+        @test comp_kraus[2] == [0 1 ; 0 0]
     end
 end
 end

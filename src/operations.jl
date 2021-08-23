@@ -184,16 +184,67 @@ the isometric representation of the channel followed by partial trace on the
 """
 function complementaryChannel(kraus_ops :: Vector{Any}) :: Vector{Any}
     V = isometricRep(kraus_ops)
-    dim_B , dim_A = size(kraus_ops[1])
-    dim_E = length(kraus_ops)
+    dimB , dimA = size(kraus_ops[1])
+    dimE = length(kraus_ops)
 
     comp_kraus = Any[]
-    b_vec, e_id = zeros(dim_B), Matrix(1I,dim_E,dim_E)
-    for i in [1:dim_B;]
-        b_vec[i] = 1
-        push!(comp_kraus, kron(b_vec,e_id)'*V)
-        b_vec[i] = 0
+    if dimE == 1
+        #If dimE = 1, the complementary channel is the replacer channel
+        #To get it to work with other functions, we let dimE=2 so it isn't scalar
+        a_vec = zeros(dimA)
+        for i in [1:dimA;]
+            a_vec[i] = 1
+            push!(comp_kraus, kron([1;0],a_vec'))
+            a_vec[i] = 0
+        end
+    else
+        b_vec, e_id = zeros(dimB), Matrix(1I,dimE,dimE)
+        for i in [1:dimB;]
+            b_vec[i] = 1
+            push!(comp_kraus, kron(b_vec,e_id)'*V)
+            b_vec[i] = 0
+        end
     end
 
     return comp_kraus
+end
+#Helper function
+function _prim_map(k :: Integer, H :: Union{Variable,Matrix{<:Number}}, kraus_ops::Vector{Any})
+    dimB , dimA = size(kraus_ops[1])
+    length(kraus_ops) == 1 ? dimE = 2 : dimE = length(kraus_ops)
+    comp_kraus = complementaryChannel(kraus_ops)
+
+    P = zeros(k^2*dimA,k^2*dimA)
+    xxp = zeros(k^2,k^2)
+    for i in [1:k;]
+        for j in [i:k;]
+            xxp[i^2,j^2] = 1
+            #The index is by our bijection
+            ind = Int((i-1)*k- (i-1)*(i-2)/2 + (j-i) + 1);
+            if i == j
+                P += kron(xxp,krausAction(comp_kraus,H[((ind-1)*dimA+1):ind*dimA,1:dimA]))
+            else
+                P += kron(xxp,krausAction(comp_kraus,H[((ind-1)*dimA+1):ind*dimA,1:dimA]))
+                P += kron(xxp,krausAction(comp_kraus,H[((ind-1)*dimA+1):ind*dimA,1:dimA]))'
+            end
+            xxp[i^2,j^2] = 0
+        end
+    end
+    P = 1/k * P
+    return P
+end
+
+"""
+    krausAction(kraus_ops :: Vector{Any}, X)
+
+This function takes a set of Kraus operators for a channel
+``\\mathcal{N}_{A \\to B}`` and returns the output.
+"""
+function krausAction(kraus_ops :: Vector{Any}, X)
+    dimB, dimA = size(kraus_ops[1])
+    out = zeros(dimB,dimB)
+    for i = [1:length(kraus_ops);]
+        out += kraus_ops[i]*X*kraus_ops[i]'
+    end
+    return out
 end
