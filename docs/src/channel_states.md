@@ -15,6 +15,7 @@ dephrasureChannel
 wernerHolevoChannel
 siddhuChannel
 GADChannel
+generalizedSiddhu
 ```
 
 ## States
@@ -32,4 +33,7 @@ swapOperator
 permuteSubsystems
 shiftOperator
 discreteWeylOperator
+isometricRep
+complementaryChannel
+krausAction
 ```
