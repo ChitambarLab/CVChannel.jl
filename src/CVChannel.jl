@@ -36,8 +36,7 @@ include("states.jl")
 
 export choi, is_choi_matrix, Choi, parChoi
 export depolarizingChannel, dephrasureChannel
-export siddhuChannel, generalizedSiddhu
-export wernerHolevoChannel, GADChannel
+export siddhuChannel, wernerHolevoChannel, GADChannel
 include("channels.jl")
 
 export qsolve!, hasMOSEKLicense
