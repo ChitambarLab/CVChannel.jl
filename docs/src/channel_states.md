@@ -15,7 +15,6 @@ dephrasureChannel
 wernerHolevoChannel
 siddhuChannel
 GADChannel
-generalizedSiddhu
 ```
 
 ## States
