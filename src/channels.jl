@@ -270,7 +270,7 @@ A `DomainError` is thrown if:
 """
 function generalizedSiddhu(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}, μ :: Union{Int,Float64}) :: Matrix{<:Number}
     if !isequal(size(ρ)...)
-        throw(DomainError(ρ, "the input ρ is not asquare matrix"))
+        throw(DomainError(ρ, "the input ρ is not a square matrix"))
     elseif size(ρ)[1] != 3
         throw(DomainError(ρ, "The input must be a qutrit operator."))
     elseif !(0 ≤ s ≤ 1/2)
