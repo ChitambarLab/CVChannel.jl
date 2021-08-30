@@ -167,8 +167,8 @@ end
             for μ in [0:0.1:1;]
                 genSidChan(X) = generalizedSiddhu(X,s,μ)
                 testchan = Choi(genSidChan,3,3)
-                α,β,γ,δ = 1-s,1-μ,sqrt(s*(1-μ)),sqrt(s*μ)
-                ϵ,ζ,η = sqrt(μ*(1-s)),sqrt((1-μ)*(1-s)),sqrt(μ*(1-μ))
+                α, β, γ, δ = 1-s, 1-μ, sqrt(s*(1-μ)), sqrt(s*μ)
+                ϵ, ζ, η = sqrt(μ*(1-s)), sqrt((1-μ)*(1-s)), sqrt(μ*(1-μ))
                 target = [s 0 0 0 γ 0 0 0 δ ;
                           0 α 0 0 0 ϵ ζ 0 0;
                           0 0 0 0 0 0 0 0 0 ;

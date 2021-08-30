@@ -1,5 +1,6 @@
 """
     wernerState(dim :: Int, p ::Union{Int,Float64}) :: Matrix{Float64}
+    
 This function constructs the Werner states,
 ```math
     \\sigma_{d,p} = p \\frac{\\Pi_{0}}{d+1 \\choose 2} + (1-p) \\frac{\\Pi_{1}}{d \\choose 2}

@@ -7,6 +7,7 @@ generalized Siddhu channel using SDP relaxations.
 Specifically, it shows that 3-sym cv is the same
 as cvPPT.
 WARNING: This takes hours.
+WARNING: Saving data sub-routine only works if length(s_range)>3
 """
 
 @testset "3-symCV of Gen Siddhu not helpful" begin

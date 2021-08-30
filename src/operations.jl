@@ -1,5 +1,6 @@
 """
     isPPT(x, sys :: Int, dims :: Vector) :: Bool
+
 This function returns true if the input state x is PPT
 with respect to the (sys)th system. False otherwise.
 dims is a vector of the sizes of the subsystems.
@@ -21,6 +22,7 @@ end
 
 """
     swapOperator(dim :: Int) :: Matrix{Float64}
+
 This function is the swap operator ``\\mathbb{F}`` which is defined by the action
 ```math
 \\mathbb{F}(u \\otimes v) = v \\otimes u \\hspace{5mm} u,v \\in \\mathcal{H}_{A} .
@@ -51,6 +53,7 @@ end
         perm::Vector{Int64},
         dims::Vector{Int64}
     ) :: Vector
+
 This function returns the vector with the subsystems permuted. For example, given three
 subspaces ``A,B,C``, and the permutation ``\\pi`` defined by ``(A,B,C) \\xrightarrow[]{\\pi} (C,A,B),``
 the function implements the process:
@@ -77,6 +80,7 @@ end
         perm::Vector{Int64},
         dims::Vector{Int64}
     ) :: Matrix
+
 This function returns the matrix with the subsystems permuted. It is a generalization of the vector code.
 For example, given three subspaces ``A,B,C``, and the permutation ``\\pi`` defined by ``(A,B,C) \\xrightarrow[]{\\pi} (C,A,B),``
 the function implements the process:
@@ -106,6 +110,7 @@ function permuteSubsystems(ρ:: Matrix,perm::Vector{Int64},dims::Vector{Int64}) 
 end
 """
     shiftOperator(d::Int64) :: Matrix
+
 This function returns the operator that shifts the computational basis mod d
 for complex Euclidean space of dimension d. That is, it returns the operator ``S``
 defined by the action
@@ -122,6 +127,7 @@ end
 
 """
     discreteWeylOperator(m :: Int64, n :: Int64, d :: Int64)
+    
 This function returns the (m,n)^th unitary for generating the generalized
 Bell basis. They are defined by their action on the computational basis:
 ```math

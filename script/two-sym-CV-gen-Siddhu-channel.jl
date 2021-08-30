@@ -8,6 +8,7 @@ Specifically, it shows that 2-sym cv is effectively
 the same as cv PPT, and that they are loose at least
 some of the time. It also shows multiplicativity over PPT cone.
 """
+
 @testset "Investigate generalized Siddhu channel" begin
     println("We calculate cvPPT, 2symCV, and cvPPT of the channel ran in parallel.")
     println("We then show that 2symCV provides no improvement to cvPPT and that cvPPT")
