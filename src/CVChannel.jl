@@ -27,16 +27,18 @@ using LinearAlgebra
 
 import Base: show
 
-export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
-export isometricRep, complementaryChannel, krausAction, _prim_map
+export isPPT, swapOperator, permuteSubsystems, shiftOperator
+export discreteWeylOperator
 include("operations.jl")
 
 export wernerState, axisymmetricState
 include("states.jl")
 
 export choi, is_choi_matrix, Choi, parChoi
+export isometricChannel, complementaryChannel, krausAction
 export depolarizingChannel, dephrasureChannel
-export siddhuChannel, wernerHolevoChannel, GADChannel
+export siddhuChannel, generalizedSiddhu
+export wernerHolevoChannel, GADChannel
 include("channels.jl")
 
 export qsolve!, hasMOSEKLicense
