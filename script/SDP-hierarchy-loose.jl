@@ -9,11 +9,12 @@ optimization is too loose to be useful. As the optimization problems themselves
 aren't useful outside of this script, they are all contained within this
 script. Derivations may be found in the conic approach note.
 """
+
 println("First we declare the functions.")
 #These are for the primal problem (Eqn. 9 of note)
-function cvkPrimal(k :: Integer, kraus_ops :: Vector{Any})
-    dimB , dimA = size(kraus_ops[1])
-    length(kraus_ops) == 1 ? dimE = 2 : dimE = length(kraus_ops)
+function cvkPrimal(k :: Integer, kraus_ops :: Vector)
+    dimB, dimA = size(kraus_ops[1])
+    dimE = (length(kraus_ops) == 1) ? 2 : length(kraus_ops)
     idX = Matrix(1I,k,k)
 
     #Declare variables
@@ -37,16 +38,16 @@ function cvkPrimal(k :: Integer, kraus_ops :: Vector{Any})
     cvk = k*(problem.optval/2)^2
     return cvk, problem.optval, H.value, σ.value, X.value
 end
-function _prim_map(k :: Integer, H :: Union{Variable,Matrix{<:Number}}, kraus_ops::Vector{Any})
+function _prim_map(k :: Integer, H :: Union{Variable,Matrix{<:Number}}, kraus_ops::Vector)
     #This constructs the output of (id_{XX'} ⊗ 𝒩_{c})(P), which we call out_p
-    dimB , dimA = size(kraus_ops[1])
-    length(kraus_ops) == 1 ? dimE = 2 : dimE = length(kraus_ops)
+    dimB, dimA = size(kraus_ops[1])
+    dimE = (length(kraus_ops) == 1) ? 2 : length(kraus_ops)
     comp_kraus = complementaryChannel(kraus_ops)
 
     out_p = zeros(k^2*dimE,k^2*dimE)
     xxp = zeros(k^2,k^2)
-    for i in [1:k;]
-        for j in [i:k;]
+    for i in 1:k;
+        for j in i:k;
             xxp[i^2,j^2] = 1
             #The index is by our bijection
             ind = Int((i-1)*k- (i-1)*(i-2)/2 + (j-i) + 1);
@@ -59,24 +60,24 @@ function _prim_map(k :: Integer, H :: Union{Variable,Matrix{<:Number}}, kraus_op
             xxp[i^2,j^2] = 0
         end
     end
-    out_p = 1/k * out_p
-    return out_p
+    return out_p / k
 end
 
 #These are for the dual problem (Eqn 13 of note)
-function cvkDual(k :: Integer, kraus_ops :: Vector{Any})
+function cvkDual(k :: Integer, kraus_ops :: Vector)
     length(kraus_ops) == 1 ? dimE = 2 : dimE = length(kraus_ops)
     idXE = Matrix(1I,k*dimE,k*dimE)
     idXXE = Matrix(1I,k^2*dimE,k^2*dimE)
     #Get adjoint map of complementary channel
     comp_kraus = complementaryChannel(kraus_ops)
-    adj_comp_kraus = Any[]
-    for i in [1:length(comp_kraus);]
-        push!(adj_comp_kraus, comp_kraus[i]')
+    adj_comp_kraus = Vector{Matrix{Complex{Float64}}}(undef, length(comp_kraus))
+    for i in 1:length(comp_kraus);
+        adj_comp_kraus[i] = comp_kraus[i]'
     end
     #Declare variables
-    z1,z2 = Variable(),Variable()
-    Ytilde, W = HermitianSemidefinite(k^2*dimE,k^2*dimE), HermitianSemidefinite(k^2*dimE,k^2*dimE)
+    z1, z2 = Variable(), Variable()
+    Ytilde = HermitianSemidefinite(k^2*dimE,k^2*dimE)
+    W = HermitianSemidefinite(k^2*dimE,k^2*dimE)
     #Begin problem
     objective = z2
     problem = minimize(objective)
@@ -95,11 +96,11 @@ function cvkDual(k :: Integer, kraus_ops :: Vector{Any})
     return cvk, problem.optval, zs, Ytilde.value, W.value
 end
 #Helper function
-function _dual_map_const(Ytilde::Variable, adj_comp_kraus::Vector{Any}, i::Integer, j::Integer, k::Integer, dimE::Integer)
+function _dual_map_const(Ytilde::Variable, adj_comp_kraus::Vector, i::Integer, j::Integer, k::Integer, dimE::Integer)
     i_vec, j_vec = zeros(k), zeros(k)
     idE = Matrix(1I,dimE,dimE)
     i_vec[i], j_vec[j] = 1,1
-    i_op,j_op = kron(kron(i_vec,i_vec),idE), kron(kron(j_vec,j_vec),idE)
+    i_op,j_op = kron(i_vec,i_vec,idE), kron(j_vec,j_vec,idE)
     total_op = i_op'*Ytilde*j_op - j_op'*Ytilde*i_op
     return krausAction(adj_comp_kraus,total_op)
 end
@@ -108,15 +109,14 @@ end
 @testset "SDP relaxation not useful" begin
     println("Now we show they break down quickly using the identity and replacer channels.")
     #Identity Channel
-    id_kraus_chan = Any[]
-    idKraus = Matrix(1I,3,3)
-    push!(id_kraus_chan,idKraus)
+    id_kraus_chan = Vector{Matrix{Complex{Float64}}}(undef, 1)
+    id_kraus_chan[1] = Matrix(1I,3,3)
 
     #Replacer channel
-    rep_kraus_chan = Any[]
-    push!(rep_kraus_chan,[1 0 0; 0 0 0])
-    push!(rep_kraus_chan,[0 1 0; 0 0 0])
-    push!(rep_kraus_chan,[0 0 1; 0 0 0])
+    rep_kraus_chan = Vector{Matrix{Complex{Float64}}}(undef, 3)
+    rep_kraus_chan[1] = [1 0 0; 0 0 0]
+    rep_kraus_chan[2] = [0 1 0; 0 0 0]
+    rep_kraus_chan[3] = [0 0 1; 0 0 0]
 
     println("First we look at the primal problem. We see it breaks down almost immediately.")
     @testset "Primal Problem" begin
@@ -137,6 +137,7 @@ end
         end
         @testset "k=3+ not tight for identity channel" begin
             @test !isapprox(cv3prim_id,3,atol=1e-6)
+            @test isapprox(cv3prim_id,6.000182, atol=1e-5)
         end
         @testset "k=1 tight for replacer channel" begin
             @test isapprox(cv1prim_rep,1,atol=1e-6)
@@ -146,27 +147,35 @@ end
         end
     end
     println("We now see the same issue happens with the dual problem.")
-    println("However, here we see there is a huge gap.")
+    println("However, here we see there is a huge gap. This is probably a mix of:")
+    println("1) the fidelity function not being numerically ideal in general,")
+    println("2) the complicated structure we demand of the variable,")
+    println("3) possibly a lack of strong duality.")
     @testset "Dual Problem" begin
         println("Getting data and presenting value")
         cv1dual_id, = cvkDual(1,id_kraus_chan)
         println("Dual for cv k=1 for Identity channel is: ", cv1dual_id)
         cv2dual_id, = cvkDual(2,id_kraus_chan)
-        println("Dual for cv k=1 for Identity channel is: ", cv2dual_id)
+        println("Dual for cv k=2 for Identity channel is: ", cv2dual_id)
         cv3dual_id, = cvkDual(3,id_kraus_chan)
-        println("Dual for cv k=1 for Identity channel is: ", cv3dual_id)
+        println("Dual for cv k=3 for Identity channel is: ", cv3dual_id)
         cv1dual_rep, = cvkDual(1,rep_kraus_chan)
         println("Dual for cv k=1 for Replacement channel is: ", cv1dual_rep)
         cv2dual_rep, = cvkDual(2,rep_kraus_chan)
-        println("Dual for cv k=1 for Replacement channel is: ", cv2dual_rep)
+        println("Dual for cv k=2 for Replacement channel is: ", cv2dual_rep)
         @testset "k=1,2,3 not tight for identity channel" begin
             @test !isapprox(cv1dual_id,1,atol=1e-6)
+            @test isapprox(cv1dual_id, 1.645e10, atol=1e8)
             @test !isapprox(cv2dual_id,2,atol=1e-6)
+            @test isapprox(cv2dual_id, 9.335e8, atol=1e6)
             @test !isapprox(cv3dual_id,3,atol=1e-6)
+            @test isapprox(cv3dual_id, 3.347e10, atol=1e8)
         end
         @testset "k=1,2 not tight for replacer channel" begin
-            @test !isapprox(cv1dual_rep,1,atol=1e-6)
-            @test !isapprox(cv2dual_rep,1,atol=1e-6)
+            @test !isapprox(cv1dual_rep, 1, atol=1e-6)
+            @test isapprox(cv1dual_rep, 1.298e10, atol = 1e8)
+            @test !isapprox(cv2dual_rep, 1, atol=1e-6)
+            @test isapprox(cv2dual_rep, 4.665e11, atol=1e9)
         end
     end
 end
