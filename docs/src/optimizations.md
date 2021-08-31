@@ -18,4 +18,5 @@ twoSymCVPrimal
 threeSymCVPrimal
 fixedStateCV
 fixedMeasurementCV
+seesawCV
 ```

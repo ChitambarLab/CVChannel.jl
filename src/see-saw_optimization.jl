@@ -100,3 +100,93 @@ function fixedMeasurementCV(
 
     return cv, opt_states
 end
+
+"""
+    seesawCV(
+        init_states :: Vector{<:AbstractMatrix},
+        kraus_ops :: Vector{<:AbstractMatrix},
+        num_steps :: Int64;
+        verbose :: Bool = false
+    )
+
+Performs the see-saw optimization technique ( TODO: Ref ) to maximize the communication
+value (CV) of the channel described by `kraus_ops` over all states and measurements.
+This iterative optimization technique combines coordinate ascent maximization
+with semi-definite programming.
+The number of iterations is determined by `num_steps` where each iteration
+consists of a two-step procedure:
+
+1. The POVM measurement is optimized with respect to a fixed state ensemble
+   using the [`fixedStateCV`](@ref) function.
+2. The state ensemble is optimized with respect to a fixed povm state using
+   the [`fixedMeasurementCV`](@ref) function.
+
+This procedure is initialized with `init_states` and after many iterations, a
+local maximum of the CV is found.
+The `verbose` keyword argument can be used to print out the CV evaluated in each
+step. 
+
+# Returns
+
+A `Tuple` containing the following data in order:
+
+1. `max_cv_tuple :: Tuple`, `(max_cv, opt_states, opt_povm)` A 3-tuple containing the maximal
+   communication value and the optimal states/povm that achieve this value.
+2. `cvs :: Vector{Float64}`, A list of each evaluated CV. Since states and measurements
+   are optimized in each iteration, we have `length(cvs) == 2 * num_steps`.
+3. `opt_ensembles :: Vector{Vector{Matrix{ComplexF64}}}`, A list of state ensembles
+   optimized in each step, where `length(opt_ensembles) == num_steps`.
+4. `opt_povms :: Vector{Vector{Matrix{ComplexF64}}}`, A list of POVM measurements
+   optimized in each step, where `length(opt_povms) == num_steps`.
+
+!!! warning "Local Optima"
+    This function is not guaranteed to find global optima.
+"""
+function seesawCV(
+    init_states :: Vector{<:AbstractMatrix},
+    kraus_ops :: Vector{<:AbstractMatrix},
+    num_steps :: Int64;
+    verbose :: Bool = false
+) :: Tuple
+    opt_ensembles = Vector{Vector{Matrix{ComplexF64}}}(undef, num_steps)
+    opt_povms = Vector{Vector{Matrix{ComplexF64}}}(undef, num_steps)
+    cvs = zeros(Float64, 2*num_steps)
+    cv_id = 1
+
+    max_cv_tuple = (1, [], [])
+
+    for i in 1:num_steps
+        # maximizing CV over POVMs
+        opt_states = (i == 1) ? init_states : opt_ensembles[i-1]
+
+        fixed_state_cv, opt_povm = fixedStateCV(opt_states, kraus_ops)
+
+        cvs[cv_id] = fixed_state_cv
+        cv_id += 1
+        opt_povms[i] = opt_povm
+
+        if fixed_state_cv > max_cv_tuple[1]
+            max_cv_tuple = (fixed_state_cv, opt_states, opt_povm)
+        end
+
+        # maximizing CV over states
+        fixed_povm_cv, opt_states = fixedMeasurementCV(opt_povm, kraus_ops)
+
+        cvs[cv_id] = fixed_povm_cv
+        cv_id += 1
+        opt_ensembles[i] = opt_states
+
+        if fixed_povm_cv > max_cv_tuple[1]
+            max_cv_tuple = (fixed_povm_cv, opt_states, opt_povm)
+        end
+
+        if verbose
+            println("i = ", i)
+            println("fixed_state_cv = ", fixed_state_cv)
+            println("fixed_povm_cv = ", fixed_povm_cv)
+            println("max_cv = ", max_cv_tuple[1])
+        end
+    end
+
+    return max_cv_tuple, cvs, opt_ensembles, opt_povms
+end

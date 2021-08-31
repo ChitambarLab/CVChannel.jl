@@ -65,4 +65,16 @@ end
     end
 end
 
+@testset "haarStates" begin
+    @testset "verifying states, n = $n" for n in 1:5
+        @testset "d = $d" for d in 1:5
+            rand_states = haarStates(n, d)
+
+            @test length(rand_states) == n
+            @test all(ρ -> size(ρ) == (d,d), rand_states)
+            @test all(ρ -> is_density_matrix(ρ), rand_states)
+        end
+    end
+end
+
 end

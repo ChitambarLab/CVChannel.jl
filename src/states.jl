@@ -111,3 +111,18 @@ function _axisymmetric_x_constraints(d,y) :: Tuple{Float64, Float64}
 
     return (lower, upper)
 end
+
+"""
+    haarStates(n :: Int64, d :: Int64) :: Vector{Matrix{ComplexF64}}
+
+Constructs a list of `n` random states on a `d`-dimensional Hilbert space
+according to the Haar measure.
+"""
+function haarStates(n :: Int64, d :: Int64) :: Vector{Matrix{ComplexF64}}
+    ρ0 = zeros(Float64, d, d)
+    ρ0[1,1] = 1.0
+
+    rand_unitaries = map(i -> random_unitary(d), 1:n)
+
+    return map(U -> U*ρ0*U', rand_unitaries)
+end

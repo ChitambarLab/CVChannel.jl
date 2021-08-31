@@ -22,6 +22,7 @@ GADChannel
 ```@docs
 wernerState
 axisymmetricState
+haarStates
 ```
 
 ## Operations
