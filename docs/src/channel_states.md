@@ -10,6 +10,9 @@ Choi
 is_choi_matrix
 parChoi
 choi
+isometricChannel
+complementaryChannel
+krausAction
 depolarizingChannel
 dephrasureChannel
 wernerHolevoChannel
@@ -32,7 +35,4 @@ swapOperator
 permuteSubsystems
 shiftOperator
 discreteWeylOperator
-isometricRep
-complementaryChannel
-krausAction
 ```
