@@ -22,6 +22,9 @@ println("running ./test/CVChannel.jl")
 
     println("testing ./src/optimizer_interface.jl")
     @time @safetestset "./test/optimizer_interface.jl" begin include("optimizer_interface.jl") end
+
+    println("testing ./src/see-saw_optimization.jl")
+    @time @safetestset "./test/see-saw_optimization.jl" begin include("see-saw_optimization.jl") end
 end
 
 println("\ntotal elapsed time :")

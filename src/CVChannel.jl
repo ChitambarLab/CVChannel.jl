@@ -47,4 +47,7 @@ export WHIDLP, generalWHLPConstraints, wernerHolevoCVPPT
 export twoSymCVPrimal, threeSymCVPrimal
 include("optimizations.jl")
 
+export fixedStateCV, fixedMeasurementCV
+include("see-saw_optimization.jl")
+
 end

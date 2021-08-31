@@ -16,4 +16,6 @@ generalWHLPConstraints
 wernerHolevoCVPPT
 twoSymCVPrimal
 threeSymCVPrimal
+fixedStateCV
+fixedMeasurementCV
 ```
