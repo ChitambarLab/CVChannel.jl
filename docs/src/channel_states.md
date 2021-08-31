@@ -17,7 +17,7 @@ depolarizingChannel
 dephrasureChannel
 wernerHolevoChannel
 siddhuChannel
-GADChannela
+GADChannel
 ```
 
 ## States
