@@ -32,4 +32,7 @@ swapOperator
 permuteSubsystems
 shiftOperator
 discreteWeylOperator
+isometricRep
+complementaryChannel
+krausAction
 ```

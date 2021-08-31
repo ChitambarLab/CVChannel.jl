@@ -234,6 +234,7 @@ function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matri
     K1 = [0 0 0 ; sqrt(1-s) 0 0 ; 0 0 1]
     return K0*ρ*K0' + K1*ρ*K1'
 end
+
 """
     GADChannel(
         ρ :: Matrix{<:Number},

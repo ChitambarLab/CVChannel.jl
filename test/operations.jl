@@ -81,4 +81,33 @@ end
     @test isapprox(discreteWeylOperator(2,0,3),[1 0 0 ; 0 exp(pi*4im/3) 0 ; 0 0 exp(pi*8im/3)], atol=1e-6)
 end
 
+@testset "isometricRep" begin
+    kraus_set1 = Any[]
+    push!(kraus_set1,[1 0 ; 0 0 ; 0 0])
+    push!(kraus_set1,1/sqrt(2)*[0 0 ; 0 1 ; 0 1])
+    @test isapprox(isometricRep(kraus_set1),[1 0 ; 0 0 ; 0 0 ; 0 1/sqrt(2) ; 0 0 ; 0 1/sqrt(2)], atol=1e-6)
+
+    kraus_set2 = Any[]
+    push!(kraus_set2,[1 0 ; 0 -1])
+    @test isapprox(isometricRep(kraus_set2),[1 0 ; 0 -1], atol=1e-6)
+end
+
+@testset "complementaryChannel" begin
+    @testset "First Map" begin
+        kraus_set1 = Any[]
+        push!(kraus_set1,[1. 0 ; 0 0 ; 0 0])
+        push!(kraus_set1,1/sqrt(2)*[0 0 ; 0 1 ; 0 1])
+        comp_kraus = complementaryChannel(kraus_set1)
+        @test comp_kraus[1] == [1. 0 ; 0 0]
+        @test comp_kraus[2] == 1/sqrt(2)*[0 0; 0 1]
+        @test comp_kraus[3] == 1/sqrt(2)*[0 0; 0 1]
+    end
+    @testset "Unitary Map" begin
+        kraus_set2 = Any[]
+        push!(kraus_set2, [1 0 ; 0 -1])
+        comp_kraus = complementaryChannel(kraus_set2)
+        @test comp_kraus[1] == [1 0 ; 0 0]
+        @test comp_kraus[2] == [0 1 ; 0 0]
+    end
+end
 end
