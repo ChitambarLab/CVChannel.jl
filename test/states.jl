@@ -1,6 +1,7 @@
 using Test
 using LinearAlgebra
 using QBase
+using Random
 using CVChannel
 
 @testset "./src/states.jl" begin
@@ -74,6 +75,31 @@ end
             @test all(ρ -> size(ρ) == (d,d), rand_states)
             @test all(ρ -> is_density_matrix(ρ), rand_states)
         end
+    end
+
+    @testset "seeded random states verification" begin
+        Random.seed!(666)
+        rand_states = haarStates(4,2)
+        match_states = [
+            [
+                0.9068588653033508 + 0.0im -0.2824120726122391 - 0.06862423017367089im;
+                -0.2824120726122391 + 0.06862423017367089im 0.09314113469664888 + 0.0im
+            ],
+            [
+                0.3718976279148742 + 0.0im -0.3176606642535559 + 0.36425469750183553im;
+                -0.3176606642535559 - 0.36425469750183553im 0.628102372085126 + 0.0im
+            ],
+            [
+                0.4049640512580946 + 0.0im -0.1688517083280211 - 0.46093087230238206im;
+                -0.1688517083280211 + 0.46093087230238206im 0.5950359487419055 + 0.0im
+            ],
+            [
+                0.17921064730550684 + 0.0im -0.3426052023877003 + 0.17238290661991693im;
+                -0.3426052023877003 - 0.17238290661991693im 0.8207893526944933 + 0.0im
+            ]
+        ]
+
+        @test all(i -> rand_states[i] ≈ match_states[i], 1:4)
     end
 end
 

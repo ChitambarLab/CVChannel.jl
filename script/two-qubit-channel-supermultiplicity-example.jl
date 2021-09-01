@@ -5,6 +5,8 @@ using QBase: States, Unitaries
 using BellScenario: LocalSignaling, BellGame, Nonlocality
 using SignalingDimension: maximum_likelihood_facet
 
+# TODO: revisit this script to drop Signaling Dimension and BellScenario
+
 """
 In a previous note, Marius Junge described a channel that has a supermultiplicative
 communication value. This channel maps a 4-dimension Hilbert

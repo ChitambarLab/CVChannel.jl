@@ -109,10 +109,10 @@ end
         verbose :: Bool = false
     )
 
-Performs the see-saw optimization technique ( TODO: Ref ) to maximize the communication
+Performs the see-saw optimization technique to maximize the communication
 value (CV) of the channel described by `kraus_ops` over all states and measurements.
-This iterative optimization technique combines coordinate ascent maximization
-with semi-definite programming.
+This iterative and variational optimization technique combines coordinate ascent
+maximization with semi-definite programming.
 The number of iterations is determined by `num_steps` where each iteration
 consists of a two-step procedure:
 
@@ -124,7 +124,18 @@ consists of a two-step procedure:
 This procedure is initialized with `init_states` and after many iterations, a
 local maximum of the CV is found.
 The `verbose` keyword argument can be used to print out the CV evaluated in each
-step. 
+step.
+
+The see-saw method was first introduced in the field of quantum nonlocality by
+[https://arxiv.org/abs/quant-ph/0102024](https://arxiv.org/abs/quant-ph/0102024)
+and has been developed further by several other works including
+[https://arxiv.org/abs/quant-ph/0604045](https://arxiv.org/abs/quant-ph/0604045),
+[https://arxiv.org/abs/quant-ph/0508210](https://arxiv.org/abs/quant-ph/0508210),
+and [https://arxiv.org/abs/1006.3032](https://arxiv.org/abs/1006.3032).
+We note that our implementation is quite distinct from previous works.
+This technique is typically applied to space-like separated Bell scenarios and
+often restricted to optimization over projective measurements.
+
 
 # Returns
 

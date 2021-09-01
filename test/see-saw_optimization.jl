@@ -77,7 +77,7 @@ end
 
 @testset "seesawCV" begin
     d = 3
-    anti_sym_choi = wernerState(d, 0)*d
+    anti_sym_choi = wernerState(d, 0) * d
     anti_sym_kraus_ops = map(i -> reshape(anti_sym_choi[:,i], (d,d)), 1:d^2)
     par_anti_sym_kraus_ops = collect(flatten(
         map(k1 -> map(k2 -> kron(k1,k2), anti_sym_kraus_ops), anti_sym_kraus_ops)
