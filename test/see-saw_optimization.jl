@@ -84,8 +84,8 @@ end
     ))
 
     # verify kraus operators are trace-preserving
-    @test sum(k -> k * k', anti_sym_kraus_ops) == I
-    @test sum(k -> k * k', par_anti_sym_kraus_ops) == I
+    @test sum(k -> k * k', anti_sym_kraus_ops) ≈ I
+    @test sum(k -> k * k', par_anti_sym_kraus_ops) ≈ I
 
     @testset "singular qutrit anti-symmetric Werner-Holevo channel" begin
         init_states = [
@@ -97,13 +97,13 @@ end
             init_states, anti_sym_kraus_ops, num_steps
         )
 
-        @test max_cv_tuple[1] ≈ 1.5
+        @test max_cv_tuple[1] ≈ 1.5 atol=1e-6
         @test all(ρ -> is_density_matrix(ρ), max_cv_tuple[2])
         @test is_povm(max_cv_tuple[3])
         @test length(max_cv_tuple) == 3
 
         @test length(cvs) == 2 * num_steps
-        @test max(cvs...) ≈ 1.5
+        @test max(cvs...) ≈ 1.5 atol=1e-6
         @test min(cvs...) ≈ 1.25 atol=1e-5
 
         @test length(opt_ensembles) == num_steps
@@ -123,20 +123,20 @@ end
             init_states, par_anti_sym_kraus_ops, num_steps
         )
 
-        @test max_cv_tuple[1] ≈ 2.25 atol=1e-6
-        @test all(ρ -> is_density_matrix(ρ, atol=1e-6), max_cv_tuple[2])
-        @test is_povm(max_cv_tuple[3], atol=1e-6)
+        @test max_cv_tuple[1] ≈ 2.25 atol=1e-5
+        @test all(ρ -> is_density_matrix(ρ, atol=1e-5), max_cv_tuple[2])
+        @test is_povm(max_cv_tuple[3], atol=1e-5)
         @test length(max_cv_tuple) == 3
 
         @test length(cvs) == 2 * num_steps
-        @test max(cvs...) ≈ 2.25 atol=1e-6
+        @test max(cvs...) ≈ 2.25 atol=1e-5
         @test min(cvs...) ≈ 1.078 atol=1e-3
 
         @test length(opt_ensembles) == num_steps
-        @test all(states -> all(ρ -> is_density_matrix(ρ, atol=1e-6), states), opt_ensembles)
+        @test all(states -> all(ρ -> is_density_matrix(ρ, atol=1e-5), states), opt_ensembles)
 
         @test length(opt_povms) == num_steps
-        @test all(Π -> is_povm(Π, atol=1e-6), opt_povms)
+        @test all(Π -> is_povm(Π, atol=1e-5), opt_povms)
     end
 
     @testset "verbose printout" begin
