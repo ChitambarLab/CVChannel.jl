@@ -133,11 +133,11 @@ end
         println("Primal for cv k=2 for Replacer channel is: ", cv2prim_rep)
         @testset "k=1,2 tight for identity channel" begin
             @test isapprox(cv1prim_id,1,atol=1e-6)
-            @test isapprox(cv2prim_id,2,atol=1e-6)
+            @test isapprox(cv2prim_id,2,atol=1e-4)
         end
         @testset "k=3+ not tight for identity channel" begin
             @test !isapprox(cv3prim_id,3,atol=1e-6)
-            @test isapprox(cv3prim_id,6.000182, atol=1e-5)
+            @test isapprox(cv3prim_id,6.000182, atol=2e-4)
         end
         @testset "k=1 tight for replacer channel" begin
             @test isapprox(cv1prim_rep,1,atol=1e-6)
@@ -147,9 +147,10 @@ end
         end
     end
     println("We now see the same issue happens with the dual problem.")
-    println("However, here we see there is a huge gap. This is probably a mix of:")
+    println("However, here we see there is a huge gap of the order ~1e10.")
+    println("This is probably a mix of:")
     println("1) the fidelity function not being numerically ideal in general,")
-    println("2) the complicated structure we demand of the variable,")
+    println("2) the complicated structure we demand of the variable Y,")
     println("3) possibly a lack of strong duality.")
     @testset "Dual Problem" begin
         println("Getting data and presenting value")
@@ -165,17 +166,12 @@ end
         println("Dual for cv k=2 for Replacement channel is: ", cv2dual_rep)
         @testset "k=1,2,3 not tight for identity channel" begin
             @test !isapprox(cv1dual_id,1,atol=1e-6)
-            @test isapprox(cv1dual_id, 1.645e10, atol=1e8)
             @test !isapprox(cv2dual_id,2,atol=1e-6)
-            @test isapprox(cv2dual_id, 9.335e8, atol=1e6)
             @test !isapprox(cv3dual_id,3,atol=1e-6)
-            @test isapprox(cv3dual_id, 3.347e10, atol=1e8)
         end
         @testset "k=1,2 not tight for replacer channel" begin
             @test !isapprox(cv1dual_rep, 1, atol=1e-6)
-            @test isapprox(cv1dual_rep, 1.298e10, atol = 1e8)
             @test !isapprox(cv2dual_rep, 1, atol=1e-6)
-            @test isapprox(cv2dual_rep, 4.665e11, atol=1e9)
         end
     end
 end
