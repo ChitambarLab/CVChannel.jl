@@ -74,7 +74,7 @@ println("\nVerifying communication value of a single channel use")
         cv_dual, = pptCV(choi_chan, :dual)
 
         @test cv_primal ≈ 2
-        @test cv_dual ≈ 2
+        @test isapprox(cv_dual,2,atol=1e-6)
     end
 
     @testset "see-saw optimziation" begin
@@ -91,13 +91,13 @@ println("\nVerifying communication value of a single channel use")
 
         @test cv_tuple8[1] ≈ 2 atol=1e-4
         @test all(ρ -> is_density_matrix(ρ, atol=1e-6), cv_tuple8[2])
-        @test is_povm(cv_tuple8[3], atol=1e-6)
+        @test is_povm(cv_tuple8[3], atol=2e-6)
 
         init_states = haarStates(16,4)
         cv_tuple16, = seesawCV(init_states, kraus_ops, 5)
 
-        @test cv_tuple16[1] ≈ 2 atol=1e-6
-        @test all(ρ -> is_density_matrix(ρ, atol=1e-6), cv_tuple16[2])
+        @test cv_tuple16[1] ≈ 2 atol=2e-6
+        @test all(ρ -> is_density_matrix(ρ, atol=2e-6), cv_tuple16[2])
         @test is_povm(cv_tuple16[3], atol=1e-6)
     end
 end
