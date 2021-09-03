@@ -136,7 +136,6 @@ We note that our implementation is quite distinct from previous works.
 This technique is typically applied to space-like separated Bell scenarios and
 often restricted to optimization over projective measurements.
 
-
 # Returns
 
 A `Tuple` containing the following data in order:
