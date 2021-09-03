@@ -17,6 +17,7 @@ depolarizingChannel
 dephrasureChannel
 wernerHolevoChannel
 siddhuChannel
+generalizedSiddhu
 GADChannel
 ```
 

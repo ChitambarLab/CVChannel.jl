@@ -18,6 +18,7 @@ eaCV(channel :: Choi, ::Val{:dual}) = eaCVDual(channel.JN, channel.in_dim, chann
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64, Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , X \\succeq 0 \\}
@@ -45,6 +46,7 @@ end
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64, Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\min \\{ \\text{Tr}(Y) :  I_{A} \\otimes Y \\succeq \\rho, Y \\in \\text{Herm}(B) \\}
@@ -88,6 +90,7 @@ pptCV(channel :: Choi, ::Val{:dual}) = pptCVDual(channel.JN, channel.in_dim, cha
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\max \\{ \\langle \\rho, X \\rangle :  \\text{Tr}_{A}(X) = I_{B} , \\Gamma(X) \\succeq 0, X \\succeq 0 \\}
@@ -113,6 +116,7 @@ end
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}, Matrix{ComplexF64}}
+
 This function solves the SDP
 ```math
 \\min \\{ \\text{Tr}(Y_{1}) : I_{A} \\otimes Y_{1} - \\Gamma(Y_{2}) \\succeq \\rho, Y_{2} \\succeq 0, Y_{1} \\in \\text{Herm}(B) \\}
@@ -164,7 +168,7 @@ function pptCVMultiplicativity(
     # singular channel use
     cv_1, = pptCV(channel1, singular_method)
     cv_2, = pptCV(channel2, singular_method)
-    
+
     # parallel channel use
     par_cv, = pptCV(parChoi(channel1, channel2), parallel_method)
 
@@ -232,6 +236,7 @@ end
         d2 :: Int64,
         λ :: Union{Int,Float64}
     ) :: Float64
+
 This function implements the linear program (LP) to determine the communication
 value of the Werner-Holevo channel tensored with the identity channel, when the
 problem is relaxed to optimizing over the PPT cone. (See cite for derivation).
@@ -392,6 +397,7 @@ end
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}}
+
 Given the [`Choi`](@ref) operator representation of a channel, or alternatively,
 the Choi matrix `ρ` and its input output dimensions, this function solves the SDP
 ```math
@@ -430,6 +436,7 @@ end
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}}
+    
 Given the [`Choi`](@ref) operator representation of a channel, or alternatively,
 the Choi matrix `ρ` and its input output dimensions, this function solves the SDP
 ```math

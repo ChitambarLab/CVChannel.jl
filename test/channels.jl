@@ -234,6 +234,35 @@ end
     end
 end
 
+"generalizedSiddhu" begin
+    @testset "verify channel definition" begin
+        for s in [0:0.1:0.5;]
+            for μ in [0:0.1:1;]
+                genSidChan(X) = generalizedSiddhu(X,s,μ)
+                testchan = Choi(genSidChan,3,3)
+                α, β, γ, δ = 1-s, 1-μ, sqrt(s*(1-μ)), sqrt(s*μ)
+                ϵ, ζ, η = sqrt(μ*(1-s)), sqrt((1-μ)*(1-s)), sqrt(μ*(1-μ))
+                target = [s 0 0 0 γ 0 0 0 δ ;
+                          0 α 0 0 0 ϵ ζ 0 0;
+                          0 0 0 0 0 0 0 0 0 ;
+                          0 0 0 0 0 0 0 0 0 ;
+                          γ 0 0 0 β 0 0 0 η ;
+                          0 ϵ 0 0 0 μ η 0 0 ;
+                          0 ζ 0 0 0 η β 0 0 ;
+                          0 0 0 0 0 0 0 0 0 ;
+                          δ 0 0 0 η 0 0 0 μ]
+                @test isapprox(testchan.JN, target, atol = 1e-6)
+            end
+        end
+    end
+    @testset "errors" begin
+        @test_throws DomainError generalizedSiddhu([1 0 ; 0 0; 0 0], 0.2,1)
+        @test_throws DomainError generalizedSiddhu([1 0 ; 0 0], 0.3,1)
+        @test_throws DomainError generalizedSiddhu([1 0 0 ; 0 0 0 ; 0 0 0], 7,1)
+        @test_throws DomainError generalizedSiddhu([1 0 0 ; 0 0 0 ; 0 0 0], 0.2,7)
+    end
+end
+
 @testset "GADChannel" begin
     @testset "Verify Channel Definition" begin
         #By linearity we just need to check the computational basis
