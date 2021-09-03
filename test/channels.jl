@@ -234,7 +234,7 @@ end
     end
 end
 
-"generalizedSiddhu" begin
+@testset "generalizedSiddhu" begin
     @testset "verify channel definition" begin
         for s in [0:0.1:0.5;]
             for μ in [0:0.1:1;]
