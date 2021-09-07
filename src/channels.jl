@@ -111,6 +111,88 @@ function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{<:Number}
 end
 
 """
+    isometricChannel(kraus_ops :: Vector) :: Matrix
+
+This function builds the isometric representation ``V`` of a
+channel ``\\mathcal{N}: A \\to B`` from the Kraus operators ``\\{K_{i}\\}``.
+It does this by calculating
+```math
+    V = \\sum_{i} K_{i} \\otimes |i\\rangle
+```
+"""
+function isometricChannel(kraus_ops :: Vector) :: Matrix
+    dimB , dimA = size(kraus_ops[1])
+    dimE = length(kraus_ops)
+    V, e_vec = zeros(dimE*dimB,dimA), zeros(dimE)
+    for i in 0:dimE-1;
+        V[1+i*dimB:(i+1)*dimB,1:dimA] = kraus_ops[i+1]
+    end
+    label_vec = [1:dimB*dimE;]
+    perms_ids_vec = permuteSubsystems(label_vec,[2,1],[dimE,dimB])
+    V = V[perms_ids_vec,:]
+
+    return V
+end
+
+"""
+    complementaryChannel(kraus_ops :: Vector) :: Vector
+
+This function takes a set of Kraus operators for a channel ``\\mathcal{N}_{A \\to B}``
+and returns a set of Kraus operators for the complementary channel,
+``\\mathcal{N}^{c}_{A \\to E}``. It does this by generating the Kraus operators of
+the isometric representation of the channel followed by partial trace on the
+``B`` space.
+!!! info
+    If ``\\mathcal{N}_{A \\to B}`` is already isometric, the code lets dimE=2
+    so that functions are well behaved.
+"""
+function complementaryChannel(kraus_ops :: Vector) :: Vector
+    V = isometricChannel(kraus_ops)
+    dimB , dimA = size(kraus_ops[1])
+    dimE = length(kraus_ops)
+
+    comp_kraus = Vector{Matrix{Complex{Float64}}}(undef, dimB)
+    if dimE == 1
+        #If dimE = 1, the complementary channel is the replacer channel
+        #To get it to work with other functions, we let dimE=2 so it isn't scalar
+        b_vec = zeros(dimB)
+        for i in [1:dimB;]
+            b_vec[i] = 1
+            comp_kraus[i] = kron([1;0],b_vec')
+            b_vec[i] = 0
+        end
+    else
+        b_vec, e_id = zeros(dimB), Matrix(1I,dimE,dimE)
+        for i in [1:dimB;]
+            b_vec[i] = 1
+            comp_kraus[i] = kron(b_vec,e_id)'*V
+            b_vec[i] = 0
+        end
+    end
+
+    return comp_kraus
+end
+
+"""
+    krausAction(kraus_ops :: Vector, X)
+
+This function takes a set of Kraus operators for a channel
+``\\mathcal{N}_{A \\to B}`` and returns the output of the channel
+for input ``X``. That is, given input ``X`` it returns
+```math
+    \\mathcal{N}_{A \\to B}(X) = \\sum_{i} K_{i} X K_{i}^{\\ast}
+```
+"""
+function krausAction(kraus_ops :: Vector, X)
+    dimB, dimA = size(kraus_ops[1])
+    out = zeros(dimB,dimB)
+    for i = [1:length(kraus_ops);]
+        out += kraus_ops[i]*X*kraus_ops[i]'
+    end
+    return out
+end
+
+"""
     depolarizingChannel(ρ :: Matrix{Float64}, q :: Union{Int,Float64}) :: Matrix{ComplexF64}
 
 This calculates the action of the depolarizing channel,
@@ -234,13 +316,14 @@ function siddhuChannel(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}) :: Matri
     K1 = [0 0 0 ; sqrt(1-s) 0 0 ; 0 0 1]
     return K0*ρ*K0' + K1*ρ*K1'
 end
+
 """
     generalizedSiddhu(
-        ρ :: Matrix{<:Number},
-        s :: Union{Int,Float64},
-        μ :: Union{Int,Float64}
-    ):: Matrix{<:Number}
-
+          ρ :: Matrix{<:Number},
+          s :: Union{Int,Float64},
+          μ :: Union{Int,Float64}
+    ) :: Matrix{<:Number}
+          
 This function calculates the action of the generalized Siddhu channel
 ``\\mathcal{N}_{s,\\mu}`` on the qutrit state ``\\rho``.
 The action of the channel is defined by Kraus operators:
@@ -283,6 +366,7 @@ function generalizedSiddhu(ρ :: Matrix{<:Number}, s :: Union{Int,Float64}, μ :
     K1 = [0 0 sqrt(1-μ) ; sqrt(1-s) 0 0 ; 0 sqrt(μ) 0]
     return K0*ρ*K0' + K1*ρ*K1'
 end
+
 """
     GADChannel(
         ρ :: Matrix{<:Number},

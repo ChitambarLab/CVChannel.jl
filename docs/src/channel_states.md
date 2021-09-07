@@ -10,6 +10,9 @@ Choi
 is_choi_matrix
 parChoi
 choi
+isometricChannel
+complementaryChannel
+krausAction
 depolarizingChannel
 dephrasureChannel
 wernerHolevoChannel

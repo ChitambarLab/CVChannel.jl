@@ -90,6 +90,79 @@ end
     end
 end
 
+@testset "isometricChannel" begin
+    kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 2)
+    kraus_set1[1] = [1 0 ; 0 0 ; 0 0]
+    kraus_set1[2] = 1/sqrt(2)*[0 0 ; 0 1 ; 0 1]
+    @test isapprox(isometricChannel(kraus_set1),[1 0 ; 0 0 ; 0 0 ; 0 1/sqrt(2) ; 0 0 ; 0 1/sqrt(2)], atol=1e-6)
+
+    kraus_set2 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+    kraus_set2[1] = [1 0 ; 0 -1]
+    @test isapprox(isometricChannel(kraus_set2),[1 0 ; 0 -1], atol=1e-6)
+end
+
+@testset "complementaryChannel" begin
+    @testset "First Map" begin
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 2)
+        kraus_set1[1] = [1. 0 ; 0 0 ; 0 0]
+        kraus_set1[2] = 1/sqrt(2)*[0 0 ; 0 1 ; 0 1]
+        comp_kraus = complementaryChannel(kraus_set1)
+        @test comp_kraus[1] == [1. 0 ; 0 0]
+        @test comp_kraus[2] == 1/sqrt(2)*[0 0; 0 1]
+        @test comp_kraus[3] == 1/sqrt(2)*[0 0; 0 1]
+    end
+    @testset "Unitary Map" begin
+        kraus_set2 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+        kraus_set2[1] = [1 0 ; 0 -1]
+        comp_kraus = complementaryChannel(kraus_set2)
+        @test comp_kraus[1] == [1 0 ; 0 0]
+        @test comp_kraus[2] == [0 1 ; 0 0]
+    end
+end
+
+@testset "krausAction" begin
+    #By linearity this should suffice for checking it
+    #works on multiple dimensions
+    ρ1 = [1 0 ; 0 0]
+    ρ2 = [0 0 ; 0 1]
+    ρ3 = [1 0 0 ; 0 0 0 ; 0 0 0]
+    ρ4 = [0 0 0 ; 0 1 0 ; 0 0 0]
+    ρ5 = [0 0 0 ; 0 0 0 ; 0 0 1]
+    @testset "Identity Channel" begin
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+        kraus_set1[1] = [1 0 ; 0 1]
+        @test krausAction(kraus_set1,ρ1) == ρ1
+        @test krausAction(kraus_set1,ρ2) == ρ2
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+        kraus_set1[1] = [1 0 0 ; 0 1 0 ; 0 0 1]
+        @test krausAction(kraus_set1,ρ3) == ρ3
+        @test krausAction(kraus_set1,ρ4) == ρ4
+        @test krausAction(kraus_set1,ρ5) == ρ5
+    end
+    @testset "Completely Depolarizing Channel" begin
+        #This uses that applying the Discrete-Weyl operators uniformly
+        #to a qudit turns it into the maximally mixed state
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 4)
+        kraus_set1[1] = 1/sqrt(4)*discreteWeylOperator(0,0,2)
+        kraus_set1[2] = 1/sqrt(4)*discreteWeylOperator(0,1,2)
+        kraus_set1[3] = 1/sqrt(4)*discreteWeylOperator(1,0,2)
+        kraus_set1[4] = 1/sqrt(4)*discreteWeylOperator(1,1,2)
+        @test krausAction(kraus_set1,ρ1) == 1/2*[1 0 ; 0 1]
+        @test krausAction(kraus_set1,ρ2) == 1/2*[1 0 ; 0 1]
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 9)
+        kraus_ctr = 1
+        for i = 0:2;
+            for j = 0:2;
+                kraus_set1[kraus_ctr] = 1/sqrt(9)*discreteWeylOperator(i,j,3)
+                kraus_ctr += 1
+            end
+        end
+        @test isapprox(krausAction(kraus_set1,ρ3),1/3*[1 0 0; 0 1 0 ; 0 0 1], atol = 1e-6)
+        @test isapprox(krausAction(kraus_set1,ρ4),1/3*[1 0 0; 0 1 0 ; 0 0 1], atol = 1e-6)
+        @test isapprox(krausAction(kraus_set1,ρ5),1/3*[1 0 0; 0 1 0 ; 0 0 1], atol = 1e-6)
+    end
+end
+
 @testset "depolarizingChannel" begin
     @test isapprox(depolarizingChannel(maxEntState,0),maxEntState, atol=1e-6)
     @test isapprox(depolarizingChannel(maxEntState,1),maxMixState, atol=1e-6)
