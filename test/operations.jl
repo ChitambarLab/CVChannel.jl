@@ -80,5 +80,4 @@ end
     @test discreteWeylOperator(0,2,3) == [0 1 0 ; 0 0 1 ; 1 0 0]
     @test isapprox(discreteWeylOperator(2,0,3),[1 0 0 ; 0 exp(pi*4im/3) 0 ; 0 0 exp(pi*8im/3)], atol=1e-6)
 end
-
 end

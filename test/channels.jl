@@ -90,6 +90,79 @@ end
     end
 end
 
+@testset "isometricChannel" begin
+    kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 2)
+    kraus_set1[1] = [1 0 ; 0 0 ; 0 0]
+    kraus_set1[2] = 1/sqrt(2)*[0 0 ; 0 1 ; 0 1]
+    @test isapprox(isometricChannel(kraus_set1),[1 0 ; 0 0 ; 0 0 ; 0 1/sqrt(2) ; 0 0 ; 0 1/sqrt(2)], atol=1e-6)
+
+    kraus_set2 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+    kraus_set2[1] = [1 0 ; 0 -1]
+    @test isapprox(isometricChannel(kraus_set2),[1 0 ; 0 -1], atol=1e-6)
+end
+
+@testset "complementaryChannel" begin
+    @testset "First Map" begin
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 2)
+        kraus_set1[1] = [1. 0 ; 0 0 ; 0 0]
+        kraus_set1[2] = 1/sqrt(2)*[0 0 ; 0 1 ; 0 1]
+        comp_kraus = complementaryChannel(kraus_set1)
+        @test comp_kraus[1] == [1. 0 ; 0 0]
+        @test comp_kraus[2] == 1/sqrt(2)*[0 0; 0 1]
+        @test comp_kraus[3] == 1/sqrt(2)*[0 0; 0 1]
+    end
+    @testset "Unitary Map" begin
+        kraus_set2 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+        kraus_set2[1] = [1 0 ; 0 -1]
+        comp_kraus = complementaryChannel(kraus_set2)
+        @test comp_kraus[1] == [1 0 ; 0 0]
+        @test comp_kraus[2] == [0 1 ; 0 0]
+    end
+end
+
+@testset "krausAction" begin
+    #By linearity this should suffice for checking it
+    #works on multiple dimensions
+    ρ1 = [1 0 ; 0 0]
+    ρ2 = [0 0 ; 0 1]
+    ρ3 = [1 0 0 ; 0 0 0 ; 0 0 0]
+    ρ4 = [0 0 0 ; 0 1 0 ; 0 0 0]
+    ρ5 = [0 0 0 ; 0 0 0 ; 0 0 1]
+    @testset "Identity Channel" begin
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+        kraus_set1[1] = [1 0 ; 0 1]
+        @test krausAction(kraus_set1,ρ1) == ρ1
+        @test krausAction(kraus_set1,ρ2) == ρ2
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 1)
+        kraus_set1[1] = [1 0 0 ; 0 1 0 ; 0 0 1]
+        @test krausAction(kraus_set1,ρ3) == ρ3
+        @test krausAction(kraus_set1,ρ4) == ρ4
+        @test krausAction(kraus_set1,ρ5) == ρ5
+    end
+    @testset "Completely Depolarizing Channel" begin
+        #This uses that applying the Discrete-Weyl operators uniformly
+        #to a qudit turns it into the maximally mixed state
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 4)
+        kraus_set1[1] = 1/sqrt(4)*discreteWeylOperator(0,0,2)
+        kraus_set1[2] = 1/sqrt(4)*discreteWeylOperator(0,1,2)
+        kraus_set1[3] = 1/sqrt(4)*discreteWeylOperator(1,0,2)
+        kraus_set1[4] = 1/sqrt(4)*discreteWeylOperator(1,1,2)
+        @test krausAction(kraus_set1,ρ1) == 1/2*[1 0 ; 0 1]
+        @test krausAction(kraus_set1,ρ2) == 1/2*[1 0 ; 0 1]
+        kraus_set1 = Vector{Matrix{Complex{Float64}}}(undef, 9)
+        kraus_ctr = 1
+        for i = 0:2;
+            for j = 0:2;
+                kraus_set1[kraus_ctr] = 1/sqrt(9)*discreteWeylOperator(i,j,3)
+                kraus_ctr += 1
+            end
+        end
+        @test isapprox(krausAction(kraus_set1,ρ3),1/3*[1 0 0; 0 1 0 ; 0 0 1], atol = 1e-6)
+        @test isapprox(krausAction(kraus_set1,ρ4),1/3*[1 0 0; 0 1 0 ; 0 0 1], atol = 1e-6)
+        @test isapprox(krausAction(kraus_set1,ρ5),1/3*[1 0 0; 0 1 0 ; 0 0 1], atol = 1e-6)
+    end
+end
+
 @testset "depolarizingChannel" begin
     @test isapprox(depolarizingChannel(maxEntState,0),maxEntState, atol=1e-6)
     @test isapprox(depolarizingChannel(maxEntState,1),maxMixState, atol=1e-6)
@@ -158,6 +231,35 @@ end
         @test_throws DomainError siddhuChannel([1 0 ; 0 0; 0 0], 0.2)
         @test_throws DomainError siddhuChannel([1 0 ; 0 0], 0.3)
         @test_throws DomainError siddhuChannel([1 0 0 ; 0 0 0 ; 0 0 0], 7)
+    end
+end
+
+@testset "generalizedSiddhu" begin
+    @testset "verify channel definition" begin
+        for s in [0:0.1:0.5;]
+            for μ in [0:0.1:1;]
+                genSidChan(X) = generalizedSiddhu(X,s,μ)
+                testchan = Choi(genSidChan,3,3)
+                α, β, γ, δ = 1-s, 1-μ, sqrt(s*(1-μ)), sqrt(s*μ)
+                ϵ, ζ, η = sqrt(μ*(1-s)), sqrt((1-μ)*(1-s)), sqrt(μ*(1-μ))
+                target = [s 0 0 0 γ 0 0 0 δ ;
+                          0 α 0 0 0 ϵ ζ 0 0;
+                          0 0 0 0 0 0 0 0 0 ;
+                          0 0 0 0 0 0 0 0 0 ;
+                          γ 0 0 0 β 0 0 0 η ;
+                          0 ϵ 0 0 0 μ η 0 0 ;
+                          0 ζ 0 0 0 η β 0 0 ;
+                          0 0 0 0 0 0 0 0 0 ;
+                          δ 0 0 0 η 0 0 0 μ]
+                @test isapprox(testchan.JN, target, atol = 1e-6)
+            end
+        end
+    end
+    @testset "errors" begin
+        @test_throws DomainError generalizedSiddhu([1 0 ; 0 0; 0 0], 0.2,1)
+        @test_throws DomainError generalizedSiddhu([1 0 ; 0 0], 0.3,1)
+        @test_throws DomainError generalizedSiddhu([1 0 0 ; 0 0 0 ; 0 0 0], 7,1)
+        @test_throws DomainError generalizedSiddhu([1 0 0 ; 0 0 0 ; 0 0 0], 0.2,7)
     end
 end
 

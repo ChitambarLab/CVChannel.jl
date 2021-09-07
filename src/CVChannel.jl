@@ -28,15 +28,18 @@ using QBase
 
 import Base: show
 
-export isPPT, swapOperator, permuteSubsystems, shiftOperator, discreteWeylOperator
+export isPPT, swapOperator, permuteSubsystems, shiftOperator
+export discreteWeylOperator
 include("operations.jl")
 
 export wernerState, axisymmetricState, haarStates
 include("states.jl")
 
 export choi, is_choi_matrix, Choi, parChoi
+export isometricChannel, complementaryChannel, krausAction
 export depolarizingChannel, dephrasureChannel
-export wernerHolevoChannel, siddhuChannel, GADChannel
+export siddhuChannel, generalizedSiddhu
+export wernerHolevoChannel, GADChannel
 include("channels.jl")
 
 export qsolve!, hasMOSEKLicense
