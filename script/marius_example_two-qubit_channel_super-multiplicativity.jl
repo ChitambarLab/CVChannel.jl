@@ -68,13 +68,14 @@ println("\nVerifying communication value of a single channel use")
     choi_chan = Choi(marius_example_channel, 4, 5)
     kraus_ops = map(i -> reshape(choi_chan.JN[:,i],(5,4)) , 1:20)
     @test sum(k -> k' * k , kraus_ops) ≈ I
+    @test choi(kraus_ops) ≈ choi_chan.JN
 
     @testset "PPT relaxation CV" begin
         cv_primal, = pptCV(choi_chan)
         cv_dual, = pptCV(choi_chan, :dual)
 
-        @test cv_primal ≈ 2
-        @test isapprox(cv_dual,2,atol=1e-6)
+        @test cv_primal ≈ 2 atol=1e-6
+        @test cv_dual ≈ 2 atol=1e-6
     end
 
     @testset "see-saw optimziation" begin
@@ -104,7 +105,7 @@ end
 
 """
 Claim: The product channel `marius_example_channel_prod` has a communication value
-exceeding 4.
+of 5.
 
 The singular use of the channel is certified to be 2. We showed this above using
 the primal and dual form of the PPT relaxation to find a communication value of 2
@@ -121,6 +122,7 @@ println("\nVerifying super-multiplivity of communication value of the product ch
     par_choi_chan = Choi(par_marius_example_channel, 16, 25)
     par_kraus_ops = map(i -> reshape(par_choi_chan.JN[:,i],(25,16)) , 1:400)
     @test sum(k -> k' * k , par_kraus_ops) ≈ I
+    @test choi(par_kraus_ops) ≈ par_choi_chan.JN
 
     @testset "see-saw verification of super-multiplicativity" begin
         println("performing see-saw optimization of parallel channel")

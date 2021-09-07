@@ -5,8 +5,8 @@
     ) :: Tuple{Float64, Vector{Matrix{ComplexF64}}}
 
 For a fixed ensemble of `states` and quantum channel described by `kraus_ops`,
-the communication value (CV) is evaluated by maximizing over all POVM measurments.
-This optimization is expressed in primal form as the semi-definite program:
+the communication value (CV) is evaluated by maximizing over all POVM measurements.
+This optimization is expressed in primal form as the semidefinite program:
 
 ```math
 \\begin{matrix}
@@ -58,7 +58,7 @@ end
 
 For a fixed `povm` measurement and quantum channel described by `kraus_ops`, the
 communication value (CV) is evaluated by maximizing over all state encodings.
-This optimization is expressed in primal form as the semi-definite program:
+This optimization is expressed in primal form as the semidefinite program:
 
 ```math
 \\begin{matrix}
@@ -111,8 +111,8 @@ end
 
 Performs the see-saw optimization technique to maximize the communication
 value (CV) of the channel described by `kraus_ops` over all states and measurements.
-This iterative and variational optimization technique combines coordinate ascent
-maximization with semi-definite programming.
+This iterative and biconvex optimization technique combines coordinate ascent
+maximization with semidefinite programming.
 The number of iterations is determined by `num_steps` where each iteration
 consists of a two-step procedure:
 
@@ -126,22 +126,19 @@ local maximum of the CV is found.
 The `verbose` keyword argument can be used to print out the CV evaluated in each
 step.
 
-The see-saw method was first introduced in the field of quantum nonlocality by
-[https://arxiv.org/abs/quant-ph/0102024](https://arxiv.org/abs/quant-ph/0102024)
-and has been developed further by several other works including
-[https://arxiv.org/abs/quant-ph/0604045](https://arxiv.org/abs/quant-ph/0604045),
-[https://arxiv.org/abs/quant-ph/0508210](https://arxiv.org/abs/quant-ph/0508210),
-and [https://arxiv.org/abs/1006.3032](https://arxiv.org/abs/1006.3032).
-We note that our implementation is quite distinct from previous works.
-This technique is typically applied to space-like separated Bell scenarios and
-often restricted to optimization over projective measurements.
+The see-saw method has shown success in similar encoding/decoding
+optimization problems in quantum information, *e.g.*,
+[https://arxiv.org/abs/quant-ph/0307138v2](https://arxiv.org/abs/quant-ph/0307138v2)
+and [https://arxiv.org/abs/quant-ph/0606078v1](https://arxiv.org/abs/quant-ph/0606078v1).
+We note that our implementation is quite distinct from previous works, however,
+the core iterative approach remains the same.
 
 # Returns
 
 A `Tuple` containing the following data in order:
 
 1. `max_cv_tuple :: Tuple`, `(max_cv, opt_states, opt_povm)` A 3-tuple containing the maximal
-   communication value and the optimal states/povm that achieve this value.
+   communication value and the optimal states/POVM that achieve this value.
 2. `cvs :: Vector{Float64}`, A list of each evaluated CV. Since states and measurements
    are optimized in each iteration, we have `length(cvs) == 2 * num_steps`.
 3. `opt_ensembles :: Vector{Vector{Matrix{ComplexF64}}}`, A list of state ensembles
@@ -149,8 +146,9 @@ A `Tuple` containing the following data in order:
 4. `opt_povms :: Vector{Vector{Matrix{ComplexF64}}}`, A list of POVM measurements
    optimized in each step, where `length(opt_povms) == num_steps`.
 
-!!! warning "Local Optima"
-    This function is not guaranteed to find global optima.
+!!! warning "Optimum Not Guaranteed"
+    This function is not guaranteed to find a global or local optima. However,
+    `seesawCV` will always provide a lower bound on the communication value.
 """
 function seesawCV(
     init_states :: Vector{<:AbstractMatrix},

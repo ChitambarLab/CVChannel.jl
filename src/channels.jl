@@ -17,11 +17,13 @@ end
 """
     Choi( JN :: AbstractMatrix, in_dim :: Int, out_dim :: Int ) :: Choi{<:Number}
 
-    Choi( N :: Function, in_dim :: Int, out_dim :: Int ) :: Choi{<:Number}
+    Choi( N :: Function, in_dim :: Int, out_dim :: Int ) :: Choi{ComplexF64}
+
+    Choi( kraus_ops :: Vector{<:AbstractMatrix} ) :: Choi{ComplexF64}
 
 Constructs the Choi matrix representation of a quantum channel.
-If a function `N` is provided as input, the [`choi`](@ref) method is used to
-construct the Choi matrix.
+If either a function `N` or set of kraus operators is provided as input, the
+Choi matrix is constructed with the [`choi`](@ref) method.
 
 The `Choi` type contains the fields:
 * `JN :: Matrix{<:Number}` - The choi matrix.
@@ -46,6 +48,9 @@ struct Choi{T<:Number}
         in_dim :: Int,
         out_dim :: Int
     ) = Choi( choi(N, in_dim, out_dim), in_dim, out_dim)
+    Choi(
+        kraus_ops :: Vector{<:AbstractMatrix},
+    ) = Choi(choi(kraus_ops), size(kraus_ops[1])...)
 end
 
 # print out matrix forms when Choi types are displayed
@@ -81,8 +86,10 @@ end
 
 """
     choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
+    choi(kraus_ops :: Vector{<:AbstractMatrix}) :: Matrix{ComplexF64}
 
-This function returns the Choi state of a channel `𝒩`. It does this using that
+This function returns the Choi state of a channel represented either as a generic
+function `𝒩` or a set of Kraus operators `kraus_ops`. It does this using that
 
 ```math
         J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
@@ -97,17 +104,26 @@ in this module have multiple parameters, please note that if you have a channel 
 `𝒩(ρ, p, q)` that calculates ``\\mathcal{N}_{p,q}(\\rho)``, you can declare a function
 `𝒩_xy(ρ) = 𝒩(ρ,x,y)` for fixed `(x,y)` and then call, `choi(𝒩_xy, Σ)`.
 """
-function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{<:Number}
-    eab_matrix = zeros(Σ,Σ)
-    choi_matrix = zeros(Σ*Λ,Σ*Λ)
-    for i in 1 : Σ
-        for j in 1 : Σ
+function choi(𝒩 :: Function, Σ :: Int, Λ :: Int) :: Matrix{ComplexF64}
+    eab_matrix = zeros(ComplexF64, Σ,Σ)
+    choi_matrix = zeros(ComplexF64, Σ*Λ,Σ*Λ)
+    for i in 1:Σ
+        row_ids = ((i-1) * Λ + 1):((i-1) * Λ + Λ)
+        for j in 1:Σ
+            col_ids = ((j-1) * Λ + 1):((j-1) * Λ + Λ)
+
             eab_matrix[i,j] = 1
-            choi_matrix += kron(eab_matrix,𝒩(eab_matrix))
+            choi_matrix[row_ids,col_ids] += 𝒩(eab_matrix)
             eab_matrix[i,j] = 0
         end
     end
     return choi_matrix
+end
+function choi(kraus_ops :: Vector{<:AbstractMatrix}) :: Matrix{ComplexF64}
+    kraus_channel(ρ) = krausAction(kraus_ops, ρ)
+    dim_out, dim_in = size(kraus_ops[1])
+
+    choi(kraus_channel, dim_in, dim_out)
 end
 
 """
@@ -323,7 +339,7 @@ end
           s :: Union{Int,Float64},
           μ :: Union{Int,Float64}
     ) :: Matrix{<:Number}
-          
+
 This function calculates the action of the generalized Siddhu channel
 ``\\mathcal{N}_{s,\\mu}`` on the qutrit state ``\\rho``.
 The action of the channel is defined by Kraus operators:

@@ -10,7 +10,7 @@ This script verifies that the see-saw method can reproduce the known super-multi
 of the anti-symmetric Werner-Holevo channel.
 We demonstrate the see-saw method's ability to scale to dimensions beyond what can be found
 using the PPT relaxation on the Choi operator approach to the communication value (CV).
-The verification procedure below takes about 10 minutes to complete.
+The verification procedure below takes about 10-20 minutes to complete.
 """
 
 @time @testset "see-saw verification of anti-symmetric werner-holevo channel super-multiplicativiity" for d in 2:6
@@ -18,15 +18,21 @@ The verification procedure below takes about 10 minutes to complete.
     Random.seed!(111) # seeding random numbers for reproducibility
 
     println("\nd = ", d)
-
     anti_sym_choi = wernerState(d, 0) * d
-    anti_sym_kraus_ops = map(i -> reshape(anti_sym_choi[:,i], (d,d)), 1:d^2)*sqrt((d-1)/2)
+    nonzero_ids = filter(i -> anti_sym_choi[:,i] != zeros(d^2), 1:d^2)
+    anti_sym_kraus_ops = map(i -> reshape(anti_sym_choi[:,i], (d,d)), nonzero_ids)*sqrt((d-1)/2)
     par_anti_sym_kraus_ops = collect(flatten(
         map(k1 -> map(k2 -> kron(k1,k2), anti_sym_kraus_ops), anti_sym_kraus_ops)
     ))
 
-    @test sum(k -> k * k', anti_sym_kraus_ops) ≈ I
-    @test sum(k -> k * k', par_anti_sym_kraus_ops) ≈ I
+    @test sum(k -> k' * k, anti_sym_kraus_ops) ≈ I
+    @test choi(anti_sym_kraus_ops) ≈ anti_sym_choi
+    @test sum(k -> k' * k, par_anti_sym_kraus_ops) ≈ I
+
+    # warning: this computation is slow for d=6 and larger
+    @test choi(par_anti_sym_kraus_ops) ≈ parChoi(
+        Choi(anti_sym_choi, d, d), Choi(anti_sym_choi, d, d)
+    ).JN
 
     init_states = haarStates(d, d)
     max_cv_tuple, = seesawCV(init_states, anti_sym_kraus_ops, 3)
