@@ -130,8 +130,8 @@ println("\nVerifying super-multiplivity of communication value of the product ch
         par_init_states = haarStates(32,16)
         cv_tuple32, = seesawCV(par_init_states, par_kraus_ops, 10, verbose=true)
 
-        @test cv_tuple32[1] ≈ 5 atol=2e-2
+        @test cv_tuple32[1] ≈ 5 atol=3e-2
         @test all(ρ -> is_density_matrix(ρ, atol=1e-6), cv_tuple32[2])
-        @test is_povm(cv_tuple32[3], atol=1e-6)
+        @test is_povm(cv_tuple32[3], atol=1e-5)
     end
 end

@@ -61,13 +61,13 @@ end
     end
 
     @testset "bit-flip channel" begin
-        x_cv, opt_x_states = fixedStateCV(x_states, bit_flip_kraus_ops)
+        x_cv, opt_x_states = fixedMeasurementCV(x_states, bit_flip_kraus_ops)
 
         @test x_cv ≈ 2 atol=1e-6
         @test all(ρ -> is_density_matrix(ρ), opt_x_states)
         @test isapprox(opt_x_states, x_states, atol=1e-6)
 
-        z_cv, opt_z_states = fixedStateCV(z_states, bit_flip_kraus_ops)
+        z_cv, opt_z_states = fixedMeasurementCV(z_states, bit_flip_kraus_ops)
 
         @test z_cv ≈ 1.4 atol=1e-6
         @test all(ρ -> is_density_matrix(ρ, atol=1e-6), opt_z_states)
@@ -84,8 +84,9 @@ end
     ))
 
     # verify kraus operators are trace-preserving
-    @test sum(k -> k * k', anti_sym_kraus_ops) ≈ I
-    @test sum(k -> k * k', par_anti_sym_kraus_ops) ≈ I
+    @test sum(k -> k' * k, anti_sym_kraus_ops) ≈ I
+    @test sum(k -> k' * k, par_anti_sym_kraus_ops) ≈ I
+    @test choi(anti_sym_kraus_ops) ≈ anti_sym_choi
 
     @testset "singular qutrit anti-symmetric Werner-Holevo channel" begin
         init_states = [
@@ -136,7 +137,7 @@ end
         @test all(states -> all(ρ -> is_density_matrix(ρ, atol=1e-5), states), opt_ensembles)
 
         @test length(opt_povms) == num_steps
-        @test all(Π -> is_povm(Π, atol=1e-5), opt_povms)
+        @test all(Π -> is_povm(Π, atol=1e-6), opt_povms)
     end
 
     @testset "verbose printout" begin

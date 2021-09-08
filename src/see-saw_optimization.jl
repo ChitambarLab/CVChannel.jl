@@ -22,8 +22,8 @@ The channel ``\\mathcal{N}`` is applied to each state as
 
 # Returns
 
-A `Tuple` whose first element is the evaluated CV and second element is the
-optimal POVM measurement that achieve the maximal CV.
+A `Tuple`, `(cv, opt_povm)` where `cv` is the evaluated communication value and
+`opt_povm` is the optimal POVM measurement.
 """
 function fixedStateCV(
     states :: Vector{<:AbstractMatrix},
@@ -57,25 +57,23 @@ end
     ) :: Tuple{Float64, Vector{Matrix{ComplexF64}}}
 
 For a fixed `povm` measurement and quantum channel described by `kraus_ops`, the
-communication value (CV) is evaluated by maximizing over all state encodings.
-This optimization is expressed in primal form as the semidefinite program:
+communication value (CV) and optimal state encodings are computed.
+The fixed measurement CV is evaluated as
 
 ```math
-\\begin{matrix}
-    & \\max_{\\{\\rho_x\\}_{x}} \\sum_x \\text{Tr}\\left[\\mathcal{N}^\\dagger(\\Pi_x)\\rho_x\\right] \\\\
-    & \\\\
-    & \\text{s.t.} \\quad \\text{Tr}[\\rho_x] = 1 \\;\\; \\text{and} \\;\\; \\rho_x \\geq 0
-\\end{matrix}
+CV(\\mathcal{N}) = \\sum_y ||\\mathcal{N}^{\\dagger}(\\Pi_y)||_{\\infty}
 ```
 
-where ``\\{\\Pi_y \\}_y`` is a POVM and the adjoint channel
-``\\mathcal{N}^\\dagger`` is applied to each POVM element as
-``\\mathcal{N}^\\dagger (\\Pi_y) = \\sum_j k^\\dagger \\Pi_y k``.
+where ``||\\mathcal{N}^{\\dagger}(\\Pi_y)||_{\\infty}`` is the largest eigenvalue
+of the POVM element ``\\Pi_y`` evolved by the adjoint channel,
+``\\mathcal{N}^{\\dagger}(\\Pi_y) = \\sum_j k^{\\dagger}_j \\Pi_y k_j``.
+The states which maximize the CV are simply the eigenvectors corresponding to the
+largest eigenvalue of each respective POVM element.
 
 # Returns
 
-A `Tuple` whose first element is the evaluated CV and second element is the
-optimal set of states that achieve the maximal CV.
+A `Tuple`, `(cv, opt_states)` where `cv` is the communication value and
+`opt_states` is the set of optimal states.
 """
 function fixedMeasurementCV(
     povm :: Vector{<:AbstractMatrix},
@@ -84,19 +82,19 @@ function fixedMeasurementCV(
     d = size(kraus_ops[1],2)
     n = length(povm)
 
-    # add state variables and constraints
-    state_vars = map(i -> HermitianSemidefinite(d), 1:n)
-    constraints = map(ρx -> tr(ρx) == 1, state_vars)
-
     # apply adjoint channel to POVM
     evolved_povm = map(Π ->  sum(k -> k' * Π * k , kraus_ops), povm)
 
-    # maximize CV over state encodings
-    objective = maximize(real(sum(tr.(evolved_povm .* state_vars))), constraints)
-    qsolve!(objective)
 
-    cv = objective.optval
-    opt_states = map(ρx -> ρx.value, state_vars)
+    opt_states = Vector{Matrix{ComplexF64}}(undef, n)
+    cv = 0
+    for i in 1:n
+        povm_el = evolved_povm[i]
+        vals, vecs = eigen(povm_el)
+
+        opt_states[i] = vecs[:,end] * vecs[:,end]'
+        cv += real(vals[end])
+    end
 
     return cv, opt_states
 end
