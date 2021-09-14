@@ -137,7 +137,7 @@ end
         @test all(states -> all(ρ -> is_density_matrix(ρ, atol=1e-5), states), opt_ensembles)
 
         @test length(opt_povms) == num_steps
-        @test all(Π -> is_povm(Π, atol=1e-6), opt_povms)
+        @test all(Π -> is_povm(Π, atol=1e-5), opt_povms)
     end
 
     @testset "verbose printout" begin
