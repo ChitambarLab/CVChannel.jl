@@ -1,5 +1,7 @@
-using Test, LinearAlgebra
 using CVChannel
+using LinearAlgebra
+using QBase
+using Test
 
 @testset "./src/channels.jl" begin
 
@@ -11,6 +13,15 @@ maxMixState = 0.25 * [1 0 0 0 ; 0 1 0 0 ; 0 0 1 0 ; 0 0 0 1]
     identChan(X) = X
     @test isapprox(choi(identChan,2,2),2*maxEntState, atol = 1e-6)
     @test isapprox(choi(depolChan,2,2),1/2*[1 0 1 0 ; 0 1 0 1 ; 1 0 1 0 ; 0 1 0 1], atol = 1e-6)
+
+    @testset "kraus operator inputs" begin
+        id_kraus_ops = [[1 0;0 1]]
+        @test choi(id_kraus_ops) ≈ 2 * maxEntState
+
+        depolarizing_kraus_ops = [σI, σx, σy, σz]/2
+        @test sum(k -> k' * k, depolarizing_kraus_ops) ≈ I
+        @test choi(depolarizing_kraus_ops) ≈ I/2
+    end
 end
 
 @testset "is_choi_matrix" begin
@@ -23,8 +34,8 @@ end
         depolChan(X) = 1/2*[1 0; 0 1]
         depolChoi = Choi(depolChan, 2, 2)
 
-        @test depolChoi isa Choi{Float64}
-        @test depolChoi.JN isa Matrix{Float64}
+        @test depolChoi isa Choi{ComplexF64}
+        @test depolChoi.JN isa Matrix{ComplexF64}
         @test depolChoi.in_dim == 2
         @test depolChoi.out_dim == 2
     end
@@ -36,6 +47,17 @@ end
         @test choi_channel isa Choi{Int}
         @test choi_channel.JN isa Matrix{Int}
         @test choi_channel.JN == JN
+        @test choi_channel.in_dim == 2
+        @test choi_channel.out_dim == 2
+    end
+
+    @testset "kraus operator instantiation" begin
+        kraus_ops = [σI, σx, σy, σz]/2
+        choi_channel = Choi(kraus_ops)
+
+        @test choi_channel isa Choi{ComplexF64}
+        @test choi_channel.JN isa Matrix{ComplexF64}
+        @test choi_channel.JN == I/2
         @test choi_channel.in_dim == 2
         @test choi_channel.out_dim == 2
     end

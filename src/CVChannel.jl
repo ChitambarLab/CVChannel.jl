@@ -24,6 +24,7 @@ module CVChannel
 
 using Convex, SCS, MosekTools
 using LinearAlgebra
+using QBase
 
 import Base: show
 
@@ -31,7 +32,7 @@ export isPPT, swapOperator, permuteSubsystems, shiftOperator
 export discreteWeylOperator
 include("operations.jl")
 
-export wernerState, axisymmetricState
+export wernerState, axisymmetricState, haarStates
 include("states.jl")
 
 export choi, is_choi_matrix, Choi, parChoi
@@ -49,5 +50,8 @@ export pptCV, pptCVPrimal, pptCVDual, pptCVMultiplicativity
 export WHIDLP, generalWHLPConstraints, wernerHolevoCVPPT
 export twoSymCVPrimal, threeSymCVPrimal
 include("optimizations.jl")
+
+export fixedStateCV, fixedMeasurementCV, seesawCV
+include("see-saw_optimization.jl")
 
 end
