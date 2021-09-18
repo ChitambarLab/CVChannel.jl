@@ -242,15 +242,12 @@ value of the Werner-Holevo channel tensored with the identity channel, when the
 problem is relaxed to optimizing over the PPT cone. (See cite for derivation).
 d1,d2 are the input-output dimensions of the Werner-Holevo and identity channel
 respectively. λ is the parameter defining the Werener-Holevo channel.
-!!! warning
-    The `λ` parameter of `WHIDLP` relates to the mixing probability `p` used
-    throughout as `p = (1 - λ)`. This will likely be rectified in a future version.
 """
 function WHIDLP(d1 :: Int64, d2 :: Int64, λ :: Union{Int,Float64} ) :: Float64
     #This is the vector of variables and we use alphabetical order x[1] = w, x[2] = x,...
     v = Variable(4)
     #Given the number of constraints we define the problem and add constraints
-    objective = (v[1]+v[3]*d2+(1-2λ)*(v[2]+v[4]*d2))
+    objective = (v[1]+v[3]*d2+(2λ-1)*(v[2]+v[4]*d2))
     problem = maximize(objective)
     problem.constraints += [
         0 <= v[1]-v[2]+d2*v[3]-d2*v[4],
@@ -436,7 +433,7 @@ end
         dimA :: Int,
         dimB :: Int
     ) :: Tuple{Float64,  Matrix{ComplexF64}}
-    
+
 Given the [`Choi`](@ref) operator representation of a channel, or alternatively,
 the Choi matrix `ρ` and its input output dimensions, this function solves the SDP
 ```math
