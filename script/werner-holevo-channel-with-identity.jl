@@ -20,16 +20,16 @@ println("cone, but over the PPT it is non-multiplicative. This exemplifies a sep
 
 function nonMultWHID()
     println("\nNow we look at the Werner-Holevo channels tensored with the identity")
-    println("\nfor dimension [2,8] for both channels for values of p in [0.4,0.5,...,1]")
+    println("\nfor dimension [2,8] for both channels for values of λ in [0.4,0.5,...,1]")
 
     table_vals = zeros(343,7)
-    λ_vals = 1:-0.1:0.4
+    λ_vals = 0:0.1:0.6
     d1_range = 2:8
     d2_range = 2:8
     λ_ctr = 1
     table_ctr = 1
     for λ in λ_vals
-        println("\nNow evaluating for Werner-Holevo channel with parameter = ", round(1-λ, digits = 2))
+        println("\nNow evaluating for Werner-Holevo channel with parameter = ", round(λ, digits = 2))
         #Note the LP is parameterized backwards with respect to how our SDP is
         for d1 in d1_range
             println("Now evaluating for d = ", d1, "...")
@@ -40,7 +40,7 @@ function nonMultWHID()
             for d2 in d2_range
                 cv = WHIDLP(d1,d2,λ)
                 table_vals[table_ctr,:] = [
-                    1-λ,            #parameter
+                    λ,            #parameter
                     d1,             #WH dimension
                     d2,             #identity channel dimension
                     cv_WH,          #comm val of WH

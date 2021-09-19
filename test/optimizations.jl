@@ -120,9 +120,8 @@ end
     for (d1f,d2f,λ) in conditions
         d1 = Int(d1f)
         d2 = Int(d2f)
-        p = 1 - λ    # parameterization is backwards between LP and WernerState
 
-        wern_choi = d1*wernerState(d1, p)
+        wern_choi = d1*wernerState(d1, λ)
         ident_choi = choi(identChan, d2, d2)
         kron_par_choi = kron(wern_choi,ident_choi)
         par_choi = permuteSubsystems(kron_par_choi, [1,3,2,4], [d1,d1,d2,d2])
