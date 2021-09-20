@@ -12,6 +12,7 @@ SCS = "c946c3f1-0d1f-5ce8-9dea-7daa1f7e2d13"
 
 [compat]
 Convex = "0.14"
+julia = "1"
 MosekTools = "0.9"
 QBase = "0.2"
 SCS = "0.7"
