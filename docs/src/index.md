@@ -52,6 +52,12 @@ running notebooks are found in
 
 !!! warning "Add Citation Info"
 
+## Contributing
+
+If you are interested in contributing to this software, please reach out to the authors.
+Development instructions are found in the
+[README.md](https://github.com/ChitambarLab/cv-channel/blob/main/README.md#development).
+
 ## Licensing
 
 CVChannel.jl is released under the [MIT License](https://github.com/ChitambarLab/cv-channel/blob/main/LICENSE).
