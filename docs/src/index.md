@@ -50,7 +50,8 @@ running notebooks are found in
 
 ## Citing
 
-!!! warning "Add Citation Info"
+For citing our work please see
+[![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841).
 
 ## Contributing
 

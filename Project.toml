@@ -9,3 +9,9 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MosekTools = "1ec41992-ff65-5c91-ac43-2df89e9693a4"
 QBase = "e52e8ede-12bf-4731-8af7-b01f6064cb11"
 SCS = "c946c3f1-0d1f-5ce8-9dea-7daa1f7e2d13"
+
+[compat]
+Convex = "0.14"
+MosekTools = "0.9"
+QBase = "0.2"
+SCS = "0.7"
