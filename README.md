@@ -2,7 +2,7 @@
 
 *A numerics library for evaluating the communication value of a quantum channel.*
 
-[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChitambarLab.github.io/cv-channel/dev)[![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)[![codecov](https://codecov.io/gh/chitambarlab/cv-channel/branch/main/graph/badge.svg?token=a4zdwZxA58)](https://codecov.io/gh/chitambarlab/cv-channel)[![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841)
+[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChitambarLab.github.io/CVChannel.jl/dev)[![Test Status](https://github.com/ChitambarLab/CVChannel.jl/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/CVChannel.jl/actions/workflows/run_tests.yml)[![codecov](https://codecov.io/gh/chitambarlab/CVChannel.jl/branch/main/graph/badge.svg?token=a4zdwZxA58)](https://codecov.io/gh/chitambarlab/CVChannel.jl)[![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841)
 
 The communication value (CV) quantifies the performance of single-copy classical
 communication.
@@ -48,7 +48,7 @@ should be saved at `$HOME/mosek/mosek.lic`.
 
 ## Citing
 
-To cite this software please see [CITATION.bib](https://github.com/ChitambarLab/cv-channel/blob/main/CITATION.bib) or [![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841).
+To cite this software please see [CITATION.bib](https://github.com/ChitambarLab/CVChannel.jl/blob/main/CITATION.bib) or [![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841).
 
 ## Development
 
@@ -87,8 +87,8 @@ browser and you can then edit, create, or run the project notebooks.
 
 #### Python Notebooks
 
-1. Create the `cv-channel-notebook` Conda environment with `$ conda env create -f python_environment.yml`.
-2. Activate the `cv-channel-notebook` environment with `$ conda activate cv-channel-notebook`.
+1. Create the `CVChannel.jl-notebook` Conda environment with `$ conda env create -f python_environment.yml`.
+2. Activate the `CVChannel.jl-notebook` environment with `$ conda activate CVChannel.jl-notebook`.
 3. Launch the Jupyter notebook server with `$ jupyter-notebook`.
 
 At this point, the Jupyter Notebook interface will launch in your default web

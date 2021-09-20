@@ -32,35 +32,35 @@ communication value over a wide range of quantum channels.
 This project uses scripts to verify and investigate the (non-)multiplicativity
 of different quantum channels.
 Scripts are found in the
-[`./script`](https://github.com/ChitambarLab/cv-channel/tree/main/script)
+[`./script`](https://github.com/ChitambarLab/CVChannel.jl/tree/main/script)
 directory and are categorized into two directories as:
-* [`./script/verify`](https://github.com/ChitambarLab/cv-channel/tree/main/script/verify) - assert a numerical fact or result.
-* [`./script/investigate`](https://github.com/ChitambarLab/cv-channel/tree/main/script/investigate) - collects data for analysis.
-Instructions for running scripts can be found in the [`README.md`](https://github.com/ChitambarLab/cv-channel/blob/main/README.md#scripts)
+* [`./script/verify`](https://github.com/ChitambarLab/CVChannel.jl/tree/main/script/verify) - assert a numerical fact or result.
+* [`./script/investigate`](https://github.com/ChitambarLab/CVChannel.jl/tree/main/script/investigate) - collects data for analysis.
+Instructions for running scripts can be found in the [`README.md`](https://github.com/ChitambarLab/CVChannel.jl/blob/main/README.md#scripts)
 
 ### Notebooks
 
 Our analysis uses Jupyter notebooks for figures and demonstrations.
 Jupyter notebooks are found in the
-[`./notebook`](https://github.com/ChitambarLab/cv-channel/tree/main/notebook)
+[`./notebook`](https://github.com/ChitambarLab/CVChannel.jl/tree/main/notebook)
 directory.
 Notebooks are most conveniently viewed on github, however, instructions for
 running notebooks are found in
-[`README.md`](https://github.com/ChitambarLab/cv-channel/blob/main/README.md#notebooks).
+[`README.md`](https://github.com/ChitambarLab/CVChannel.jl/blob/main/README.md#notebooks).
 
 ## Citing
 
-To cite this software please see [CITATION.bib](https://github.com/ChitambarLab/cv-channel/blob/main/CITATION.bib) or [Zenodo](https://zenodo.org/badge/latestdoi/344167841).
+To cite this software please see [CITATION.bib](https://github.com/ChitambarLab/CVChannel.jl/blob/main/CITATION.bib) or [Zenodo](https://zenodo.org/badge/latestdoi/344167841).
 
 ## Contributing
 
 If you are interested in contributing to this software, please reach out to the authors.
 Development instructions are found in the
-[README.md](https://github.com/ChitambarLab/cv-channel/blob/main/README.md#development).
+[README.md](https://github.com/ChitambarLab/CVChannel.jl/blob/main/README.md#development).
 
 ## Licensing
 
-CVChannel.jl is released under the [MIT License](https://github.com/ChitambarLab/cv-channel/blob/main/LICENSE).
+CVChannel.jl is released under the [MIT License](https://github.com/ChitambarLab/CVChannel.jl/blob/main/LICENSE).
 
 ## Acknowledgments
 

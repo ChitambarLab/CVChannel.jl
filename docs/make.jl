@@ -4,11 +4,11 @@ using CVChannel
 makedocs(;
     modules=[CVChannel],
     authors="Brian Doolittle <brian.d.doolittle@gmail.com> and Ian George <igeorge3@illinois.edu>",
-    repo="https://github.com/ChitambarLab/cv-channel/blob/{commit}{path}#L{line}",
+    repo="https://github.com/ChitambarLab/CVChannel.jl/blob/{commit}{path}#L{line}",
     sitename="CVChannel.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://ChitambarLab.github.io/cv-channel",
+        canonical="https://ChitambarLab.github.io/CVChannel.jl",
         assets=String["assets/custom.css"],
     ),
     pages=[
@@ -24,6 +24,6 @@ makedocs(;
 )
 
 deploydocs(
-    repo="github.com/ChitambarLab/cv-channel",
+    repo="github.com/ChitambarLab/CVChannel.jl",
     devbranch = "main",
 )
