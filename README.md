@@ -2,7 +2,7 @@
 
 *A numerics library for evaluating the communication value of a quantum channel.*
 
-[![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)
+[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChitambarLab.github.io/cv-channel/dev)[![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)
 
 The communication value (CV) quantifies the performance of single-copy classical
 communication.
