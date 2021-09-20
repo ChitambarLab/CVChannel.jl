@@ -3,7 +3,8 @@ CurrentModule = CVChannel
 ```
 # CVChannel.jl
 
-*A numerical analysis of the communication values accessible to quantum and classical channels.*
+This Julia package and numerical analysis support the findings in
+[The Communication Value of a Quantum Channel](arxiv_link).
 
 ```@docs
 CVChannel
@@ -12,27 +13,40 @@ CVChannel
 ## Quick Start
 
 1. Install Julia: [https://julialang.org/downloads/](https://julialang.org/downloads/)
-2. Add the SignalingDimension.jl package (run from julia prompt):
+2. Add the CVChannel.jl package from the Julia command prompt:
 
 ```julia
 julia> using Pkg; Pkg.add("CVChannel")
 ```
 
-## Scripts and Numerical Analysis
+To import the CVChannel.jl, run `using CVChannel` in the desired Julia file or
+workspace.
 
-Numerical results can be found  in the `./script` directory.
-Script dependencies can be installed from the `./script/Project.toml`.
+## Numerical Analysis
 
-## Contents
+The numerical analysis in this work investigates (non-)multiplicativity of the
+communication value over a wide range of quantum channels.
 
-```@contents
-Pages = [
-    "channel_states.md",
-    "optimizations.md",
-    "optimization_interface.md",
-]
-Depth = 2
-```
+### Scripts
+
+This project uses scripts to verify and investigate the (non-)multiplicativity
+of different quantum channels.
+Scripts are found in the
+[`./script`](https://github.com/ChitambarLab/cv-channel/tree/main/script)
+directory and are categorized into two directories as:
+* [`./script/verify`](https://github.com/ChitambarLab/cv-channel/tree/main/script/verify) - assert a numerical fact or result.
+* [`./script/investigate`](https://github.com/ChitambarLab/cv-channel/tree/main/script/investigate) - collects data for analysis.
+Instructions for running scripts can be found in the [`README.md`](https://github.com/ChitambarLab/cv-channel/blob/main/README.md#scripts)
+
+### Notebooks
+
+Our analysis uses Jupyter notebooks for figures and demonstrations.
+Jupyter notebooks are found in the
+[`./notebook`](https://github.com/ChitambarLab/cv-channel/tree/main/notebook)
+directory.
+Notebooks are most conveniently viewed on github, however, instructions for
+running notebooks are found in
+[`README.md`](https://github.com/ChitambarLab/cv-channel/blob/main/README.md#notebooks).
 
 ## Citing
 

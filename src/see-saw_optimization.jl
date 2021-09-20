@@ -10,7 +10,7 @@ This optimization is expressed in primal form as the semidefinite program:
 
 ```math
 \\begin{matrix}
-    & \\max_{\\{\\Pi_x\\}_{x}} \\sum_x \\text{Tr}\\left[\\Pi_x\\mathcal{N}(\\rho_x)\\right] \\\\
+    \\text{fixedStateCV}(\\mathcal{N})&= \\max_{\\{\\Pi_x\\}_{x}} \\sum_x \\text{Tr}\\left[\\Pi_x\\mathcal{N}(\\rho_x)\\right] \\\\
     & \\\\
     & \\text{s.t.} \\quad \\sum_x\\Pi_x = \\mathbb{I} \\;\\; \\text{and} \\;\\; \\Pi_x \\geq 0
 \\end{matrix}
@@ -61,7 +61,7 @@ communication value (CV) and optimal state encodings are computed.
 The fixed measurement CV is evaluated as
 
 ```math
-CV(\\mathcal{N}) = \\sum_y ||\\mathcal{N}^{\\dagger}(\\Pi_y)||_{\\infty}
+\\text{fixedMeasurementCV}(\\mathcal{N}) = \\sum_y ||\\mathcal{N}^{\\dagger}(\\Pi_y)||_{\\infty}
 ```
 
 where ``||\\mathcal{N}^{\\dagger}(\\Pi_y)||_{\\infty}`` is the largest eigenvalue

@@ -1,12 +1,35 @@
 """
     eaCV( channel :: Choi, method :: Symbol = :primal )
 
-Numerically solves for the entanglement-assisted communication value
-for the given [`Choi`](@ref) operator representation of a quantum channel.
-The primal or dual formulation of the problem can be specified with the `method`
-parameter set as `:primal` or `:dual` respectively.
-See [`eaCVPrimal`](@ref) and [`eaCVDual`](@ref) for details regarding the
-respective optimization problems.
+Numerically evaluates the entanglement-assisted communication value for the
+quantum channel ``\\mathcal{N}`` given in the [`Choi`](@ref) operator representation.
+This quantity is defined as:
+
+```math
+\\begin{aligned}
+    \\text{eaCV}(\\mathcal{N}) & = \\max_{\\Omega^{AB}} \\text{Tr}[\\Omega^{AB}J_{\\mathcal{N}}] \\\\
+    \\hspace{1cm}
+    & \\text{s.t.} \\quad  \\text{Tr}_A[\\Omega^{AB}] = \\mathbb{I}^B; \\\\
+    \\hspace{1cm}
+    & \\qquad \\Omega^{AB} \\in \\text{POS}(A\\;:\\;B).
+\\end{aligned}
+```
+
+Note that for a channel ``\\mathcal{N}`` with output Hilbert space dimension ``d_B``,
+the entanglement-assisted CV is bound as
+
+```math
+\\text{eaCV}(\\mathcal{N}) \\leq d_B \\cdot \\text{cv}(\\mathcal{N}).
+```
+
+The `method` parameter accepts the values:
+* `:primal` - Solves the primal problem (see [`eaCVPrimal`](@ref)).
+* `:dual` - Solves the dual problem (see [`eaCVDual`](@ref)).
+
+# Returns
+
+A Tuple containing `(max_cv, optimizer)` where `max_cv` is the communication value
+and `optimizer` is the matrix which achieves the optimum for the particular problem.
 """
 eaCV(channel :: Choi, method::Symbol=:primal) = eaCV(channel, Val(method))
 eaCV(channel :: Choi, ::Val{:primal}) = eaCVPrimal(channel.JN, channel.in_dim, channel.out_dim)
@@ -72,13 +95,41 @@ end
 """
     pptCV( channel :: Choi, method :: Symbol = :primal )
 
-Numerically solves for the positive partial transpose (PPT) relaxation of the
+Numerically evaluates the positive partial transpose (PPT) relaxation of the
 communication value for the given [`Choi`](@ref) operator representation of a
 quantum channel.
-The primal or dual formulation of the problem can be specified with the `method`
-parameter set as `:primal` or `:dual` respectively.
-See [`pptCVPrimal`](@ref) and [`pptCVDual`](@ref) for details regarding the
-respective optimization problems.
+This optimization problem is expressed as,
+
+```math
+\\begin{aligned}
+    \\text{pptCV}(\\mathcal{N}) &=  \\max_{\\Omega^{AB}} \\text{Tr}[\\Omega^{AB}J_{\\mathcal{N}}] \\\\
+    \\hspace{1cm}
+    & \\text{s.t.} \\quad \\text{Tr}_A[\\Omega^{AB}] = \\mathbb{I}^B; \\\\
+    \\hspace{1cm}
+    & \\qquad \\Omega^{AB} \\in \\text{PPT}(A\\;:\\;B),
+\\end{aligned}
+```
+
+where ``\\text{PPT}(A \\;:\\; B)`` indicates the cone of matrices with a positve
+partial transpose.
+The ``\\text{PPT}(A\\;:\\;B)`` cone contains the ``\\text{SEP}(A\\;:\\;B)`` cone
+therfore, the ``\\text{pptCV}`` is an upper bound for the ``\\text{cv}``
+
+```math
+\\text{cv}(\\mathcal{N}) \\leq \\text{pptCV}(\\mathcal{N}),
+```
+
+where equality is found for the channels whose separable cone is the same as their
+PPT cone.
+
+The `method` parameter accepts the values:
+* `:primal` - Solves the primal problem (see [`pptCVPrimal`](@ref)).
+* `:dual` - Solves the dual problem (see [`pptCVDual`](@ref)).
+
+# Returns
+
+A Tuple containing `(max_cv, optimizers...)` where `max_cv` is the communication
+value and optimizers is the optimal value for each of the optimization paraameters.
 """
 pptCV(channel :: Choi, method::Symbol=:primal) = pptCV(channel, Val(method))
 pptCV(channel :: Choi, ::Val{:primal}) = pptCVPrimal(channel.JN, channel.in_dim, channel.out_dim)
@@ -148,10 +199,16 @@ end
 
 This function takes the [`Choi`](@ref) operators of two channels
 `channel1` (``\\mathcal{N}_{A_{1} \\to B_{1}}``) and `channel2`
-(``\\mathcal{M}_{A_{2} \\to B_{2}}``) and returns as an array
-``cv_{ppt}(\\mathcal{N})``, ``cv_{ppt}(\\mathcal{M})``,
- ``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M})``, and
-``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M}) - cv_{ppt}(\\mathcal{N})cv_{ppt}(\\mathcal{M})``.
+(``\\mathcal{M}_{A_{2} \\to B_{2}}``) and returns as an array:
+
+```
+[
+    pptCV( channel1 ),
+    pptCV( channel2 ),
+    pptCV( channel1 ⊗ channel2 ),
+    pprt( channel1 ⊗ channel2 ) - pptCV( channel1 ) * pptCV( channel2 )
+]
+```
 
 By default, it uses [`pptCVPrimal`](@ref) for the single channel uses, as this
 provides a lower bound, and [`pptCVDual`](@ref) for the parallel case, as
@@ -189,8 +246,8 @@ end
 
 This function takes the Choi operators of two channels
 ``\\mathcal{N}_{A_{1} \\to B_{1}}`` and ``\\mathcal{M}_{A_{2} \\to B_{2}}``
-along with their input and output dimensions and returns ``cv_{ppt}(\\mathcal{N})``,
-``cv_{ppt}(\\mathcal{M})``, and ``cv_{ppt}(\\mathcal{N}\\otimes \\mathcal{M})``.
+along with their input and output dimensions and returns ``\\text{pptCV}(\\mathcal{N})``,
+``\\text{pptCV}(\\mathcal{M})``, and ``\\text{pptCV}(\\mathcal{N}\\otimes \\mathcal{M})``.
 By default, it uses [`pptCVPrimal`](@ref) for the single channel values, as this
 provides a lower bound, and [`pptCVDual`](@ref) for the parallel case, as
 this is always an upper bound. If the dimension is such that the dual can't be

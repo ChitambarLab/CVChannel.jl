@@ -2,8 +2,8 @@ using CVChannel
 using Test
 
 """
-This script investigates the tensor product between the Siddhu channel
-and the generalized amplitude damping channel (GADC).
+This script verifies the multiplicativity of the tensor product between
+the Siddhu channel and the generalized amplitude damping channel (GADC).
 The GADC is defined in https://arxiv.org/abs/2107.13486
 """
 
