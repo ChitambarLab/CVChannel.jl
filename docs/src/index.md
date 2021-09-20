@@ -64,8 +64,8 @@ CVChannel.jl is released under the [MIT License](https://github.com/ChitambarLab
 
 ## Acknowledgments
 
-Development of CVChannel.jl was made possible by the advisory of Eric  Chitabar
-and support from the electrical and computer engineering and physics departments
+Development of CVChannel.jl was made possible by the advisory of Eric Chitambar
+and support from the Electrical and Computer Engineering and Physics departments
 at the University of Illinois at Urbana-Champaign.
 
 !!! warning "Add funding"

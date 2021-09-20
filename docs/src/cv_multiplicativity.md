@@ -15,7 +15,7 @@ Formally, we define the communication value of two quantum channels ``\mathcal{N
 and ``\mathcal{M}`` to be super-multiplicative when
 
 ```math
-\text{cv}(\mathcal{N})\text{cv}(\mathcal{M}) \leq \text{cv}(\mathcal{N}\otimes\mathcal{M}).
+\text{cv}(\mathcal{N})\text{cv}(\mathcal{M}) < \text{cv}(\mathcal{N}\otimes\mathcal{M}).
 ```
 
 For classical channels, the input and output Hilbert spaces are separable, hence,
@@ -29,7 +29,7 @@ super-multiplicative we take the following approach:
 
 1. Use the dual of [`pptCV`](@ref) to evaluate an upper bound for ``\text{cv}(\mathcal{N})``.
 2. Use the [`seesawCV`](@ref) to evaluate a lower bound for ``\text{cv}(\mathcal{N}\otimes\mathcal{N})``.
-3. Super-multiplicativity is confirmed if ``\text{pptCV}(\mathcal{N}, \text{:dual})^2 \leq \text{seesawCV}(\mathcal{N}\otimes\mathcal{N})``.
+3. Super-multiplicativity is confirmed if ``\text{pptCV}(\mathcal{N}, \text{:dual})^2 < \text{seesawCV}(\mathcal{N}\otimes\mathcal{N})``.
 
 Since the `:dual` of [`pptCV`](@ref) and [`seesawCV`](@ref) loosely bound the
 communication value.

@@ -49,7 +49,7 @@ This function solves the SDP
 and returns the optimal value and the optimizer, X.
 This is the primal problem of the SDP corresponding to the entanglement-assisted commmunication value.
 It is related to the channel min-entropy ``H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}`` by
-``cv_{\\text{ea}}(\\mathcal{N}) = 2^{-H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}}``.
+``\\text{eaCV}(\\mathcal{N}) = 2^{-H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}}``.
 (See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233) for further details about
 the min-entropy.)
 Note: we label the primal as the maximization problem.
@@ -77,7 +77,7 @@ This function solves the SDP
 and returns the optimal value and the optimizer, Y. This is the dual problem for the SDP
 corresponding to the entanglement-assisted commmunication value.
 It is related to the channel min-entropy ``H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}`` by
-``cv_{\\text{ea}}(\\mathcal{N}) = 2^{-H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}}``.
+``\\text{eaCV}(\\mathcal{N}) = 2^{-H_{\\min}(A|B)_{\\mathcal{J}(\\mathcal{N})}}``.
 (See [Section 6.1 of this reference](https://arxiv.org/abs/1504.00233) for further details about
 the min-entropy.)
 Note: we label the primal as the maximization problem.

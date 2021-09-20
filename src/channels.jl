@@ -67,8 +67,8 @@ end
 Returns the tensor product of two [`Choi`](@ref) matrices
 
 ```math
-    J^{A:B}_{\\mathcal{N}}\\otimes J^{A':B'}_{\\mathcal{M}} \\to
-    J^{AA':BB'}_{\\mathcal{N}\\otimes\\mathcal{M}}
+    J^{AB}_{\\mathcal{N}}\\otimes J^{A'B'}_{\\mathcal{M}} \\to
+    J^{AA'BB'}_{\\mathcal{N}\\otimes\\mathcal{M}}
 ```
 
 where ``J^{A:B}_{\\mathcal{N}}`` and ``J^{A':B'}_{\\mathcal{M}}`` are the Choi
@@ -92,7 +92,7 @@ This function returns the Choi state of a channel represented either as a generi
 function `𝒩` or a set of Kraus operators `kraus_ops`. It does this using that
 
 ```math
-        J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
+        J_{\\mathcal{N}} = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
 ```
 
 where ``\\Sigma`` is the finite alphabet indexing the input space and ``E_{a,b}``

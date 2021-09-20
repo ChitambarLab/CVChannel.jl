@@ -83,7 +83,7 @@ to compute.
 However, upper and lower bounds can be computed with relative efficiency:
 * The upper bound is computed using the [`pptCV`](@ref) method to evaluate the
   `:dual` of the [PPT Relaxation of the CV](@ref).
-* The Lower bound is computed using the [`seesawCV`](@ref) method to evaluate the
+* The lower bound is computed using the [`seesawCV`](@ref) method to evaluate the
   [See-Saw Optimization of the CV](@ref).
 
 Using these bounds, we certify the communication value as:
