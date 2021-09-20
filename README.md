@@ -7,7 +7,7 @@
 The communication value (CV) quantifies the performance of single-copy classical
 communication.
 
-## CVChannel.jl Features:
+## Features:
 * Convex optimization methods bounding the communication value of a quantum channel.
 * Tools for certifying the non-multiplicativity of the communication value for
   quantum channels.
