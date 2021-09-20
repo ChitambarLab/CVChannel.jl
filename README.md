@@ -1,24 +1,46 @@
-# CV-Channel
+# CVChannel.jl
 
-*A numerical analysis of the communication values accessible to quantum and classical channels.*
+*A numerics library for evaluating the communication value of a quantum channel.*
 
 [![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)
 
+The communication value (CV) quantifies the performance of single-copy classical
+communication.
+
+## CVChannel.jl Features:
+* Convex optimization methods bounding the communication value of a quantum channel.
+* Tools for certifying the non-multiplicativity of the communication value for
+  quantum channels.
+
+This Julia package and numerical analysis support the findings in
+[The Communication Value of a Quantum Channel](arxiv_link).
+
+## Quick Start
+
+1. Install Julia: [https://julialang.org/downloads/](https://julialang.org/downloads/)
+2. Add the CVChannel.jl package from the Julia command prompt:
+
+```julia
+julia> using Pkg; Pkg.add("CVChannel")
+```
+
+To import the CVChannel.jl, run `using CVChannel` in the desired Julia file or
+workspace.
+
 ## SDP Solvers
 
-This project relies upon semi-definite programming to optimize the communication
-value of quantum channels.
-Optimizations are performed via [Convex.jl](https://jump.dev/Convex.jl/stable/).
+This project optimizes the communication value of quantum channels using
+semidefinite programming via [Convex.jl](https://jump.dev/Convex.jl/stable/).
 
 ### SCS
 
-By default, CVChannel.jl will use [SCS](https://github.com/cvxgrp/scs)
-to solve semi-definite programs.
-SCS is an open-source numerical solver which can easily be used through Julia.
+By default, CVChannel.jl uses [SCS](https://github.com/cvxgrp/scs)
+to solve semidefinite programs.
+SCS is an open-source numerical solver easily accessible through Julia.
 
 ### Mosek
 
-If desired, [MOSEK](https://www.mosek.com/) can be used instead of SCS.
+If desired, [MOSEK](https://www.mosek.com/) can be used instead.
 However, a MOSEK license is required and can be downloaded at
 [https://www.mosek.com/products/academic-licenses/](https://www.mosek.com/products/academic-licenses/).
 The license is free for personal and institutional academic use and once downloaded,

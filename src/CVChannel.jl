@@ -1,24 +1,23 @@
 """
-Both quantum and classical channels can be used for classical communication, however,
-there are subtle differences in their respective performance.
-This software package seeks to compare classical and quantum channels using the
-communication value as a device-independent quantifier of channel performance.
-The *communication value* ``(\\text{cv})`` of a classical channel ``\\mathbf{P} : [n] \\to [n']``
-with transition probabilities ``P(y|x)`` is defined as:
-```math
-\\text{cv}(\\mathbf{P}) = \\sum_{y\\in[n]'} \\max_{x\\in[n]} P(y|x).
-```
-For a quantum channel ``\\mathcal{N} \\in \\text{CPTP}(A\\to B)``, the ``[n]\\to [n']``
-communication value is defined as:
-```math
-\\text{cv}^{n \\to n'}(\\mathcal{N})=
-    \\max_{\\{\\Pi_y\\}_{y=1}^{n'}, \\{\\rho_x \\}_{x=1}^n}
-    \\{\\text{cv}(\\mathbf{P}) \\; | \\; P(y|x) = \\text{Tr}[\\Pi_y\\mathcal{N}(\\rho_x)] \\}.
-```
-*Features:*
-* Tools for evaluating the communication value of quantum and classical channels.
-* A numerical analysis of the super-multiplicativity of the communction value of
-    quantum channels.
+*A numerics library for evaluating the communication value of a quantum channel.*
+
+The communication value (CV) quantifies the performance of single-copy classical
+communication.
+
+# Features:
+* Convex optimization methods for certifying the communication value of a quantum channel.
+* Tools for certifying the non-multiplicativity of the communication value for
+  quantum channels.
+
+# Contents:
+
+* A formal introduction to the communication value is found in the
+  [CV Background](@ref) section.
+* Documentation for our optimization methods is found in the
+  [CV Optimizations](@ref) section.
+* Documentation for our multiplicativity analysis tools are found in the
+  [CV Multiplicativity](@ref) section.
+* Supporting methods are found in the Utilities section.
 """
 module CVChannel
 

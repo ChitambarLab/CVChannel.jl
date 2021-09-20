@@ -67,8 +67,8 @@ end
 Returns the tensor product of two [`Choi`](@ref) matrices
 
 ```math
-    J^{A:B}_{\\mathcal{N}}\\otimes J^{A':B'}_{\\mathcal{M}} \\to
-    J^{AA':BB'}_{\\mathcal{N}\\otimes\\mathcal{M}}
+    J^{AB}_{\\mathcal{N}}\\otimes J^{A'B'}_{\\mathcal{M}} \\to
+    J^{AA'BB'}_{\\mathcal{N}\\otimes\\mathcal{M}}
 ```
 
 where ``J^{A:B}_{\\mathcal{N}}`` and ``J^{A':B'}_{\\mathcal{M}}`` are the Choi
@@ -92,7 +92,7 @@ This function returns the Choi state of a channel represented either as a generi
 function `𝒩` or a set of Kraus operators `kraus_ops`. It does this using that
 
 ```math
-        J(\\mathcal{N}) = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
+        J_{\\mathcal{N}} = \\sum_{a,b \\in \\Sigma} E_{a,b} \\otimes \\mathcal{N}(E_{a,b}) ,
 ```
 
 where ``\\Sigma`` is the finite alphabet indexing the input space and ``E_{a,b}``
@@ -271,20 +271,20 @@ function dephrasureChannel(ρ :: Matrix{<:Number},p :: Union{Int,Float64}, q :: 
 end
 
 """
-    wernerHolevoChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}) :: Matrix{ComplexF64}
+    wernerHolevoChannel(ρ :: Matrix{<:Number}, λ :: Union{Int,Float64}) :: Matrix{ComplexF64}
 
 This function calculates the action of the [generalized Werner-Holevo channels](https://arxiv.org/abs/1406.7142)
 
 ```math
-    \\mathcal{W}^{d,p}(ρ) = p \\mathcal{W}^{d,0}(ρ) + (1-p) \\mathcal{W}^{d,1}(ρ)
+    \\mathcal{W}_{d,\\lambda}(\\rho) = \\lambda \\Phi_{0}(ρ) + (1-\\lambda) \\Phi_{1}(ρ)
 ```
 
-where ``p \\in [0,1]``. This means these are convex combinations of the original [Werner-Holevo channels](https://arxiv.org/abs/quant-ph/0203003)
+where ``\\lambda \\in [0,1]``. This means these are convex combinations of the original [Werner-Holevo channels](https://arxiv.org/abs/quant-ph/0203003)
 which are defined as
 
 ```math
-    \\mathcal{W}^{d,0}(ρ) = \\frac{1}{d+1}((\\text{Tr}ρ)I_{d} +ρ^{T}) \\hspace{1cm}
-    \\mathcal{W}^{d,1}(ρ) = \\frac{1}{d-1}((\\text{Tr}ρ)I_{d} -ρ^{T}) .
+    \\Phi_{0}(ρ) = \\frac{1}{d+1}(\\text{Tr}[\\rho]I_{d} +ρ^{T}) \\hspace{1cm}
+    \\Phi_{1}(ρ) = \\frac{1}{d-1}(\\text{Tr}[\\rho]I_{d} -ρ^{T}) .
 ```
 
 Note the Choi matrices of these generalized channels are the (unnormalized) Werner states.
@@ -293,16 +293,16 @@ A `DomainError` is thrown if:
 * Matrix `ρ` is not square
 * `p` is not in  range `0 ≤ p ≤ 1`
 """
-function wernerHolevoChannel(ρ :: Matrix{<:Number}, p :: Union{Int,Float64}) :: Matrix{ComplexF64}
+function wernerHolevoChannel(ρ :: Matrix{<:Number}, λ :: Union{Int,Float64}) :: Matrix{ComplexF64}
     if !isequal(size(ρ)...)
         throw(DomainError(ρ, "the input ρ is not a square matrix"))
-    elseif !(0 ≤ p ≤ 1)
-        throw(DomainError(p, "wernerHolevoChannel requires p ∈ [0,1]."))
+    elseif !(0 ≤ λ ≤ 1)
+        throw(DomainError(λ, "wernerHolevoChannel requires λ ∈ [0,1]."))
     end
     dim = size(ρ,1)
-    term_1 = 1/(dim+1) * (tr(ρ)*I + transpose(ρ))
-    term_2 = 1/(dim-1) * (tr(ρ)*I - transpose(ρ))
-    return p *term_1 + (1-p)*term_2
+    term_1 = 1 / (dim+1) * (tr(ρ) * I + transpose(ρ))
+    term_2 = 1 / (dim-1) * (tr(ρ) * I - transpose(ρ))
+    return λ * term_1 + (1-λ) * term_2
 end
 #The aligned below makes the documenter space the bmatrix properly
 """

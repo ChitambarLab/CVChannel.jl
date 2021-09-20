@@ -9,13 +9,17 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://ChitambarLab.github.io/cv-channel",
-        # assets=String["assets/custom.css"],
+        assets=String["assets/custom.css"],
     ),
     pages=[
         "Home" => "index.md",
-        "Channels, States, and Operations" => "channel_states.md",
-        "Optimizations" => "optimizations.md",
-        "Optimizer Interface" => "optimizer_interface.md",
+        "CV Background" => "background.md",
+        "CV Optimizations" => "communication_value.md",
+        "CV Multiplicativity" => "cv_multiplicativity.md",
+        "Utilities" => [
+            "Channels, States, and Operations" => "channel_states.md",
+            "Optimization Backends" => "optimizer_interface.md",
+        ],
     ],
 )
 
