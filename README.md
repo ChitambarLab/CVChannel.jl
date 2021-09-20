@@ -2,7 +2,7 @@
 
 *A numerics library for evaluating the communication value of a quantum channel.*
 
-[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChitambarLab.github.io/cv-channel/dev)[![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)[![Coverage](https://codecov.io/gh/ChitambarLab/cv-channel/branch/master/graph/badge.svg)](https://codecov.io/gh/chitambarlab/cv-channel)[![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841)
+[![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://ChitambarLab.github.io/cv-channel/dev)[![Test Status](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml/badge.svg?branch=main)](https://github.com/ChitambarLab/cv-channel/actions/workflows/run_tests.yml)[![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841)
 
 The communication value (CV) quantifies the performance of single-copy classical
 communication.
@@ -48,8 +48,7 @@ should be saved at `$HOME/mosek/mosek.lic`.
 
 ## Citing
 
-To cite this software please see
-[![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841).
+To cite this software please see [CITATION.bib](https://github.com/ChitambarLab/cv-channel/blob/main/CITATION.bib) or [![DOI](https://zenodo.org/badge/344167841.svg)](https://zenodo.org/badge/latestdoi/344167841).
 
 ## Development
 
