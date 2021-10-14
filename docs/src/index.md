@@ -4,7 +4,7 @@ CurrentModule = CVChannel
 # CVChannel.jl
 
 This Julia package and numerical analysis support the findings in
-[The Communication Value of a Quantum Channel](arxiv_link).
+[The Communication Value of a Quantum Channel](https://arxiv.org/abs/2109.11144).
 
 ```@docs
 CVChannel
