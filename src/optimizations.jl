@@ -339,8 +339,6 @@ the constraints on the optimizer. ``A`` is the poistivity constraint, ``B`` is
 the PPT constraint, ``g`` is the trace constraint, and ``a`` defines the objective
 function.
 
-See (need to cite something) for derivation.
-
 !!! warning
     It takes ``O(n2^{2n})`` steps to generate. If one wants a large dimension,
     we suggest you save the resulting constraints.
