@@ -68,4 +68,6 @@ Development of CVChannel.jl was made possible by the advisory of Eric Chitambar
 and support from the Electrical and Computer Engineering and Physics departments
 at the University of Illinois at Urbana-Champaign.
 
-!!! warning "Add funding"
+## Funding
+
+This project is funded by NSF Award # 2016136.
