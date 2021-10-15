@@ -8,8 +8,7 @@ In this script we investigate a family of co-positive maps.
 Specifically, we investigate the set of states presented in
 Eqn. (82) of https://arxiv.org/abs/1004.1655
 
-Note we know co-positive maps have multiplicativity (cite Theorem/proposition
-when we have a write-up; see my note for proof), so the only way to check this
+Note we know co-positive maps have multiplicativity, so the only way to check this
 at all is implementing the DPS hierarchy. Here we look at the 2-symmetric
 extension of the communication value.
 """
