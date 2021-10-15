@@ -11,7 +11,6 @@ script. Derivations may be found in the conic approach note.
 """
 
 println("First we declare the functions.")
-#These are for the primal problem (Eqn. 9 of note)
 function cvkPrimal(k :: Integer, kraus_ops :: Vector)
     dimB, dimA = size(kraus_ops[1])
     dimE = (length(kraus_ops) == 1) ? 2 : length(kraus_ops)
@@ -63,7 +62,6 @@ function _prim_map(k :: Integer, H :: Union{Variable,Matrix{<:Number}}, kraus_op
     return out_p / k
 end
 
-#These are for the dual problem (Eqn 13 of note)
 function cvkDual(k :: Integer, kraus_ops :: Vector)
     length(kraus_ops) == 1 ? dimE = 2 : dimE = length(kraus_ops)
     idXE = Matrix(1I,k*dimE,k*dimE)
