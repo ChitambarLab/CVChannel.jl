@@ -1,7 +1,7 @@
 name = "CVChannel"
 uuid = "2ef26b41-8fb7-400f-a14f-66229e7861ee"
 authors = ["Brian Doolittle <brian.d.doolittle@gmail.com> and Ian George <igeorge3@illinois.edu>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Convex = "f65535da-76fb-5f13-bab9-19810c17039a"
